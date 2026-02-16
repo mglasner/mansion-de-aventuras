@@ -1,9 +1,10 @@
 // Código de La Casa del Terror
 import { PERSONAJES } from "./personajes.js";
 import { ENEMIGOS } from "./enemigos.js";
-import { iniciarHabitacion1 } from "./habitaciones/habitacion1.js";
+import { iniciarHabitacion1, limpiarHabitacion1 } from "./habitaciones/habitacion1.js";
 import { crearBarraSuperior } from "./componentes/barraSuperior.js";
 import { crearModalPuerta } from "./componentes/modalPuerta.js";
+import { crearModalDerrota } from "./componentes/modalDerrota.js";
 
 console.log("¡La Casa del Terror está cargando!");
 
@@ -62,6 +63,7 @@ document.querySelectorAll(".villano").forEach(function (tarjeta) {
 let personajeElegido = null;   // nombre del personaje (string)
 let jugadorActual = null;      // instancia de Personaje
 let indiceFoco = -1;           // índice de tarjeta con foco de teclado
+let habitacionActual = null;   // nombre de la habitación activa (para limpieza al morir)
 
 const personajes = document.querySelectorAll(".personaje");
 const tarjetasPersonajes = Array.from(personajes);
@@ -139,6 +141,7 @@ let limiteInferior = 0;
 const contenedorJuego = document.getElementById("juego");
 const barra = crearBarraSuperior(contenedorJuego);
 const modal = crearModalPuerta(contenedorJuego);
+const modalDerrota = crearModalDerrota();
 
 // Escuchar cambios de inventario desde las habitaciones
 document.addEventListener("inventario-cambio", function () {
@@ -152,6 +155,16 @@ document.addEventListener("vida-cambio", function () {
     if (jugadorActual) {
         barra.actualizarVida(jugadorActual);
     }
+});
+
+// Escuchar muerte del jugador
+document.addEventListener("jugador-muerto", function () {
+    if (!jugadorActual) return;
+
+    // Buscar la pantalla de habitación activa como contenedor del modal
+    var pantallaHabitacion = document.getElementById("pantalla-habitacion1");
+    var contenedorModal = pantallaHabitacion || contenedorJuego;
+    modalDerrota.mostrar(jugadorActual.nombre, contenedorModal);
 });
 
 // --- Iniciar el juego ---
@@ -193,13 +206,19 @@ function iniciarJuego() {
 
 // --- Volver a selección ---
 
-document.getElementById("btn-volver").addEventListener("click", function () {
+function volverASeleccion() {
     document.getElementById("pantalla-juego").classList.add("oculto");
     document.getElementById("seleccion-personaje").classList.remove("oculto");
     barra.ocultar();
 
     // Detener game loop
     loopActivo = false;
+
+    // Resetear vida del personaje para la próxima partida
+    if (jugadorActual) {
+        jugadorActual.vidaActual = jugadorActual.vidaMax;
+        jugadorActual.inventario = [];
+    }
 
     // Limpiar selección
     personajeElegido = null;
@@ -215,12 +234,26 @@ document.getElementById("btn-volver").addEventListener("click", function () {
     Object.keys(teclasPresionadas).forEach(function (k) {
         delete teclasPresionadas[k];
     });
+}
+
+document.getElementById("btn-volver").addEventListener("click", volverASeleccion);
+
+// Callback del modal de derrota: limpiar habitación y volver a selección
+modalDerrota.onAceptar(function () {
+    // Limpiar la habitación activa
+    if (habitacionActual === "1") limpiarHabitacion1();
+    habitacionActual = null;
+    volverASeleccion();
 });
 
 // --- Controles del teclado ---
 
 document.addEventListener("keydown", function (e) {
-    // Si el modal está abierto, delegar al componente
+    // Si algún modal está abierto, delegar al componente
+    if (modalDerrota.estaAbierto()) {
+        modalDerrota.manejarTecla(e);
+        return;
+    }
     if (modal.estaAbierto()) {
         modal.manejarTecla(e);
         return;
@@ -369,8 +402,10 @@ modal.onEntrar(function (numeroPuerta) {
     esperandoSalirDePuerta = true;
 
     if (numeroPuerta === "1") {
+        habitacionActual = "1";
         document.getElementById("pantalla-juego").classList.add("oculto");
         iniciarHabitacion1(jugadorActual, function () {
+            habitacionActual = null;
             document.getElementById("pantalla-juego").classList.remove("oculto");
             loopActivo = true;
             requestAnimationFrame(gameLoop);

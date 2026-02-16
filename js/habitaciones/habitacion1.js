@@ -238,22 +238,27 @@ function detectarTrampas() {
         if (celda.fila === t.fila && celda.col === t.col && esTrampaActiva(t)) {
             if (ahora - t.ultimoGolpe >= COOLDOWN_TRAMPA) {
                 var dano = 5 + Math.floor(Math.random() * 6); // 5-10
-                jugador.recibirDano(dano);
                 t.ultimoGolpe = ahora;
-
-                // Notificar a la barra superior
-                document.dispatchEvent(new Event("vida-cambio"));
-
-                // Número de daño flotante
-                mostrarDano(dano);
-
-                // Flash rojo en el jugador
-                elementoJugador.classList.add("jugador-golpeado");
-                setTimeout(function () {
-                    elementoJugador.classList.remove("jugador-golpeado");
-                }, 300);
+                aplicarDanoJugador(dano);
             }
         }
+    }
+}
+
+// Aplica daño al jugador con feedback visual y verifica muerte
+function aplicarDanoJugador(dano) {
+    jugador.recibirDano(dano);
+    document.dispatchEvent(new Event("vida-cambio"));
+    mostrarDano(dano);
+
+    elementoJugador.classList.add("jugador-golpeado");
+    setTimeout(function () {
+        elementoJugador.classList.remove("jugador-golpeado");
+    }, 300);
+
+    if (!jugador.estaVivo()) {
+        activo = false;
+        document.dispatchEvent(new Event("jugador-muerto"));
     }
 }
 
@@ -533,17 +538,8 @@ function detectarColisionTrasgo() {
     if (solapan) {
         var ataques = trasgo.datos.ataques;
         var ataque = ataques[Math.floor(Math.random() * ataques.length)];
-
-        jugador.recibirDano(ataque.dano);
         trasgo.ultimoGolpe = ahora;
-
-        document.dispatchEvent(new Event("vida-cambio"));
-        mostrarDano(ataque.dano);
-
-        elementoJugador.classList.add("jugador-golpeado");
-        setTimeout(function () {
-            elementoJugador.classList.remove("jugador-golpeado");
-        }, 300);
+        aplicarDanoJugador(ataque.dano);
     }
 }
 
@@ -930,7 +926,7 @@ function onKeyUp(e) {
 
 // --- Limpieza ---
 
-function limpiarHabitacion1() {
+export function limpiarHabitacion1() {
     activo = false;
     trampas = [];
     trampasLentas = [];

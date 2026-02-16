@@ -19,7 +19,8 @@ la-casa-del-terror/
 │   ├── juego.js              # Lógica principal, coordina componentes y game loop
 │   ├── componentes/          # Componentes UI (crean su propio HTML desde JS)
 │   │   ├── barraSuperior.js  # Barra de estado: avatar, vida, inventario
-│   │   └── modalPuerta.js    # Modal de confirmación para entrar a habitaciones
+│   │   ├── modalPuerta.js    # Modal de confirmación para entrar a habitaciones
+│   │   └── modalDerrota.js   # Modal de game over (reutilizable en todas las etapas)
 │   └── habitaciones/         # Cada habitación crea su propia pantalla
 │       └── habitacion1.js    # Habitación 1: El Laberinto (buscar la llave)
 ├── index.html                # Estructura de las pantallas del juego
