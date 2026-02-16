@@ -2,6 +2,8 @@
 // El jugador debe encontrar la llave y volver a la salida
 // El laberinto se genera aleatoriamente cada vez
 
+import { ENEMIGOS } from "../enemigos.js";
+
 // --- Constantes ---
 
 const TAM_CELDA = 30;
@@ -15,6 +17,12 @@ const FILAS = 21;
 const COLS = 17;
 const ATAJOS = 8; // Paredes extra que se abren para crear caminos alternativos
 const COOLDOWN_TRAMPA = 1000; // ms entre golpes de la misma trampa
+
+// Trasgo
+const TAM_TRASGO = 20;
+const VELOCIDAD_TRASGO = 2;
+const COOLDOWN_TRASGO = 1500; // ms entre ataques del Trasgo
+const INTERVALO_PATHFINDING = 500; // ms entre recálculos de ruta
 
 // --- Generación aleatoria del laberinto ---
 
@@ -262,6 +270,178 @@ function mostrarDano(dano) {
     }, 800);
 }
 
+// --- Trasgo (enemigo con IA) ---
+
+// Busca una celda a distancia media de la entrada para colocar al Trasgo
+function posicionInicialTrasgo() {
+    // BFS desde la entrada para calcular distancias
+    var cola = [[entradaFila, entradaCol, 0]];
+    var idx = 0;
+    var distancias = {};
+    distancias[entradaFila + "," + entradaCol] = 0;
+    var dirs = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+    var maxDist = 0;
+
+    while (idx < cola.length) {
+        var actual = cola[idx++];
+        var f = actual[0], c = actual[1], d = actual[2];
+        if (d > maxDist) maxDist = d;
+
+        for (var i = 0; i < dirs.length; i++) {
+            var nf = f + dirs[i][0], nc = c + dirs[i][1];
+            var key = nf + "," + nc;
+            if (nf >= 0 && nf < FILAS && nc >= 0 && nc < COLS && mapa[nf][nc] === 0 && !(key in distancias)) {
+                distancias[key] = d + 1;
+                cola.push([nf, nc, d + 1]);
+            }
+        }
+    }
+
+    // Elegir celdas lógicas a 40-70% de la distancia máxima
+    var distMin = Math.floor(maxDist * 0.4);
+    var distMax = Math.floor(maxDist * 0.7);
+    var candidatas = [];
+
+    for (var key in distancias) {
+        var dist = distancias[key];
+        if (dist >= distMin && dist <= distMax) {
+            var partes = key.split(",");
+            var f = parseInt(partes[0]), c = parseInt(partes[1]);
+            if (f % 2 === 1 && c % 2 === 1) {
+                if (f === llaveFila && c === llaveCol) continue;
+                candidatas.push([f, c]);
+            }
+        }
+    }
+
+    mezclar(candidatas);
+    return candidatas.length > 0 ? candidatas[0] : [1, 1];
+}
+
+// Pathfinding BFS: calcula el camino más corto entre dos celdas
+function calcularCamino(origenF, origenC, destinoF, destinoC) {
+    var cola = [[origenF, origenC]];
+    var idx = 0;
+    var previo = {};
+    previo[origenF + "," + origenC] = null;
+    var dirs = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+
+    while (idx < cola.length) {
+        var actual = cola[idx++];
+        var f = actual[0], c = actual[1];
+
+        if (f === destinoF && c === destinoC) {
+            // Reconstruir camino
+            var camino = [];
+            var pos = [f, c];
+            while (pos) {
+                camino.unshift(pos);
+                pos = previo[pos[0] + "," + pos[1]];
+            }
+            camino.shift(); // Quitar posición actual
+            return camino;
+        }
+
+        for (var d = 0; d < dirs.length; d++) {
+            var nf = f + dirs[d][0], nc = c + dirs[d][1];
+            var key = nf + "," + nc;
+            if (nf >= 0 && nf < FILAS && nc >= 0 && nc < COLS && mapa[nf][nc] === 0 && !(key in previo)) {
+                previo[key] = [f, c];
+                cola.push([nf, nc]);
+            }
+        }
+    }
+
+    return []; // Sin camino (no debería pasar en laberinto conectado)
+}
+
+// Inicializa el Trasgo en el laberinto
+function iniciarTrasgo() {
+    var pos = posicionInicialTrasgo();
+    trasgo = {
+        datos: ENEMIGOS.Trasgo,
+        posX: pos[1] * TAM_CELDA + (TAM_CELDA - TAM_TRASGO) / 2,
+        posY: pos[0] * TAM_CELDA + (TAM_CELDA - TAM_TRASGO) / 2,
+        camino: [],
+        ultimoGolpe: 0,
+        ultimoPathfinding: 0,
+        elemento: null,
+    };
+}
+
+// Actualiza pathfinding, movimiento y colisión del Trasgo (cada frame)
+function actualizarTrasgo() {
+    if (!trasgo) return;
+
+    // Recalcular ruta periódicamente
+    var ahora = Date.now();
+    if (ahora - trasgo.ultimoPathfinding >= INTERVALO_PATHFINDING) {
+        trasgo.ultimoPathfinding = ahora;
+
+        var celdaT = {
+            fila: Math.floor((trasgo.posY + TAM_TRASGO / 2) / TAM_CELDA),
+            col: Math.floor((trasgo.posX + TAM_TRASGO / 2) / TAM_CELDA),
+        };
+        var celdaJ = getCeldaJugador();
+        trasgo.camino = calcularCamino(celdaT.fila, celdaT.col, celdaJ.fila, celdaJ.col);
+    }
+
+    // Mover hacia el siguiente punto del camino
+    if (trasgo.camino.length > 0) {
+        var objetivo = trasgo.camino[0];
+        var targetX = objetivo[1] * TAM_CELDA + (TAM_CELDA - TAM_TRASGO) / 2;
+        var targetY = objetivo[0] * TAM_CELDA + (TAM_CELDA - TAM_TRASGO) / 2;
+
+        var dx = targetX - trasgo.posX;
+        var dy = targetY - trasgo.posY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist <= VELOCIDAD_TRASGO) {
+            trasgo.posX = targetX;
+            trasgo.posY = targetY;
+            trasgo.camino.shift();
+        } else {
+            trasgo.posX += (dx / dist) * VELOCIDAD_TRASGO;
+            trasgo.posY += (dy / dist) * VELOCIDAD_TRASGO;
+        }
+
+        trasgo.elemento.style.left = trasgo.posX + "px";
+        trasgo.elemento.style.top = trasgo.posY + "px";
+    }
+
+    // Detectar colisión con jugador
+    detectarColisionTrasgo();
+}
+
+// Si el Trasgo toca al jugador, ataca con uno de sus ataques
+function detectarColisionTrasgo() {
+    var ahora = Date.now();
+    if (ahora - trasgo.ultimoGolpe < COOLDOWN_TRASGO) return;
+
+    // Colisión AABB entre Trasgo y jugador
+    var solapan =
+        trasgo.posX < posX + TAM_JUGADOR &&
+        trasgo.posX + TAM_TRASGO > posX &&
+        trasgo.posY < posY + TAM_JUGADOR &&
+        trasgo.posY + TAM_TRASGO > posY;
+
+    if (solapan) {
+        var ataques = trasgo.datos.ataques;
+        var ataque = ataques[Math.floor(Math.random() * ataques.length)];
+
+        jugador.recibirDano(ataque.dano);
+        trasgo.ultimoGolpe = ahora;
+
+        document.dispatchEvent(new Event("vida-cambio"));
+        mostrarDano(ataque.dano);
+
+        elementoJugador.classList.add("jugador-golpeado");
+        setTimeout(function () {
+            elementoJugador.classList.remove("jugador-golpeado");
+        }, 300);
+    }
+}
+
 // --- Estado del módulo ---
 
 let mapa = null;
@@ -270,6 +450,7 @@ let llaveCol = 0;
 let entradaFila = 0;
 let entradaCol = 0;
 let trampas = [];
+let trasgo = null;
 
 let jugador = null;
 let callbackSalir = null;
@@ -364,6 +545,9 @@ export function iniciarHabitacion1(jugadorRef, callback) {
     // Colocar trampas aleatorias
     colocarTrampas();
 
+    // Colocar al Trasgo
+    iniciarTrasgo();
+
     // Crear e insertar la pantalla
     crearPantalla();
 
@@ -417,6 +601,22 @@ function renderizarLaberinto() {
         t.elemento = elemTrampa;
     }
 
+    // Trasgo
+    if (trasgo) {
+        var elemTrasgo = document.createElement("div");
+        elemTrasgo.className = "trasgo-laberinto";
+        elemTrasgo.style.width = TAM_TRASGO + "px";
+        elemTrasgo.style.height = TAM_TRASGO + "px";
+        elemTrasgo.style.left = trasgo.posX + "px";
+        elemTrasgo.style.top = trasgo.posY + "px";
+        var imgTrasgo = document.createElement("img");
+        imgTrasgo.src = "assets/img/enemigos/trasgo.png";
+        imgTrasgo.alt = "Trasgo";
+        elemTrasgo.appendChild(imgTrasgo);
+        contenedorLaberinto.appendChild(elemTrasgo);
+        trasgo.elemento = elemTrasgo;
+    }
+
     // Llave
     elementoLlave = document.createElement("div");
     elementoLlave.className = "laberinto-llave";
@@ -437,7 +637,7 @@ function renderizarLaberinto() {
     salida.style.height = TAM_CELDA + "px";
     contenedorLaberinto.appendChild(salida);
 
-    // Jugador
+    // Jugador (siempre al final para que quede encima)
     contenedorLaberinto.appendChild(elementoJugador);
 }
 
@@ -580,6 +780,7 @@ function loopLaberinto() {
 
     actualizarTrampas();
     detectarTrampas();
+    actualizarTrasgo();
     detectarLlave();
     detectarSalida();
 
@@ -604,6 +805,7 @@ function onKeyUp(e) {
 function limpiarHabitacion1() {
     activo = false;
     trampas = [];
+    trasgo = null;
 
     if (animacionId) {
         cancelAnimationFrame(animacionId);

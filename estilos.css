@@ -526,28 +526,28 @@ h1 {
     background-color: rgba(150, 150, 150, 0.15);
 }
 
-/* El Profano — púrpura/rojo sangre */
+/* El Profano — azul/negro */
 .villano-profano {
-    border-color: #4a0a2a;
-    background-color: #1a0812;
+    border-color: #0a1a3a;
+    background-color: #080e1a;
 }
 
 .villano-profano h3 {
-    color: #cc44aa;
+    color: #4488cc;
 }
 
 .villano-profano .avatar img {
-    border-color: #8b0040;
-    box-shadow: 0 0 10px rgba(200, 50, 100, 0.4);
+    border-color: #1a3a6b;
+    box-shadow: 0 0 10px rgba(50, 100, 200, 0.4);
 }
 
 .villano-profano .barra-vida-relleno {
-    background: linear-gradient(90deg, #6b0030, #cc44aa);
+    background: linear-gradient(90deg, #1a2a4a, #4488cc);
 }
 
 .villano-profano .ataque-dano {
-    color: #cc44aa;
-    background-color: rgba(204, 68, 170, 0.15);
+    color: #4488cc;
+    background-color: rgba(68, 136, 204, 0.15);
 }
 
 /* El Errante — verde/negro */
@@ -1195,6 +1195,27 @@ h1 {
 @keyframes dano-subir {
     0% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-30px); }
+}
+
+/* Trasgo (enemigo) en el laberinto */
+.trasgo-laberinto {
+    position: absolute;
+    z-index: 4;
+}
+
+.trasgo-laberinto img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #666;
+    box-shadow: 0 0 8px rgba(150, 150, 150, 0.4);
+    animation: trasgo-respirar 2s ease-in-out infinite;
+}
+
+@keyframes trasgo-respirar {
+    0%, 100% { box-shadow: 0 0 8px rgba(150, 150, 150, 0.4); }
+    50% { box-shadow: 0 0 14px rgba(200, 80, 80, 0.6); }
 }
 
 /* Llave */
