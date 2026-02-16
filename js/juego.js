@@ -1,6 +1,7 @@
 // Código de La Casa del Terror
 import { PERSONAJES } from "./personajes.js";
 import { ENEMIGOS } from "./enemigos.js";
+import { iniciarHabitacion1, huirAlPasillo } from "./habitaciones/habitacion1.js";
 
 console.log("¡La Casa del Terror está cargando!");
 
@@ -317,9 +318,23 @@ document.querySelectorAll(".puerta").forEach(function (puerta) {
 btnCancelar.addEventListener("click", cerrarModalPuerta);
 
 btnEntrar.addEventListener("click", function () {
+    var puertaParaEntrar = puertaActiva;
     cerrarModalPuerta();
-    // TODO: Cargar la habitación correspondiente
-    console.log("Entrando a la habitación " + puertaActiva);
+
+    if (puertaParaEntrar === "1") {
+        document.getElementById("pantalla-juego").classList.add("oculto");
+        loopActivo = false;
+        iniciarHabitacion1(jugadorActual, function () {
+            document.getElementById("pantalla-juego").classList.remove("oculto");
+            loopActivo = true;
+            requestAnimationFrame(gameLoop);
+        });
+    }
+});
+
+// Botón huir del laberinto
+document.getElementById("btn-huir").addEventListener("click", function () {
+    huirAlPasillo();
 });
 
 // Cerrar modal con el fondo

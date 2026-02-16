@@ -16,7 +16,9 @@ la-casa-del-terror/
 │   ├── entidades.js          # Clases base: Entidad, Personaje, Enemigo
 │   ├── personajes.js         # Definición de personajes jugables (datos/stats)
 │   ├── enemigos.js           # Definición de enemigos (datos/stats)
-│   └── juego.js              # Lógica del juego, UI y game loop
+│   ├── juego.js              # Lógica del juego, UI y game loop
+│   └── habitaciones/
+│       └── habitacion1.js    # Habitación 1: El Laberinto (buscar la llave)
 ├── index.html                # Estructura de las pantallas del juego
 ├── estilos.css               # Estilos visuales y animaciones
 └── CLAUDE.md
@@ -38,7 +40,8 @@ la-casa-del-terror/
 ## Pantallas implementadas
 
 1. **Selección de personaje** - Elegir entre Lina, Rosé o DonBu con animaciones al seleccionar
-2. **Pantalla de juego** - Placeholder con mensaje de bienvenida y botón para volver
+2. **Pasillo** - Pasillo con 4 puertas, movimiento con flechas y modal de confirmación
+3. **Habitación 1: El Laberinto** - Grid 15x13 donde el jugador busca una llave y vuelve a la salida
 
 ## Convenciones
 

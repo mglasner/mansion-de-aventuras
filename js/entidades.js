@@ -6,6 +6,7 @@ class Entidad {
         this.nombre = nombre;
         this.vidaMax = vidaMax;
         this.vidaActual = vidaMax;
+        this.inventario = [];
     }
 
     estaVivo() {
