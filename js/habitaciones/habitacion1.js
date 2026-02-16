@@ -44,13 +44,64 @@ let animacionId = null;
 let activo = false;
 const teclas = {};
 
-// Referencias a elementos del DOM
+// Referencias a elementos del DOM (se crean dinámicamente)
 let pantalla = null;
 let contenedorLaberinto = null;
 let elementoJugador = null;
 let elementoLlave = null;
 let indicador = null;
 let mensajeExito = null;
+
+// --- Crear pantalla HTML ---
+
+function crearPantalla() {
+    pantalla = document.createElement("div");
+    pantalla.id = "pantalla-habitacion1";
+
+    var titulo = document.createElement("h2");
+    titulo.className = "titulo-habitacion";
+    titulo.textContent = "Habitación 1 — El Laberinto";
+
+    indicador = document.createElement("p");
+    indicador.id = "laberinto-indicador";
+
+    contenedorLaberinto = document.createElement("div");
+    contenedorLaberinto.id = "laberinto";
+
+    // Jugador dentro del laberinto
+    elementoJugador = document.createElement("div");
+    elementoJugador.className = "jugador-laberinto";
+    var img = document.createElement("img");
+    img.src = jugador.img;
+    img.alt = jugador.nombre;
+    elementoJugador.appendChild(img);
+    elementoJugador.classList.add(jugador.clase);
+
+    mensajeExito = document.createElement("p");
+    mensajeExito.id = "laberinto-mensaje";
+    mensajeExito.classList.add("oculto");
+
+    var hint = document.createElement("p");
+    hint.className = "laberinto-hint";
+    hint.textContent = "Usa las flechas ← ↑ ↓ → para moverte";
+
+    var btnHuir = document.createElement("button");
+    btnHuir.id = "btn-huir";
+    btnHuir.textContent = "← Huir al pasillo";
+    btnHuir.addEventListener("click", function () {
+        limpiarHabitacion1();
+        callbackSalir();
+    });
+
+    pantalla.appendChild(titulo);
+    pantalla.appendChild(indicador);
+    pantalla.appendChild(contenedorLaberinto);
+    pantalla.appendChild(mensajeExito);
+    pantalla.appendChild(hint);
+    pantalla.appendChild(btnHuir);
+
+    document.getElementById("juego").appendChild(pantalla);
+}
 
 // --- Funciones principales ---
 
@@ -60,23 +111,8 @@ export function iniciarHabitacion1(jugadorRef, callback) {
     tieneLlave = false;
     activo = true;
 
-    // Mostrar pantalla del laberinto
-    pantalla = document.getElementById("pantalla-habitacion1");
-    pantalla.classList.remove("oculto");
-
-    contenedorLaberinto = document.getElementById("laberinto");
-    elementoJugador = document.getElementById("jugador-laberinto");
-    indicador = document.getElementById("laberinto-indicador");
-    mensajeExito = document.getElementById("laberinto-mensaje");
-
-    // Configurar imagen del jugador
-    var imgJugador = elementoJugador.querySelector("img");
-    imgJugador.src = jugador.img;
-    imgJugador.alt = jugador.nombre;
-
-    // Aplicar clase de color del personaje
-    elementoJugador.className = "jugador-laberinto";
-    elementoJugador.classList.add(jugador.clase);
+    // Crear e insertar la pantalla
+    crearPantalla();
 
     // Renderizar el laberinto
     renderizarLaberinto();
@@ -100,13 +136,9 @@ export function iniciarHabitacion1(jugadorRef, callback) {
 }
 
 function renderizarLaberinto() {
-    // Limpiar contenido anterior (método seguro sin innerHTML)
-    contenedorLaberinto.replaceChildren();
-
     for (var fila = 0; fila < MAPA.length; fila++) {
         for (var col = 0; col < MAPA[fila].length; col++) {
             if (MAPA[fila][col] === 1) {
-                // Pared
                 var pared = document.createElement("div");
                 pared.className = "laberinto-pared";
                 pared.style.left = col * TAM_CELDA + "px";
@@ -118,7 +150,7 @@ function renderizarLaberinto() {
         }
     }
 
-    // Crear elemento de la llave
+    // Llave
     elementoLlave = document.createElement("div");
     elementoLlave.className = "laberinto-llave";
     elementoLlave.textContent = "🔑";
@@ -128,7 +160,7 @@ function renderizarLaberinto() {
     elementoLlave.style.height = TAM_CELDA + "px";
     contenedorLaberinto.appendChild(elementoLlave);
 
-    // Marcar la salida
+    // Salida
     var salida = document.createElement("div");
     salida.className = "laberinto-salida";
     salida.textContent = "🚪";
@@ -138,7 +170,7 @@ function renderizarLaberinto() {
     salida.style.height = TAM_CELDA + "px";
     contenedorLaberinto.appendChild(salida);
 
-    // Agregar el jugador al laberinto
+    // Jugador
     contenedorLaberinto.appendChild(elementoJugador);
 }
 
@@ -148,7 +180,6 @@ function esPared(pixelX, pixelY) {
     var col = Math.floor(pixelX / TAM_CELDA);
     var fila = Math.floor(pixelY / TAM_CELDA);
 
-    // Fuera del mapa = pared
     if (fila < 0 || fila >= MAPA.length || col < 0 || col >= MAPA[0].length) {
         return true;
     }
@@ -156,13 +187,11 @@ function esPared(pixelX, pixelY) {
 }
 
 function moverEnLaberinto(dx, dy) {
-    // Margen para evitar quedar pegado a las paredes
     var margen = 1;
 
     // Mover por eje X
     if (dx !== 0) {
         var nuevaX = posX + dx;
-        // Verificar las 4 esquinas del jugador
         var bloqueaX =
             esPared(nuevaX + margen, posY + margen) ||
             esPared(nuevaX + TAM_JUGADOR - margen, posY + margen) ||
@@ -199,7 +228,6 @@ function actualizarPosicion() {
 // --- Detección de llave y salida ---
 
 function getCeldaJugador() {
-    // Centro del jugador
     var centroX = posX + TAM_JUGADOR / 2;
     var centroY = posY + TAM_JUGADOR / 2;
     return {
@@ -222,8 +250,9 @@ function detectarLlave() {
         indicador.textContent = "🔑 ¡Llave obtenida! Vuelve a la salida";
         indicador.classList.add("llave-obtenida");
 
-        // Guardar en inventario del jugador
+        // Guardar en inventario y notificar a la barra superior
         jugador.inventario.push("llave-habitacion-2");
+        document.dispatchEvent(new Event("inventario-cambio"));
     }
 }
 
@@ -232,12 +261,10 @@ function detectarSalida() {
 
     var celda = getCeldaJugador();
     if (celda.fila === ENTRADA_FILA && celda.col === ENTRADA_COL) {
-        // Mostrar mensaje de éxito
         activo = false;
         mensajeExito.textContent = "¡Escapaste con la llave!";
         mensajeExito.classList.remove("oculto");
 
-        // Volver al pasillo tras 1.5s
         setTimeout(function () {
             limpiarHabitacion1();
             callbackSalir();
@@ -281,13 +308,6 @@ function onKeyUp(e) {
     delete teclas[e.key];
 }
 
-// --- Huir al pasillo ---
-
-export function huirAlPasillo() {
-    limpiarHabitacion1();
-    callbackSalir();
-}
-
 // --- Limpieza ---
 
 function limpiarHabitacion1() {
@@ -307,6 +327,9 @@ function limpiarHabitacion1() {
         delete teclas[k];
     });
 
-    // Ocultar pantalla
-    pantalla.classList.add("oculto");
+    // Remover pantalla del DOM
+    if (pantalla && pantalla.parentNode) {
+        pantalla.parentNode.removeChild(pantalla);
+        pantalla = null;
+    }
 }

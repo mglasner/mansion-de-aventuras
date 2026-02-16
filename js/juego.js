@@ -1,7 +1,9 @@
 // Código de La Casa del Terror
 import { PERSONAJES } from "./personajes.js";
 import { ENEMIGOS } from "./enemigos.js";
-import { iniciarHabitacion1, huirAlPasillo } from "./habitaciones/habitacion1.js";
+import { iniciarHabitacion1 } from "./habitaciones/habitacion1.js";
+import { crearBarraSuperior } from "./componentes/barraSuperior.js";
+import { crearModalPuerta } from "./componentes/modalPuerta.js";
 
 console.log("¡La Casa del Terror está cargando!");
 
@@ -96,6 +98,19 @@ let loopActivo = false;
 let limiteDerecho = 0;
 let limiteInferior = 0;
 
+// --- Crear componentes ---
+
+const contenedorJuego = document.getElementById("juego");
+const barra = crearBarraSuperior(contenedorJuego);
+const modal = crearModalPuerta(contenedorJuego);
+
+// Escuchar cambios de inventario desde las habitaciones
+document.addEventListener("inventario-cambio", function () {
+    if (jugadorActual) {
+        barra.actualizarInventario(jugadorActual);
+    }
+});
+
 // --- Iniciar el juego ---
 
 btnJugar.addEventListener("click", function () {
@@ -111,7 +126,7 @@ btnJugar.addEventListener("click", function () {
     imgJugador.alt = personajeElegido;
 
     // Quitar clases de personaje anteriores y poner la nueva
-    personajeJugador.classList.remove("jugador-lina", "jugador-rose", "jugador-donbu");
+    personajeJugador.classList.remove("jugador-lina", "jugador-rose", "jugador-pandajuro", "jugador-hana");
     personajeJugador.classList.add(jugadorActual.clase);
 
     // Calcular límites del pasillo
@@ -122,6 +137,9 @@ btnJugar.addEventListener("click", function () {
     posX = (pasillo.clientWidth - tamPersonaje) / 2;
     posY = pasillo.clientHeight - tamPersonaje - 15;
     actualizarPosicion();
+
+    // Mostrar barra superior
+    barra.mostrar(jugadorActual);
 
     // Activar el game loop
     if (!loopActivo) {
@@ -135,6 +153,7 @@ btnJugar.addEventListener("click", function () {
 document.getElementById("btn-volver").addEventListener("click", function () {
     document.getElementById("pantalla-juego").classList.add("oculto");
     document.getElementById("seleccion-personaje").classList.remove("oculto");
+    barra.ocultar();
 
     // Detener game loop
     loopActivo = false;
@@ -157,16 +176,9 @@ document.getElementById("btn-volver").addEventListener("click", function () {
 // --- Controles del teclado ---
 
 document.addEventListener("keydown", function (e) {
-    // Si el modal está abierto, manejar navegación del modal
-    if (!modalPuerta.classList.contains("oculto")) {
-        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-            e.preventDefault();
-            botonModalSeleccionado = botonModalSeleccionado === 0 ? 1 : 0;
-            actualizarFocoModal();
-        } else if (e.key === "Enter") {
-            e.preventDefault();
-            botonesModal[botonModalSeleccionado].click();
-        }
+    // Si el modal está abierto, delegar al componente
+    if (modal.estaAbierto()) {
+        modal.manejarTecla(e);
         return;
     }
 
@@ -227,7 +239,7 @@ function actualizarPosicion() {
 
 // --- Detección de colisión con puertas ---
 
-let esperandoSalirDePuerta = false; // Evita reabrir el modal al cerrar si sigue tocando la puerta
+let esperandoSalirDePuerta = false;
 
 function detectarColisionPuertas() {
     const puertas = document.querySelectorAll(".puerta");
@@ -237,13 +249,11 @@ function detectarColisionPuertas() {
         const rect = puerta.getBoundingClientRect();
         const pasilloRect = pasillo.getBoundingClientRect();
 
-        // Posición de la puerta relativa al pasillo
         const px = rect.left - pasilloRect.left;
         const py = rect.top - pasilloRect.top;
         const pw = rect.width;
         const ph = rect.height;
 
-        // Verificar si el jugador se superpone con la puerta
         const colisiona =
             posX < px + pw &&
             posX + tamPersonaje > px &&
@@ -252,90 +262,49 @@ function detectarColisionPuertas() {
 
         if (colisiona) {
             tocandoAlguna = true;
-            if (!esperandoSalirDePuerta && modalPuerta.classList.contains("oculto")) {
-                mostrarModalPuerta(puerta.dataset.puerta);
+            if (!esperandoSalirDePuerta && !modal.estaAbierto()) {
+                loopActivo = false;
+                modal.mostrar(puerta.dataset.puerta);
             }
         }
     });
 
-    // Si ya no toca ninguna puerta, desbloquear
     if (!tocandoAlguna) {
         esperandoSalirDePuerta = false;
     }
 }
 
-// --- Modal de confirmación para puertas ---
+// --- Clic en las puertas ---
 
-const modalPuerta = document.getElementById("modal-puerta");
-const modalTitulo = document.getElementById("modal-titulo");
-const modalMensaje = document.getElementById("modal-mensaje");
-const btnEntrar = document.getElementById("btn-entrar");
-const btnCancelar = document.getElementById("btn-cancelar");
-
-let puertaActiva = null; // número de la puerta seleccionada
-
-let botonModalSeleccionado = 0; // 0 = Entrar, 1 = Cancelar
-const botonesModal = [btnEntrar, btnCancelar];
-
-function actualizarFocoModal() {
-    botonesModal.forEach(function (btn, i) {
-        if (i === botonModalSeleccionado) {
-            btn.classList.add("modal-btn-foco");
-        } else {
-            btn.classList.remove("modal-btn-foco");
-        }
-    });
-}
-
-function mostrarModalPuerta(numeroPuerta) {
-    puertaActiva = numeroPuerta;
-    modalTitulo.textContent = "Habitación " + numeroPuerta;
-    modalMensaje.textContent = "¿Quieres entrar a esta habitación?";
-    modalPuerta.classList.remove("oculto");
-    loopActivo = false; // Pausar movimiento mientras el modal está abierto
-    botonModalSeleccionado = 0;
-    actualizarFocoModal();
-}
-
-function cerrarModalPuerta() {
-    modalPuerta.classList.add("oculto");
-    puertaActiva = null;
-    esperandoSalirDePuerta = true; // No reabrir hasta que se aleje de la puerta
-    loopActivo = true;
-    requestAnimationFrame(gameLoop);
-}
-
-// Clic en las puertas
 document.querySelectorAll(".puerta").forEach(function (puerta) {
     puerta.addEventListener("click", function () {
-        if (modalPuerta.classList.contains("oculto")) {
-            mostrarModalPuerta(puerta.dataset.puerta);
+        if (!modal.estaAbierto()) {
+            loopActivo = false;
+            modal.mostrar(puerta.dataset.puerta);
         }
     });
 });
 
-// Botones del modal
-btnCancelar.addEventListener("click", cerrarModalPuerta);
+// --- Callbacks del modal ---
 
-btnEntrar.addEventListener("click", function () {
-    var puertaParaEntrar = puertaActiva;
-    cerrarModalPuerta();
+modal.onCancelar(function () {
+    esperandoSalirDePuerta = true;
+    loopActivo = true;
+    requestAnimationFrame(gameLoop);
+});
 
-    if (puertaParaEntrar === "1") {
+modal.onEntrar(function (numeroPuerta) {
+    esperandoSalirDePuerta = true;
+
+    if (numeroPuerta === "1") {
         document.getElementById("pantalla-juego").classList.add("oculto");
-        loopActivo = false;
         iniciarHabitacion1(jugadorActual, function () {
             document.getElementById("pantalla-juego").classList.remove("oculto");
             loopActivo = true;
             requestAnimationFrame(gameLoop);
         });
+    } else {
+        loopActivo = true;
+        requestAnimationFrame(gameLoop);
     }
 });
-
-// Botón huir del laberinto
-document.getElementById("btn-huir").addEventListener("click", function () {
-    huirAlPasillo();
-});
-
-// Cerrar modal con el fondo
-document.querySelector(".modal-fondo").addEventListener("click", cerrarModalPuerta);

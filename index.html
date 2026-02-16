@@ -32,11 +32,20 @@
                     <div class="stats"></div>
                 </div>
 
-                <div class="personaje personaje-donbu" data-nombre="DonBu">
+                <div class="personaje personaje-pandajuro" data-nombre="PandaJuro">
                     <div class="avatar">
-                        <img src="assets/img/personajes/donbu.png" alt="DonBu">
+                        <img src="assets/img/personajes/pandajuro.png" alt="PandaJuro">
                     </div>
-                    <h3>DonBu</h3>
+                    <h3>PandaJuro</h3>
+                    <p class="descripcion"></p>
+                    <div class="stats"></div>
+                </div>
+
+                <div class="personaje personaje-hana" data-nombre="Hana">
+                    <div class="avatar">
+                        <img src="assets/img/personajes/hana.png" alt="Hana">
+                    </div>
+                    <h3>Hana</h3>
                     <p class="descripcion"></p>
                     <div class="stats"></div>
                 </div>
@@ -105,33 +114,7 @@
             <button id="btn-volver">← Volver a elegir personaje</button>
         </div>
 
-        <!-- Pantalla de la Habitación 1: El Laberinto (oculta al inicio) -->
-        <div id="pantalla-habitacion1" class="oculto">
-            <h2 class="titulo-habitacion">Habitación 1 — El Laberinto</h2>
-            <p id="laberinto-indicador">🔑 Encuentra la llave</p>
-            <div id="laberinto">
-                <!-- El jugador dentro del laberinto -->
-                <div id="jugador-laberinto" class="jugador-laberinto">
-                    <img src="" alt="Jugador">
-                </div>
-            </div>
-            <p id="laberinto-mensaje" class="oculto"></p>
-            <p class="laberinto-hint">Usa las flechas ← ↑ ↓ → para moverte</p>
-            <button id="btn-huir">← Huir al pasillo</button>
-        </div>
-
-        <!-- Modal de confirmación para entrar a una habitación -->
-        <div id="modal-puerta" class="oculto">
-            <div class="modal-fondo"></div>
-            <div class="modal-contenido">
-                <h2 id="modal-titulo">Habitación 1</h2>
-                <p id="modal-mensaje">¿Quieres entrar a esta habitación?</p>
-                <div class="modal-botones">
-                    <button id="btn-entrar">Entrar</button>
-                    <button id="btn-cancelar">No, mejor no</button>
-                </div>
-            </div>
-        </div>
+        <!-- Barra superior, modal y habitaciones se crean desde JS (componentes) -->
     </div>
 
     <script type="module" src="js/juego.js"></script>

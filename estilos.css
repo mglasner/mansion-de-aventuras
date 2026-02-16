@@ -177,35 +177,69 @@ h1 {
     100% { color: #6bfc86; text-shadow: none; }
 }
 
-/* DonBu - paleta azul con rojo */
-.personaje-donbu {
+/* Hana - paleta rosa/fucsia */
+.personaje-hana {
+    border-color: #6b1a5a;
+    background-color: #2e0a28;
+}
+
+.personaje-hana:hover {
+    border-color: #e91e90;
+}
+
+.personaje-hana h3 {
+    color: #fc86d4;
+}
+
+.personaje-hana .avatar img {
+    border-color: #e91e90;
+}
+
+.personaje-hana.seleccionado {
+    border-color: #fc86d4;
+    box-shadow: 0 0 30px rgba(252, 134, 212, 0.7), 0 0 60px rgba(233, 30, 144, 0.3);
+    background-color: #3a1035;
+}
+
+.personaje-hana.seleccionado h3 {
+    animation: neon-hana 1.5s ease-in-out infinite;
+}
+
+@keyframes neon-hana {
+    0% { color: #fc86d4; text-shadow: none; }
+    50% { color: #ffb0e6; text-shadow: 0 0 10px #e91e90, 0 0 20px #e91e90; }
+    100% { color: #fc86d4; text-shadow: none; }
+}
+
+/* PandaJuro - paleta azul con rojo */
+.personaje-pandajuro {
     border-color: #1a3a6b;
     background-color: #0a1430;
 }
 
-.personaje-donbu:hover {
+.personaje-pandajuro:hover {
     border-color: #3498db;
 }
 
-.personaje-donbu h3 {
+.personaje-pandajuro h3 {
     color: #6bb5fc;
 }
 
-.personaje-donbu .avatar img {
+.personaje-pandajuro .avatar img {
     border-color: #c0392b;
 }
 
-.personaje-donbu.seleccionado {
+.personaje-pandajuro.seleccionado {
     border-color: #6bb5fc;
     box-shadow: 0 0 30px rgba(107, 181, 252, 0.7), 0 0 60px rgba(192, 57, 43, 0.4);
     background-color: #151035;
 }
 
-.personaje-donbu.seleccionado h3 {
-    animation: neon-donbu 1.5s ease-in-out infinite;
+.personaje-pandajuro.seleccionado h3 {
+    animation: neon-pandajuro 1.5s ease-in-out infinite;
 }
 
-@keyframes neon-donbu {
+@keyframes neon-pandajuro {
     0% { color: #6bb5fc; text-shadow: none; }
     50% { color: #ff6b6b; text-shadow: 0 0 10px #c0392b, 0 0 20px #3498db; }
     100% { color: #6bb5fc; text-shadow: none; }
@@ -320,11 +354,20 @@ h1 {
     background-color: rgba(46, 204, 113, 0.15);
 }
 
-.personaje-donbu .barra-vida-relleno {
+.personaje-hana .barra-vida-relleno {
+    background: linear-gradient(90deg, #e91e90, #fc86d4);
+}
+
+.personaje-hana .ataque-dano {
+    color: #fc86d4;
+    background-color: rgba(233, 30, 144, 0.15);
+}
+
+.personaje-pandajuro .barra-vida-relleno {
     background: linear-gradient(90deg, #c0392b, #6bb5fc);
 }
 
-.personaje-donbu .ataque-dano {
+.personaje-pandajuro .ataque-dano {
     color: #6bb5fc;
     background-color: rgba(107, 181, 252, 0.15);
 }
@@ -677,9 +720,14 @@ h1 {
     box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
 }
 
-#personaje-jugador.jugador-donbu img {
+#personaje-jugador.jugador-pandajuro img {
     border-color: #c0392b;
     box-shadow: 0 0 12px rgba(192, 57, 43, 0.5);
+}
+
+#personaje-jugador.jugador-hana img {
+    border-color: #e91e90;
+    box-shadow: 0 0 12px rgba(233, 30, 144, 0.5);
 }
 
 /* --- Controles hint --- */
@@ -809,6 +857,117 @@ h1 {
     50% { outline-color: rgba(255, 255, 255, 1); }
 }
 
+/* --- Barra superior del jugador --- */
+
+.barra-superior {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: rgba(15, 15, 30, 0.95);
+    border: 2px solid #333;
+    border-radius: 10px;
+    padding: 8px 15px;
+    margin-bottom: 15px;
+}
+
+.barra-jugador {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.barra-jugador img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #888;
+}
+
+.barra-jugador span {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.barra-vida-jugador {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 100px;
+}
+
+.barra-vida-jugador .barra-vida-fondo {
+    flex: 1;
+    height: 8px;
+}
+
+.barra-vida-texto {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #ccc;
+    white-space: nowrap;
+}
+
+.barra-inventario {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.barra-inventario-label {
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.barra-inventario-items {
+    display: flex;
+    gap: 4px;
+}
+
+.inventario-item {
+    font-size: 1.1rem;
+    animation: aparecer-item 0.4s ease;
+}
+
+@keyframes aparecer-item {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Colores de barra según personaje */
+.barra-lina .barra-jugador img {
+    border-color: #9b59b6;
+}
+.barra-lina .barra-vida-relleno {
+    background: linear-gradient(90deg, #9b59b6, #bb86fc);
+}
+
+.barra-rose .barra-jugador img {
+    border-color: #2ecc71;
+}
+.barra-rose .barra-vida-relleno {
+    background: linear-gradient(90deg, #2ecc71, #6bfc86);
+}
+
+.barra-pandajuro .barra-jugador img {
+    border-color: #c0392b;
+}
+.barra-pandajuro .barra-vida-relleno {
+    background: linear-gradient(90deg, #c0392b, #6bb5fc);
+}
+
+.barra-hana .barra-jugador img {
+    border-color: #e91e90;
+}
+.barra-hana .barra-vida-relleno {
+    background: linear-gradient(90deg, #e91e90, #fc86d4);
+}
+
 /* --- Habitación 1: El Laberinto --- */
 
 #pantalla-habitacion1 {
@@ -931,9 +1090,14 @@ h1 {
     box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
 }
 
-.jugador-laberinto.jugador-donbu img {
+.jugador-laberinto.jugador-pandajuro img {
     border-color: #c0392b;
     box-shadow: 0 0 10px rgba(192, 57, 43, 0.5);
+}
+
+.jugador-laberinto.jugador-hana img {
+    border-color: #e91e90;
+    box-shadow: 0 0 10px rgba(233, 30, 144, 0.5);
 }
 
 /* Mensaje de éxito */
