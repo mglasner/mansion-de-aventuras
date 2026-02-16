@@ -8,7 +8,7 @@ Los personajes se modelan como un objeto plano en `juego.js` (líneas 31-35):
 const datosPersonajes = {
     Lina:  { img: "assets/img/personajes/lina.png",  clase: "jugador-lina" },
     "Rosé": { img: "assets/img/personajes/rose.png",  clase: "jugador-rose" },
-    DonBu: { img: "assets/img/personajes/donbu.png", clase: "jugador-donbu" }
+    PandaJuro: { img: "assets/img/personajes/pandajuro.png", clase: "jugador-pandajuro" }
 };
 ```
 
@@ -119,12 +119,12 @@ const PERSONAJES = {
         descripcion: "10 anos. Nunca se rinde."
     }),
 
-    DonBu: new Personaje("DonBu", 120, [
+    PandaJuro: new Personaje("PandaJuro", 120, [
         { nombre: "Corte samurai", dano: 30, descripcion: "Un tajo devastador" },
         { nombre: "Golpe de bambu", dano: 18, descripcion: "Golpe rapido con bambu" }
     ], {
-        img: "assets/img/personajes/donbu.png",
-        clase: "jugador-donbu",
+        img: "assets/img/personajes/pandajuro.png",
+        clase: "jugador-pandajuro",
         descripcion: "Furioso, leal y honorable."
     })
 };
@@ -136,7 +136,7 @@ const PERSONAJES = {
 |-----------|------|----------|----------|--------|
 | **Lina** | 100 | Golpe veloz (15) | Patada giratoria (25) | Equilibrada |
 | **Rose** | 90 | Rayo de luz (20) | Escudo brillante (10) | Especial / magica |
-| **DonBu** | 120 | Corte samurai (30) | Golpe de bambu (18) | Tanque / fuerza bruta |
+| **PandaJuro** | 120 | Corte samurai (30) | Golpe de bambu (18) | Tanque / fuerza bruta |
 
 ## Principios de diseno aplicados
 

@@ -20,13 +20,22 @@ const PERSONAJES = {
         descripcion: "10 años. Nunca se rinde."
     }),
 
-    DonBu: new Personaje("DonBu", 120, [
+    PandaJuro: new Personaje("PandaJuro", 120, [
         { nombre: "Corte samurái", dano: 30, descripcion: "Un tajo devastador" },
         { nombre: "Golpe de bambú", dano: 18, descripcion: "Golpe rápido con bambú" }
     ], {
-        img: "assets/img/personajes/donbu.png",
-        clase: "jugador-donbu",
+        img: "assets/img/personajes/pandajuro.png",
+        clase: "jugador-pandajuro",
         descripcion: "Furioso, leal y honorable."
+    }),
+
+    Hana: new Personaje("Hana", 95, [
+        { nombre: "Onda sónica", dano: 20, descripcion: "Un grito agudo que aturde" },
+        { nombre: "Coreografía letal", dano: 22, descripcion: "Movimientos mortales de baile" }
+    ], {
+        img: "assets/img/personajes/hana.png",
+        clase: "jugador-hana",
+        descripcion: "16 años. Idol de K-pop. Lucha con música."
     })
 };
 
