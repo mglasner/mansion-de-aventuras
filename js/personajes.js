@@ -36,6 +36,15 @@ const PERSONAJES = {
         img: "assets/img/personajes/hana.png",
         clase: "jugador-hana",
         descripcion: "16 años. Idol de K-pop. Lucha con música."
+    }),
+
+    DonBu: new Personaje("DonBu", 140, [
+        { nombre: "Patada de mula", dano: 35, descripcion: "Una coz devastadora" },
+        { nombre: "Cabezazo terco", dano: 20, descripcion: "Embiste con toda su terquedad" }
+    ], {
+        img: "assets/img/personajes/donbu.png",
+        clase: "jugador-donbu",
+        descripcion: "Padre de familia. Burro terco y protector."
     })
 };
 

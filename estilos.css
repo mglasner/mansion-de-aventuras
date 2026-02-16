@@ -211,6 +211,40 @@ h1 {
     100% { color: #fc86d4; text-shadow: none; }
 }
 
+/* DonBu - paleta marrón/ámbar */
+.personaje-donbu {
+    border-color: #6b4a1a;
+    background-color: #2e1a0a;
+}
+
+.personaje-donbu:hover {
+    border-color: #d4a052;
+}
+
+.personaje-donbu h3 {
+    color: #fcca6b;
+}
+
+.personaje-donbu .avatar img {
+    border-color: #d4a052;
+}
+
+.personaje-donbu.seleccionado {
+    border-color: #fcca6b;
+    box-shadow: 0 0 30px rgba(252, 202, 107, 0.7), 0 0 60px rgba(212, 160, 82, 0.3);
+    background-color: #3a2510;
+}
+
+.personaje-donbu.seleccionado h3 {
+    animation: neon-donbu 1.5s ease-in-out infinite;
+}
+
+@keyframes neon-donbu {
+    0% { color: #fcca6b; text-shadow: none; }
+    50% { color: #ffe0a0; text-shadow: 0 0 10px #d4a052, 0 0 20px #d4a052; }
+    100% { color: #fcca6b; text-shadow: none; }
+}
+
 /* PandaJuro - paleta azul con rojo */
 .personaje-pandajuro {
     border-color: #1a3a6b;
@@ -361,6 +395,15 @@ h1 {
 .personaje-hana .ataque-dano {
     color: #fc86d4;
     background-color: rgba(233, 30, 144, 0.15);
+}
+
+.personaje-donbu .barra-vida-relleno {
+    background: linear-gradient(90deg, #d4a052, #fcca6b);
+}
+
+.personaje-donbu .ataque-dano {
+    color: #fcca6b;
+    background-color: rgba(212, 160, 82, 0.15);
 }
 
 .personaje-pandajuro .barra-vida-relleno {
@@ -730,6 +773,11 @@ h1 {
     box-shadow: 0 0 12px rgba(233, 30, 144, 0.5);
 }
 
+#personaje-jugador.jugador-donbu img {
+    border-color: #d4a052;
+    box-shadow: 0 0 12px rgba(212, 160, 82, 0.5);
+}
+
 /* --- Controles hint --- */
 
 #controles-hint {
@@ -968,6 +1016,13 @@ h1 {
     background: linear-gradient(90deg, #e91e90, #fc86d4);
 }
 
+.barra-donbu .barra-jugador img {
+    border-color: #d4a052;
+}
+.barra-donbu .barra-vida-relleno {
+    background: linear-gradient(90deg, #d4a052, #fcca6b);
+}
+
 /* --- Habitación 1: El Laberinto --- */
 
 #pantalla-habitacion1 {
@@ -1098,6 +1153,11 @@ h1 {
 .jugador-laberinto.jugador-hana img {
     border-color: #e91e90;
     box-shadow: 0 0 10px rgba(233, 30, 144, 0.5);
+}
+
+.jugador-laberinto.jugador-donbu img {
+    border-color: #d4a052;
+    box-shadow: 0 0 10px rgba(212, 160, 82, 0.5);
 }
 
 /* Mensaje de éxito */
