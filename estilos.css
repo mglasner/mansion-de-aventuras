@@ -31,6 +31,7 @@ h1 {
 }
 
 .personaje {
+    position: relative;
     background-color: #16213e;
     border: 3px solid #0f3460;
     border-radius: 15px;
@@ -43,6 +44,18 @@ h1 {
 .personaje:hover {
     transform: scale(1.05);
     border-color: #e94560;
+}
+
+/* Foco de teclado (navegación con flechas) */
+.personaje.enfocado:not(.seleccionado) {
+    outline: 2px dashed rgba(255, 255, 255, 0.7);
+    outline-offset: 4px;
+    animation: pulso-foco-personaje 1.5s ease-in-out infinite;
+}
+
+@keyframes pulso-foco-personaje {
+    0%, 100% { outline-color: rgba(255, 255, 255, 0.4); }
+    50% { outline-color: rgba(255, 255, 255, 0.9); }
 }
 
 .personaje.seleccionado {
@@ -537,27 +550,48 @@ h1 {
     background-color: rgba(68, 204, 68, 0.15);
 }
 
-/* --- Botón de jugar --- */
+/* --- Overlay de empezar (sobre tarjeta seleccionada) --- */
 
-#btn-jugar {
-    margin-top: 20px;
-    padding: 15px 40px;
+.seleccion-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    animation: aparecer-overlay 0.3s ease;
+    cursor: pointer;
+}
+
+@keyframes aparecer-overlay {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.btn-empezar {
+    padding: 12px 30px;
     font-size: 1.1rem;
+    font-weight: bold;
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    background-color: #333;
-    color: #666;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-#btn-jugar:not(:disabled) {
     background-color: #e94560;
     color: white;
+    box-shadow: 0 0 20px rgba(233, 69, 96, 0.6);
+    animation: pulso-empezar 1.5s ease-in-out infinite;
+    transition: background-color 0.2s;
 }
 
-#btn-jugar:not(:disabled):hover {
+.btn-empezar:hover {
     background-color: #c73652;
+    box-shadow: 0 0 30px rgba(233, 69, 96, 0.8);
+}
+
+@keyframes pulso-empezar {
+    0%, 100% { box-shadow: 0 0 20px rgba(233, 69, 96, 0.6); }
+    50% { box-shadow: 0 0 35px rgba(233, 69, 96, 0.9), 0 0 60px rgba(233, 69, 96, 0.3); }
 }
 
 /* --- Pantalla del pasillo --- */

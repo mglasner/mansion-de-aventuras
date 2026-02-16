@@ -61,19 +61,55 @@ document.querySelectorAll(".villano").forEach(function (tarjeta) {
 
 let personajeElegido = null;   // nombre del personaje (string)
 let jugadorActual = null;      // instancia de Personaje
+let indiceFoco = -1;           // índice de tarjeta con foco de teclado
 
 const personajes = document.querySelectorAll(".personaje");
-const btnJugar = document.getElementById("btn-jugar");
+const tarjetasPersonajes = Array.from(personajes);
 
-personajes.forEach(function (personaje) {
+// Selecciona un personaje y muestra el botón de empezar sobre la tarjeta
+function seleccionarPersonaje(tarjeta) {
+    // Quitar selección y overlay anterior
+    personajes.forEach(function (p) {
+        p.classList.remove("seleccionado");
+        const overlay = p.querySelector(".seleccion-overlay");
+        if (overlay) overlay.remove();
+    });
+
+    tarjeta.classList.add("seleccionado");
+    personajeElegido = tarjeta.dataset.nombre;
+
+    // Crear overlay con botón de empezar
+    const overlay = document.createElement("div");
+    overlay.className = "seleccion-overlay";
+    const btn = document.createElement("button");
+    btn.className = "btn-empezar";
+    btn.textContent = "¡Empezar!";
+    overlay.appendChild(btn);
+    tarjeta.appendChild(overlay);
+
+    // Clic en overlay inicia el juego
+    overlay.addEventListener("click", function (e) {
+        e.stopPropagation();
+        iniciarJuego();
+    });
+}
+
+// Mueve el foco del teclado a una tarjeta
+function enfocarPersonaje(indice) {
+    tarjetasPersonajes.forEach(function (p) {
+        p.classList.remove("enfocado");
+    });
+    indiceFoco = indice;
+    if (indice >= 0 && indice < tarjetasPersonajes.length) {
+        tarjetasPersonajes[indice].classList.add("enfocado");
+        tarjetasPersonajes[indice].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+}
+
+personajes.forEach(function (personaje, i) {
     personaje.addEventListener("click", function () {
-        personajes.forEach(function (p) {
-            p.classList.remove("seleccionado");
-        });
-        personaje.classList.add("seleccionado");
-        personajeElegido = personaje.dataset.nombre;
-        btnJugar.disabled = false;
-        btnJugar.textContent = "¡Jugar con " + personajeElegido + "!";
+        enfocarPersonaje(i);
+        seleccionarPersonaje(personaje);
     });
 });
 
@@ -113,7 +149,7 @@ document.addEventListener("inventario-cambio", function () {
 
 // --- Iniciar el juego ---
 
-btnJugar.addEventListener("click", function () {
+function iniciarJuego() {
     if (!personajeElegido) return;
 
     // Cambiar pantalla
@@ -146,7 +182,7 @@ btnJugar.addEventListener("click", function () {
         loopActivo = true;
         requestAnimationFrame(gameLoop);
     }
-});
+}
 
 // --- Volver a selección ---
 
@@ -161,11 +197,12 @@ document.getElementById("btn-volver").addEventListener("click", function () {
     // Limpiar selección
     personajeElegido = null;
     jugadorActual = null;
+    indiceFoco = -1;
     personajes.forEach(function (p) {
-        p.classList.remove("seleccionado");
+        p.classList.remove("seleccionado", "enfocado");
+        const overlay = p.querySelector(".seleccion-overlay");
+        if (overlay) overlay.remove();
     });
-    btnJugar.disabled = true;
-    btnJugar.textContent = "Elige un personaje para continuar";
 
     // Limpiar teclas
     Object.keys(teclasPresionadas).forEach(function (k) {
@@ -179,6 +216,34 @@ document.addEventListener("keydown", function (e) {
     // Si el modal está abierto, delegar al componente
     if (modal.estaAbierto()) {
         modal.manejarTecla(e);
+        return;
+    }
+
+    // Navegación con teclado en pantalla de selección
+    const pantallaSeleccion = document.getElementById("seleccion-personaje");
+    if (!pantallaSeleccion.classList.contains("oculto")) {
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+            e.preventDefault();
+            if (indiceFoco === -1) {
+                enfocarPersonaje(0);
+            } else if (e.key === "ArrowLeft") {
+                enfocarPersonaje(Math.max(0, indiceFoco - 1));
+            } else {
+                enfocarPersonaje(Math.min(tarjetasPersonajes.length - 1, indiceFoco + 1));
+            }
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (indiceFoco >= 0) {
+                const tarjetaFocada = tarjetasPersonajes[indiceFoco];
+                if (tarjetaFocada.classList.contains("seleccionado")) {
+                    iniciarJuego();
+                } else {
+                    seleccionarPersonaje(tarjetaFocada);
+                }
+            } else if (personajeElegido) {
+                iniciarJuego();
+            }
+        }
         return;
     }
 
