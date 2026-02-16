@@ -4,8 +4,10 @@
 // --- Constantes ---
 
 const TAM_CELDA = 30;
-const TAM_JUGADOR = 28;
+const TAM_JUGADOR = 22;
 const VELOCIDAD = 3;
+const MARGEN_COLISION = 2;
+const TOLERANCIA_ESQUINA = 8; // px de ayuda para doblar en esquinas
 
 // Grid del laberinto: 1 = pared, 0 = camino, 2 = llave, 3 = entrada/salida
 // 15 filas x 13 columnas
@@ -174,7 +176,7 @@ function renderizarLaberinto() {
     contenedorLaberinto.appendChild(elementoJugador);
 }
 
-// --- Movimiento con colisiones ---
+// --- Movimiento con colisiones y corner sliding ---
 
 function esPared(pixelX, pixelY) {
     var col = Math.floor(pixelX / TAM_CELDA);
@@ -186,34 +188,56 @@ function esPared(pixelX, pixelY) {
     return MAPA[fila][col] === 1;
 }
 
-function moverEnLaberinto(dx, dy) {
-    var margen = 1;
+// Verifica colisión del jugador en una posición dada
+function hayColision(x, y) {
+    return esPared(x + MARGEN_COLISION, y + MARGEN_COLISION) ||
+           esPared(x + TAM_JUGADOR - MARGEN_COLISION, y + MARGEN_COLISION) ||
+           esPared(x + MARGEN_COLISION, y + TAM_JUGADOR - MARGEN_COLISION) ||
+           esPared(x + TAM_JUGADOR - MARGEN_COLISION, y + TAM_JUGADOR - MARGEN_COLISION);
+}
 
+function moverEnLaberinto(dx, dy) {
     // Mover por eje X
     if (dx !== 0) {
         var nuevaX = posX + dx;
-        var bloqueaX =
-            esPared(nuevaX + margen, posY + margen) ||
-            esPared(nuevaX + TAM_JUGADOR - margen, posY + margen) ||
-            esPared(nuevaX + margen, posY + TAM_JUGADOR - margen) ||
-            esPared(nuevaX + TAM_JUGADOR - margen, posY + TAM_JUGADOR - margen);
-
-        if (!bloqueaX) {
+        if (!hayColision(nuevaX, posY)) {
             posX = nuevaX;
+        } else {
+            // Corner sliding: intentar deslizar en Y para doblar esquinas
+            for (var i = 1; i <= TOLERANCIA_ESQUINA; i++) {
+                if (!hayColision(nuevaX, posY - i)) {
+                    posY -= i;
+                    posX = nuevaX;
+                    break;
+                }
+                if (!hayColision(nuevaX, posY + i)) {
+                    posY += i;
+                    posX = nuevaX;
+                    break;
+                }
+            }
         }
     }
 
     // Mover por eje Y
     if (dy !== 0) {
         var nuevaY = posY + dy;
-        var bloqueaY =
-            esPared(posX + margen, nuevaY + margen) ||
-            esPared(posX + TAM_JUGADOR - margen, nuevaY + margen) ||
-            esPared(posX + margen, nuevaY + TAM_JUGADOR - margen) ||
-            esPared(posX + TAM_JUGADOR - margen, nuevaY + TAM_JUGADOR - margen);
-
-        if (!bloqueaY) {
+        if (!hayColision(posX, nuevaY)) {
             posY = nuevaY;
+        } else {
+            // Corner sliding: intentar deslizar en X para doblar esquinas
+            for (var i = 1; i <= TOLERANCIA_ESQUINA; i++) {
+                if (!hayColision(posX - i, nuevaY)) {
+                    posX -= i;
+                    posY = nuevaY;
+                    break;
+                }
+                if (!hayColision(posX + i, nuevaY)) {
+                    posX += i;
+                    posY = nuevaY;
+                    break;
+                }
+            }
         }
     }
 
