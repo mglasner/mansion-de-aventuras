@@ -1,7 +1,18 @@
 {
     "hooks": {
-        "Stop": [
+        "PostToolUse": [
             {
+                "matcher": "Write",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "npm run lint 2>&1; npm run lint:css 2>&1; npm run format:check 2>&1",
+                        "timeout": 30000
+                    }
+                ]
+            },
+            {
+                "matcher": "Edit",
                 "hooks": [
                     {
                         "type": "command",

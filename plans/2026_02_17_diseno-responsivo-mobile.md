@@ -27,12 +27,12 @@ integran como una de las mejoras principales.
 
 | # | Mejora | Esfuerzo | Impacto | Categoria | Estado |
 |---|--------|----------|---------|-----------|--------|
-| 1 | Tipografia con personalidad | Bajo | Alto | Visual | Hecho |
-| 2 | Diseno responsivo y controles tactiles | Alto | Alto | Accesibilidad | Pendiente |
+| 1 | Tipografia con personalidad | Bajo | Alto | Visual | Hecho (502556d) |
+| 2 | Diseno responsivo y controles tactiles | Alto | Alto | Accesibilidad | Hecho (04359a0, ae2eb0f, 2229db7, 32f67c9) |
 | 3 | Tutorial interactivo de onboarding | Medio | Alto | UX | Pendiente |
-| 4 | Feedback visual de dano mejorado | Bajo | Alto | Game feel | Hecho |
-| 5 | Transiciones cinematicas entre pantallas | Medio | Medio | Visual / UX | Hecho |
-| 6 | Paleta de colores unica por habitacion | Bajo | Medio | Visual | Pendiente |
+| 4 | Feedback visual de dano mejorado | Bajo | Alto | Game feel | Hecho (a53c449) |
+| 5 | Transiciones cinematicas entre pantallas | Medio | Medio | Visual / UX | Hecho (e087662) |
+| 6 | Paleta de colores unica por habitacion | Bajo | Medio | Visual | Hecho (f6dbef9) |
 | 7 | Barra de vida con microinteracciones | Bajo | Medio | UI / Game feel | Pendiente |
 | 8 | Modal de puerta con identidad de habitacion | Bajo | Medio | UI / UX | Pendiente |
 | 9 | Notificaciones toast para eventos | Bajo | Medio | UX / Feedback | Pendiente |

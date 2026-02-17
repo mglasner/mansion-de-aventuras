@@ -9,7 +9,8 @@
         "lint:css": "stylelint '**/*.css'",
         "lint:css:fix": "stylelint '**/*.css' --fix",
         "format": "prettier --write '**/*.{js,css,html,json}'",
-        "format:check": "prettier --check '**/*.{js,css,html,json}'"
+        "format:check": "prettier --check '**/*.{js,css,html,json}'",
+        "dev": "browser-sync start --server --files '**/*.html, **/*.css, **/*.js' --no-notify"
     },
     "repository": {
         "type": "git",
@@ -25,6 +26,7 @@
     "homepage": "https://github.com/mglasner/la-casa-del-terror#readme",
     "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "browser-sync": "^3.0.4",
         "eslint": "^10.0.0",
         "eslint-config-prettier": "^10.1.8",
         "globals": "^17.3.0",
