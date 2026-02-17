@@ -1274,7 +1274,6 @@ h1 {
     }
 }
 
-
 /* --- Modal de confirmación --- */
 
 #modal-puerta {
@@ -1542,16 +1541,91 @@ h1 {
     min-width: 100px;
 }
 
+.barra-vida-corazon {
+    font-size: 0.9rem;
+    animation: latido 1.2s ease-in-out infinite;
+}
+
+@keyframes latido {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    15% {
+        transform: scale(1.25);
+    }
+
+    30% {
+        transform: scale(1);
+    }
+}
+
 .barra-vida-jugador .barra-vida-fondo {
     flex: 1;
-    height: 8px;
+    height: 14px;
+    border-radius: 7px;
+    position: relative;
+}
+
+.barra-vida-jugador .barra-vida-relleno {
+    border-radius: 7px;
+    transition:
+        width 0.4s ease,
+        background 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.barra-vida-jugador .barra-vida-relleno::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 25%) 50%,
+        transparent 100%
+    );
+    animation: shimmer-vida 2.5s ease-in-out infinite;
+}
+
+@keyframes shimmer-vida {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .barra-vida-texto {
-    font-size: 0.75rem;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
     font-weight: bold;
-    color: #ccc;
-    white-space: nowrap;
+    color: white;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 60%);
+    z-index: 1;
+}
+
+.barra-vida-peligro .barra-vida-corazon {
+    animation: latido-rapido 0.5s ease-in-out infinite;
+}
+
+@keyframes latido-rapido {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.35);
+    }
 }
 
 .barra-inventario {
@@ -1589,53 +1663,29 @@ h1 {
     }
 }
 
-/* Colores de barra según personaje */
+/* Colores de borde de avatar según personaje */
 .barra-lina .barra-jugador img {
     border-color: #9b59b6;
-}
-
-.barra-lina .barra-vida-relleno {
-    background: linear-gradient(90deg, #9b59b6, #bb86fc);
 }
 
 .barra-rose .barra-jugador img {
     border-color: #2ecc71;
 }
 
-.barra-rose .barra-vida-relleno {
-    background: linear-gradient(90deg, #2ecc71, #6bfc86);
-}
-
 .barra-pandajuro .barra-jugador img {
     border-color: #c0392b;
-}
-
-.barra-pandajuro .barra-vida-relleno {
-    background: linear-gradient(90deg, #c0392b, #6bb5fc);
 }
 
 .barra-hana .barra-jugador img {
     border-color: #e91e90;
 }
 
-.barra-hana .barra-vida-relleno {
-    background: linear-gradient(90deg, #e91e90, #fc86d4);
-}
-
 .barra-kira .barra-jugador img {
     border-color: #2ec4b6;
 }
 
-.barra-kira .barra-vida-relleno {
-    background: linear-gradient(90deg, #2ec4b6, #5eeadb);
-}
-
 .barra-donbu .barra-jugador img {
     border-color: #d4a052;
-}
-
-.barra-donbu .barra-vida-relleno {
-    background: linear-gradient(90deg, #d4a052, #fcca6b);
 }
 
 /* --- Habitación 1: El Laberinto --- */
@@ -2531,12 +2581,16 @@ h1 {
     }
 
     .barra-vida-texto {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
     }
 
     .barra-vida-jugador {
         min-width: 60px;
         gap: 4px;
+    }
+
+    .barra-vida-corazon {
+        font-size: 0.75rem;
     }
 
     .barra-inventario-label {
@@ -2567,7 +2621,6 @@ h1 {
         min-height: 44px;
         min-width: 44px;
     }
-
 }
 
 /* Reducir animaciones pesadas si el usuario lo prefiere */

@@ -30,19 +30,24 @@ export function crearBarraSuperior(contenedor) {
     const vidaDiv = document.createElement('div');
     vidaDiv.className = 'barra-vida-jugador';
 
+    const corazon = document.createElement('span');
+    corazon.className = 'barra-vida-corazon';
+    corazon.textContent = '\u2764\uFE0F';
+
     const barraFondo = document.createElement('div');
     barraFondo.className = 'barra-vida-fondo';
 
     const barraRelleno = document.createElement('div');
     barraRelleno.className = 'barra-vida-relleno';
 
-    barraFondo.appendChild(barraRelleno);
-
     const vidaTexto = document.createElement('span');
     vidaTexto.className = 'barra-vida-texto';
 
+    barraFondo.appendChild(barraRelleno);
+    barraFondo.appendChild(vidaTexto);
+
+    vidaDiv.appendChild(corazon);
     vidaDiv.appendChild(barraFondo);
-    vidaDiv.appendChild(vidaTexto);
 
     // Inventario
     const invDiv = document.createElement('div');
@@ -88,6 +93,18 @@ export function crearBarraSuperior(contenedor) {
             const porcentaje = Math.round((jugador.vidaActual / jugador.vidaMax) * 100);
             barraRelleno.style.width = porcentaje + '%';
             vidaTexto.textContent = jugador.vidaActual + '/' + jugador.vidaMax;
+
+            // Color dinámico: verde → amarillo → rojo
+            if (porcentaje > 60) {
+                barraRelleno.style.background = 'linear-gradient(90deg, #2ecc71, #6bfc86)';
+            } else if (porcentaje > 30) {
+                barraRelleno.style.background = 'linear-gradient(90deg, #f39c12, #f1c40f)';
+            } else {
+                barraRelleno.style.background = 'linear-gradient(90deg, #e74c3c, #e94560)';
+            }
+
+            // Estado de peligro (corazón late rápido)
+            vidaDiv.classList.toggle('barra-vida-peligro', porcentaje <= 25);
         },
 
         actualizarInventario: function (jugador) {
