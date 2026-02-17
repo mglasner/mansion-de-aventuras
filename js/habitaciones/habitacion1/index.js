@@ -15,6 +15,7 @@ import {
     renderizarTrampasLentas,
 } from './trampas.js';
 import { iniciarTrasgo, actualizarTrasgo, renderizarTrasgo } from './trasgo.js';
+import { lanzarToast } from '../../componentes/toast.js';
 
 // --- Crear pantalla HTML ---
 
@@ -298,6 +299,7 @@ function detectarLlave() {
 
         est.jugador.inventario.push('llave-habitacion-2');
         document.dispatchEvent(new Event('inventario-cambio'));
+        lanzarToast('¡Llave encontrada!', '🔑', 'item');
     }
 }
 
@@ -315,6 +317,7 @@ function detectarSalida() {
         est.activo = false;
         est.mensajeExito.textContent = '¡Escapaste con la llave!';
         est.mensajeExito.classList.remove('oculto');
+        lanzarToast('¡Escapaste con la llave!', '🚪', 'exito');
 
         setTimeout(function () {
             limpiarHabitacion1();

@@ -3,6 +3,7 @@
 // El jugador debe encontrar la llave y volver a la salida
 
 import { generarMapa, encontrarPuntoLejano } from '../laberinto.js';
+import { lanzarToast } from '../componentes/toast.js';
 
 // --- Constantes ---
 
@@ -532,6 +533,7 @@ function detectarLlave() {
         // Guardar en inventario y notificar a la barra superior
         jugador.inventario.push('llave-habitacion-3');
         document.dispatchEvent(new Event('inventario-cambio'));
+        lanzarToast('¡Llave encontrada!', '🔑', 'item');
     }
 }
 
@@ -545,6 +547,7 @@ function detectarSalida() {
         activo = false;
         mensajeExito.textContent = '\u00A1Escapaste con la llave!';
         mensajeExito.classList.remove('oculto');
+        lanzarToast('¡Escapaste con la llave!', '🚪', 'exito');
 
         setTimeout(function () {
             limpiarHabitacion2();

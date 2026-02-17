@@ -4,6 +4,7 @@
 import { ENEMIGOS } from '../../enemigos.js';
 import { mezclar } from '../../laberinto.js';
 import { CONFIG, est, getCeldaJugador, aplicarDanoJugador } from './estado.js';
+import { lanzarToast } from '../../componentes/toast.js';
 
 // Busca una celda a distancia media de la entrada para colocar al Trasgo
 function posicionInicialTrasgo() {
@@ -190,6 +191,7 @@ function detectarColisionTrasgo() {
         const ataque = ataques[Math.floor(Math.random() * ataques.length)];
         est.trasgo.ultimoGolpe = ahora;
         aplicarDanoJugador(ataque.dano);
+        lanzarToast('Trasgo — ' + ataque.nombre + ' (-' + ataque.dano + ')', '👹', 'dano');
     }
 }
 

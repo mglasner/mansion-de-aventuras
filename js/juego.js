@@ -8,6 +8,7 @@ import { crearModalPuerta } from './componentes/modalPuerta.js';
 import { crearModalDerrota } from './componentes/modalDerrota.js';
 import { crearTransicion } from './componentes/transicion.js';
 import { crearControlesTouch } from './componentes/controlesTouch.js';
+import { crearToast } from './componentes/toast.js';
 
 // --- Estados del juego (máquina de estados) ---
 
@@ -271,6 +272,7 @@ const modal = crearModalPuerta(contenedorJuego);
 const modalDerrota = crearModalDerrota();
 const transicion = crearTransicion();
 const dpad = crearControlesTouch();
+crearToast();
 
 // Ocultar hint de teclado en dispositivos touch
 const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;

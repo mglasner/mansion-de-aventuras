@@ -3,6 +3,7 @@
 
 import { mezclar } from '../../laberinto.js';
 import { CONFIG, est, getCeldaJugador, aplicarDanoJugador } from './estado.js';
+import { lanzarToast } from '../../componentes/toast.js';
 
 // --- Trampas de fuego ---
 
@@ -66,6 +67,7 @@ export function detectarTrampas() {
                 const dano = 5 + Math.floor(Math.random() * 6);
                 t.ultimoGolpe = ahora;
                 aplicarDanoJugador(dano);
+                lanzarToast('Trampa de fuego (-' + dano + ')', '🔥', 'dano');
             }
         }
     }
@@ -169,6 +171,7 @@ export function aplicarLentitud(reduccion, duracion) {
 
     // Feedback visual
     est.elementoJugador.classList.add('jugador-lento');
+    lanzarToast('Telaraña — velocidad reducida', '🕸️', 'estado');
 
     // Texto flotante
     const elem = document.createElement('div');
