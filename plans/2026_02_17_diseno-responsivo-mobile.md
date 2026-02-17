@@ -33,10 +33,10 @@ integran como una de las mejoras principales.
 | 4 | Feedback visual de dano mejorado | Bajo | Alto | Game feel | Hecho (a53c449) |
 | 5 | Transiciones cinematicas entre pantallas | Medio | Medio | Visual / UX | Hecho (e087662) |
 | 6 | Paleta de colores unica por habitacion | Bajo | Medio | Visual | Hecho (f6dbef9) |
-| 7 | Barra de vida con microinteracciones | Bajo | Medio | UI / Game feel | Pendiente |
-| 8 | Modal de puerta con identidad de habitacion | Bajo | Medio | UI / UX | Pendiente |
-| 9 | Notificaciones toast para eventos | Bajo | Medio | UX / Feedback | Pendiente |
-| 10 | Inventario visual con slots | Medio | Medio | UI / Game feel | Pendiente |
+| 7 | Barra de vida con microinteracciones | Bajo | Medio | UI / Game feel | Hecho (e7348e2) |
+| 8 | Modal de puerta con identidad de habitacion | Bajo | Medio | UI / UX | Hecho (078e656) |
+| 9 | Notificaciones toast para eventos | Bajo | Medio | UX / Feedback | Hecho (9c14825) |
+| 10 | Inventario visual con slots | Medio | Medio | UI / Game feel | Hecho (dac6233) |
 
 ---
 
