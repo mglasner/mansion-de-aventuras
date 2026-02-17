@@ -31,7 +31,7 @@ la-casa-del-terror/
 ## Stack
 
 - HTML, CSS y JavaScript puro (ES modules, sin frameworks ni bundlers)
-- Servidor de desarrollo: `npx live-server`
+- Servidor de desarrollo: `npm run dev` (BrowserSync con hot-reload en http://localhost:3000)
 
 ## Personajes
 

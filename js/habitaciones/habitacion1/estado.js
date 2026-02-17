@@ -61,11 +61,23 @@ const VALORES_BASE = {
     TOLERANCIA_ESQUINA: 8,
 };
 
-// Calcula TAM_CELDA según el ancho disponible y escala todo proporcionalmente
+// Calcula TAM_CELDA según el espacio disponible y escala todo proporcionalmente
 export function calcularTamCelda() {
     const contenedor = document.getElementById('juego');
+
+    // Límite por ancho
     const maxAncho = Math.min(contenedor.clientWidth - 20, VALORES_BASE.TAM_CELDA * CONFIG.COLS);
-    CONFIG.TAM_CELDA = Math.max(Math.floor(maxAncho / CONFIG.COLS), 16);
+    const celdaPorAncho = Math.floor(maxAncho / CONFIG.COLS);
+
+    // Límite por alto: descontar barra superior, título, indicador, botón y D-pad
+    // D-pad: 3 filas de 56px + 2 gaps de 4px + 20px bottom ≈ 196px
+    const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const espacioDpad = esTouch ? 200 : 0;
+    const espacioUI = 130; // barra + título + indicador + botón + márgenes
+    const altoDisponible = window.innerHeight - espacioUI - espacioDpad;
+    const celdaPorAlto = Math.floor(altoDisponible / CONFIG.FILAS);
+
+    CONFIG.TAM_CELDA = Math.max(Math.min(celdaPorAncho, celdaPorAlto), 12);
 
     const escala = CONFIG.TAM_CELDA / VALORES_BASE.TAM_CELDA;
     CONFIG.TAM_JUGADOR = Math.max(12, Math.round(VALORES_BASE.TAM_JUGADOR * escala));

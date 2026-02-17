@@ -83,14 +83,30 @@ let mensajeExito = null;
 
 // --- Crear pantalla HTML ---
 
-function crearPantalla() {
+function crearPantalla(esTouch) {
     pantalla = document.createElement('div');
     pantalla.id = 'pantalla-habitacion2';
     pantalla.className = 'habitacion-2';
 
+    // Cabecera: botón huir + título
+    const cabecera = document.createElement('div');
+    cabecera.className = 'cabecera-habitacion';
+
+    const btnHuir = document.createElement('button');
+    btnHuir.className = 'btn-huir';
+    btnHuir.innerHTML = '<span class="btn-huir-flecha">←</span> 🚪';
+    btnHuir.title = 'Huir al pasillo (Esc)';
+    btnHuir.addEventListener('click', function () {
+        limpiarHabitacion2();
+        callbackSalir();
+    });
+
     const titulo = document.createElement('h2');
     titulo.className = 'titulo-habitacion';
     titulo.textContent = 'Habitación 2 — El Laberinto 3D';
+
+    cabecera.appendChild(btnHuir);
+    cabecera.appendChild(titulo);
 
     indicador = document.createElement('p');
     indicador.id = 'laberinto3d-indicador';
@@ -127,24 +143,17 @@ function crearPantalla() {
     mensajeExito.id = 'laberinto3d-mensaje';
     mensajeExito.classList.add('oculto');
 
-    const hint = document.createElement('p');
-    hint.className = 'laberinto-hint';
-    hint.textContent = '↑↓ avanzar/retroceder — ←→ girar';
-
-    const btnHuir = document.createElement('button');
-    btnHuir.id = 'btn-huir-3d';
-    btnHuir.textContent = '← Huir al pasillo';
-    btnHuir.addEventListener('click', function () {
-        limpiarHabitacion2();
-        callbackSalir();
-    });
-
-    pantalla.appendChild(titulo);
+    pantalla.appendChild(cabecera);
     pantalla.appendChild(indicador);
     pantalla.appendChild(contenedor);
     pantalla.appendChild(mensajeExito);
-    pantalla.appendChild(hint);
-    pantalla.appendChild(btnHuir);
+
+    if (!esTouch) {
+        const hint = document.createElement('p');
+        hint.className = 'laberinto-hint';
+        hint.textContent = '↑↓ avanzar/retroceder — ←→ girar · Esc para huir';
+        pantalla.appendChild(hint);
+    }
 
     document.getElementById('juego').appendChild(pantalla);
 }
@@ -567,6 +576,10 @@ function onKeyDown(e) {
         e.preventDefault();
         teclas[e.key] = true;
     }
+    if (e.key === 'Escape') {
+        limpiarHabitacion2();
+        callbackSalir();
+    }
 }
 
 function onKeyUp(e) {
@@ -606,7 +619,7 @@ export function iniciarHabitacion2(jugadorRef, callback, dpadRef) {
     avatarImg.src = jugador.img;
 
     // Crear e insertar la pantalla
-    crearPantalla();
+    crearPantalla(!!dpadRef);
 
     // Pre-renderizar minimapa base
     crearMinimapBase();

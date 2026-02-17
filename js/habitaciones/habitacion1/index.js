@@ -18,14 +18,30 @@ import { iniciarTrasgo, actualizarTrasgo, renderizarTrasgo } from './trasgo.js';
 
 // --- Crear pantalla HTML ---
 
-function crearPantalla() {
+function crearPantalla(esTouch) {
     est.pantalla = document.createElement('div');
     est.pantalla.id = 'pantalla-habitacion1';
     est.pantalla.className = 'habitacion-1';
 
+    // Cabecera: botón huir + título
+    const cabecera = document.createElement('div');
+    cabecera.className = 'cabecera-habitacion';
+
+    const btnHuir = document.createElement('button');
+    btnHuir.className = 'btn-huir';
+    btnHuir.innerHTML = '<span class="btn-huir-flecha">←</span> 🚪';
+    btnHuir.title = 'Huir al pasillo (Esc)';
+    btnHuir.addEventListener('click', function () {
+        limpiarHabitacion1();
+        est.callbackSalir();
+    });
+
     const titulo = document.createElement('h2');
     titulo.className = 'titulo-habitacion';
     titulo.textContent = 'Habitación 1 — El Laberinto';
+
+    cabecera.appendChild(btnHuir);
+    cabecera.appendChild(titulo);
 
     est.indicador = document.createElement('p');
     est.indicador.id = 'laberinto-indicador';
@@ -50,24 +66,17 @@ function crearPantalla() {
     est.mensajeExito.id = 'laberinto-mensaje';
     est.mensajeExito.classList.add('oculto');
 
-    const hint = document.createElement('p');
-    hint.className = 'laberinto-hint';
-    hint.textContent = 'Usa las flechas ← ↑ ↓ → para moverte';
-
-    const btnHuir = document.createElement('button');
-    btnHuir.id = 'btn-huir';
-    btnHuir.textContent = '← Huir al pasillo';
-    btnHuir.addEventListener('click', function () {
-        limpiarHabitacion1();
-        est.callbackSalir();
-    });
-
-    est.pantalla.appendChild(titulo);
+    est.pantalla.appendChild(cabecera);
     est.pantalla.appendChild(est.indicador);
     est.pantalla.appendChild(est.contenedorLaberinto);
     est.pantalla.appendChild(est.mensajeExito);
-    est.pantalla.appendChild(hint);
-    est.pantalla.appendChild(btnHuir);
+
+    if (!esTouch) {
+        const hint = document.createElement('p');
+        hint.className = 'laberinto-hint';
+        hint.textContent = 'Usa las flechas ← ↑ ↓ → para moverte · Esc para huir';
+        est.pantalla.appendChild(hint);
+    }
 
     document.getElementById('juego').appendChild(est.pantalla);
 }
@@ -116,7 +125,7 @@ export function iniciarHabitacion1(jugadorRef, callback, dpadRef) {
     iniciarTrasgo();
 
     // Crear e insertar la pantalla
-    crearPantalla();
+    crearPantalla(!!dpadRef);
 
     // Renderizar el laberinto
     renderizarLaberinto();
@@ -348,6 +357,10 @@ function onKeyDown(e) {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
         est.teclas[e.key] = true;
+    }
+    if (e.key === 'Escape') {
+        limpiarHabitacion1();
+        est.callbackSalir();
     }
 }
 

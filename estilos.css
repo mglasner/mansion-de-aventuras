@@ -1701,11 +1701,21 @@ h1 {
     align-items: center;
 }
 
+/* Cabecera: botón huir + título en una sola fila */
+.cabecera-habitacion {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 2px;
+    width: 100%;
+    justify-content: center;
+}
+
 .titulo-habitacion {
     font-family: var(--font-display);
     color: var(--color-accent);
     font-size: 1.3rem;
-    margin: 0 0 2px;
+    margin: 0;
     text-shadow: 0 0 10px rgb(233 69 96 / 50%);
 }
 
@@ -2152,26 +2162,52 @@ h1 {
     animation: parpadeo-hint 2s ease-in-out infinite;
 }
 
-/* Botón huir */
-#btn-huir,
-#btn-huir-3d {
-    margin-top: 4px;
-    padding: 6px 18px;
-    font-size: 0.9rem;
-    border: 2px solid var(--color-borde-claro);
-    border-radius: var(--radio-boton);
+/* Botón huir: icono compacto en la cabecera */
+.btn-huir {
+    height: 32px;
+    padding: 0 10px;
+    border: 2px solid rgb(255 255 255 / 10%);
+    border-radius: 16px;
     cursor: pointer;
-    background-color: transparent;
-    color: #888;
+    background-color: rgb(255 255 255 / 5%);
+    color: #999;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
     transition:
         border-color 0.3s,
-        color 0.3s;
+        color 0.3s,
+        background-color 0.3s,
+        box-shadow 0.3s;
 }
 
-#btn-huir:hover,
-#btn-huir-3d:hover {
+.btn-huir:hover,
+.btn-huir:active {
     border-color: var(--color-accent);
     color: var(--color-accent);
+    background-color: rgb(233 69 96 / 10%);
+    box-shadow: 0 0 12px rgb(233 69 96 / 30%);
+}
+
+/* Flecha del botón huir: pulso sutil */
+.btn-huir-flecha {
+    display: inline-block;
+    animation: pulso-huir 2s ease-in-out infinite;
+}
+
+@keyframes pulso-huir {
+    0%,
+    100% {
+        transform: translateX(0);
+        opacity: 0.7;
+    }
+
+    50% {
+        transform: translateX(-2px);
+        opacity: 1;
+    }
 }
 
 /* --- Habitación 2: El Laberinto 3D --- */
@@ -2535,24 +2571,24 @@ h1 {
 /* --- Pulido mobile --- */
 
 /* Ocultar hints de teclado en dispositivos touch */
-@media (hover: none) {
+@media (hover: none), (pointer: coarse) {
     #controles-hint,
     .laberinto-hint {
         display: none;
     }
 }
 
-/* Targets mínimos de 44x44px en botones interactivos */
+/* Targets mínimos de 44x44px y posición de botones en touch */
 @media (pointer: coarse) {
     #btn-volver,
-    #btn-huir,
-    #btn-huir-3d,
     #btn-entrar,
     #btn-cancelar,
-    .modal-derrota-btn {
+    .modal-derrota-btn,
+    .btn-huir {
         min-height: 44px;
         min-width: 44px;
     }
+
 }
 
 /* Reducir animaciones pesadas si el usuario lo prefiere */
