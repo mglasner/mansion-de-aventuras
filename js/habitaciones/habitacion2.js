@@ -2,6 +2,8 @@
 // Vista pseudo-3D con raycasting estilo Doom
 // El jugador debe encontrar la llave y volver a la salida
 
+import { generarMapa, encontrarPuntoLejano } from "../laberinto.js";
+
 // --- Constantes ---
 
 const ANCHO_CANVAS = 640;
@@ -21,136 +23,6 @@ const ATAJOS = 6;
 const VELOCIDAD_MOV = 0.06;
 const VELOCIDAD_GIRO = 0.04;
 const RADIO_COLISION = 0.2;
-
-// --- Generación aleatoria del laberinto ---
-
-// Mezcla un array in-place (Fisher-Yates)
-function mezclar(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = temp;
-    }
-    return arr;
-}
-
-// Genera un laberinto usando Recursive Backtracking (DFS)
-function generarMapa() {
-    var mapa = [];
-    for (var f = 0; f < FILAS; f++) {
-        mapa[f] = [];
-        for (var c = 0; c < COLS; c++) {
-            mapa[f][c] = 1;
-        }
-    }
-
-    var filasLogicas = (FILAS - 1) / 2;
-    var colsLogicas = (COLS - 1) / 2;
-
-    var visitado = [];
-    for (var f = 0; f < filasLogicas; f++) {
-        visitado[f] = [];
-        for (var c = 0; c < colsLogicas; c++) {
-            visitado[f][c] = false;
-        }
-    }
-
-    var dirs = [[-1, 0], [0, 1], [1, 0], [0, -1]];
-    var stack = [[0, 0]];
-    visitado[0][0] = true;
-    mapa[1][1] = 0;
-
-    while (stack.length > 0) {
-        var actual = stack[stack.length - 1];
-        var f = actual[0], c = actual[1];
-
-        var vecinos = [];
-        for (var d = 0; d < dirs.length; d++) {
-            var nf = f + dirs[d][0];
-            var nc = c + dirs[d][1];
-            if (nf >= 0 && nf < filasLogicas && nc >= 0 && nc < colsLogicas && !visitado[nf][nc]) {
-                vecinos.push([nf, nc, d]);
-            }
-        }
-
-        if (vecinos.length > 0) {
-            var elegido = vecinos[Math.floor(Math.random() * vecinos.length)];
-            var nf = elegido[0], nc = elegido[1];
-            mapa[f * 2 + 1 + dirs[elegido[2]][0]][c * 2 + 1 + dirs[elegido[2]][1]] = 0;
-            mapa[nf * 2 + 1][nc * 2 + 1] = 0;
-            visitado[nf][nc] = true;
-            stack.push([nf, nc]);
-        } else {
-            stack.pop();
-        }
-    }
-
-    abrirAtajos(mapa);
-    return mapa;
-}
-
-// Elimina algunas paredes para crear rutas alternativas
-function abrirAtajos(mapa) {
-    var paredes = [];
-
-    for (var f = 1; f < FILAS - 1; f++) {
-        for (var c = 1; c < COLS - 1; c++) {
-            if (mapa[f][c] !== 1) continue;
-            if (f % 2 === 1 && c % 2 === 0 && mapa[f][c - 1] === 0 && mapa[f][c + 1] === 0) {
-                paredes.push([f, c]);
-            }
-            if (f % 2 === 0 && c % 2 === 1 && mapa[f - 1][c] === 0 && mapa[f + 1][c] === 0) {
-                paredes.push([f, c]);
-            }
-        }
-    }
-
-    mezclar(paredes);
-    var cantidad = Math.min(ATAJOS, paredes.length);
-    for (var i = 0; i < cantidad; i++) {
-        mapa[paredes[i][0]][paredes[i][1]] = 0;
-    }
-}
-
-// Busca la celda más lejana desde un punto usando BFS
-function encontrarPuntoLejano(mapa, inicioF, inicioC) {
-    var cola = [[inicioF, inicioC, 0]];
-    var idx = 0;
-    var visitadoBFS = [];
-    for (var f = 0; f < FILAS; f++) {
-        visitadoBFS[f] = [];
-        for (var c = 0; c < COLS; c++) {
-            visitadoBFS[f][c] = false;
-        }
-    }
-    visitadoBFS[inicioF][inicioC] = true;
-
-    var masLejano = [inicioF, inicioC];
-    var maxDist = 0;
-    var dirs = [[-1, 0], [0, 1], [1, 0], [0, -1]];
-
-    while (idx < cola.length) {
-        var actual = cola[idx++];
-        var f = actual[0], c = actual[1], dist = actual[2];
-
-        if (dist > maxDist && f % 2 === 1 && c % 2 === 1) {
-            maxDist = dist;
-            masLejano = [f, c];
-        }
-
-        for (var d = 0; d < dirs.length; d++) {
-            var nf = f + dirs[d][0];
-            var nc = c + dirs[d][1];
-            if (nf >= 0 && nf < FILAS && nc >= 0 && nc < COLS && !visitadoBFS[nf][nc] && mapa[nf][nc] === 0) {
-                visitadoBFS[nf][nc] = true;
-                cola.push([nf, nc, dist + 1]);
-            }
-        }
-    }
-
-    return masLejano;
-}
 
 // --- Estado del módulo ---
 
@@ -189,7 +61,7 @@ function crearPantalla() {
     pantalla = document.createElement("div");
     pantalla.id = "pantalla-habitacion2";
 
-    var titulo = document.createElement("h2");
+    let titulo = document.createElement("h2");
     titulo.className = "titulo-habitacion";
     titulo.textContent = "Habitación 2 — El Laberinto 3D";
 
@@ -197,7 +69,7 @@ function crearPantalla() {
     indicador.id = "laberinto3d-indicador";
 
     // Contenedor para canvas 3D + minimapa
-    var contenedor = document.createElement("div");
+    let contenedor = document.createElement("div");
     contenedor.id = "contenedor-3d";
 
     canvas3D = document.createElement("canvas");
@@ -228,11 +100,11 @@ function crearPantalla() {
     mensajeExito.id = "laberinto3d-mensaje";
     mensajeExito.classList.add("oculto");
 
-    var hint = document.createElement("p");
+    let hint = document.createElement("p");
     hint.className = "laberinto-hint";
     hint.textContent = "↑↓ avanzar/retroceder — ←→ girar";
 
-    var btnHuir = document.createElement("button");
+    let btnHuir = document.createElement("button");
     btnHuir.id = "btn-huir-3d";
     btnHuir.textContent = "← Huir al pasillo";
     btnHuir.addEventListener("click", function () {
@@ -262,25 +134,25 @@ function renderizar3D() {
     ctx3D.fillRect(0, ALTO_CANVAS / 2, ANCHO_CANVAS, ALTO_CANVAS / 2);
 
     // Z-buffer para sprites
-    var zBuffer = new Array(NUM_RAYOS);
+    let zBuffer = new Array(NUM_RAYOS);
 
     // Lanzar un rayo por cada columna
-    for (var i = 0; i < NUM_RAYOS; i++) {
-        var anguloRayo = angulo - FOV / 2 + (i / NUM_RAYOS) * FOV;
+    for (let i = 0; i < NUM_RAYOS; i++) {
+        let anguloRayo = angulo - FOV / 2 + (i / NUM_RAYOS) * FOV;
 
-        var rayDirX = Math.cos(anguloRayo);
-        var rayDirY = Math.sin(anguloRayo);
+        let rayDirX = Math.cos(anguloRayo);
+        let rayDirY = Math.sin(anguloRayo);
 
         // Celda actual del mapa
-        var mapX = Math.floor(jugadorX);
-        var mapY = Math.floor(jugadorY);
+        let mapX = Math.floor(jugadorX);
+        let mapY = Math.floor(jugadorY);
 
         // Distancia entre líneas de grid consecutivas a lo largo del rayo
-        var deltaDistX = Math.abs(1 / rayDirX);
-        var deltaDistY = Math.abs(1 / rayDirY);
+        let deltaDistX = Math.abs(1 / rayDirX);
+        let deltaDistY = Math.abs(1 / rayDirY);
 
         // Dirección de paso y distancia al primer borde
-        var stepX, stepY, sideDistX, sideDistY;
+        let stepX, stepY, sideDistX, sideDistY;
 
         if (rayDirX < 0) {
             stepX = -1;
@@ -299,9 +171,9 @@ function renderizar3D() {
         }
 
         // DDA: avanzar celda a celda hasta golpear una pared
-        var hit = false;
-        var lado = 0; // 0 = pared vertical (E/O), 1 = pared horizontal (N/S)
-        var iter = 0;
+        let hit = false;
+        let lado = 0; // 0 = pared vertical (E/O), 1 = pared horizontal (N/S)
+        let iter = 0;
 
         while (!hit && iter < 50) {
             iter++;
@@ -323,7 +195,7 @@ function renderizar3D() {
         }
 
         // Distancia euclídea a lo largo del rayo
-        var distRayo;
+        let distRayo;
         if (lado === 0) {
             distRayo = sideDistX - deltaDistX;
         } else {
@@ -331,19 +203,19 @@ function renderizar3D() {
         }
 
         // Corrección de ojo de pez (proyección perpendicular al plano de cámara)
-        var distPerp = distRayo * Math.cos(anguloRayo - angulo);
+        let distPerp = distRayo * Math.cos(anguloRayo - angulo);
         if (distPerp < 0.01) distPerp = 0.01;
 
         zBuffer[i] = distPerp;
 
         // Altura de la franja de pared en pantalla
-        var alturaPared = ALTO_CANVAS / distPerp;
-        var inicioY = Math.floor((ALTO_CANVAS - alturaPared) / 2);
-        var finY = Math.floor((ALTO_CANVAS + alturaPared) / 2);
+        let alturaPared = ALTO_CANVAS / distPerp;
+        let inicioY = Math.floor((ALTO_CANVAS - alturaPared) / 2);
+        let finY = Math.floor((ALTO_CANVAS + alturaPared) / 2);
 
         // Color con efecto de profundidad (más lejos = más oscuro)
-        var brillo = Math.min(1, 1.5 / distPerp);
-        var r, g, b;
+        let brillo = Math.min(1, 1.5 / distPerp);
+        let r, g, b;
         if (lado === 1) {
             // Paredes N/S más oscuras
             r = Math.floor(42 * brillo);
@@ -366,7 +238,7 @@ function renderizar3D() {
 // --- Sprites 3D (llave y salida visibles en el mundo 3D) ---
 
 function renderizarSprites(zBuffer) {
-    var sprites = [];
+    let sprites = [];
 
     if (!tieneLlave) {
         sprites.push({ x: llaveCol + 0.5, y: llaveFila + 0.5, emoji: "\uD83D\uDD11", color: "#ffd700" });
@@ -380,26 +252,26 @@ function renderizarSprites(zBuffer) {
 
     // Ordenar por distancia (más lejanos primero para overlap correcto)
     sprites.sort(function (a, b) {
-        var da = (a.x - jugadorX) * (a.x - jugadorX) + (a.y - jugadorY) * (a.y - jugadorY);
-        var db = (b.x - jugadorX) * (b.x - jugadorX) + (b.y - jugadorY) * (b.y - jugadorY);
+        let da = (a.x - jugadorX) * (a.x - jugadorX) + (a.y - jugadorY) * (a.y - jugadorY);
+        let db = (b.x - jugadorX) * (b.x - jugadorX) + (b.y - jugadorY) * (b.y - jugadorY);
         return db - da;
     });
 
-    for (var i = 0; i < sprites.length; i++) {
+    for (let i = 0; i < sprites.length; i++) {
         dibujarSprite(sprites[i], zBuffer);
     }
 }
 
 function dibujarSprite(sprite, zBuffer) {
-    var dx = sprite.x - jugadorX;
-    var dy = sprite.y - jugadorY;
-    var dist = Math.sqrt(dx * dx + dy * dy);
+    let dx = sprite.x - jugadorX;
+    let dy = sprite.y - jugadorY;
+    let dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < 0.3) return;
 
     // Ángulo del sprite relativo al jugador
-    var anguloSprite = Math.atan2(dy, dx);
-    var anguloRel = anguloSprite - angulo;
+    let anguloSprite = Math.atan2(dy, dx);
+    let anguloRel = anguloSprite - angulo;
 
     // Normalizar a [-PI, PI]
     while (anguloRel > Math.PI) anguloRel -= 2 * Math.PI;
@@ -409,18 +281,18 @@ function dibujarSprite(sprite, zBuffer) {
     if (Math.abs(anguloRel) > FOV / 2 + 0.15) return;
 
     // Posición horizontal en pantalla
-    var screenX = (0.5 + anguloRel / FOV) * ANCHO_CANVAS;
+    let screenX = (0.5 + anguloRel / FOV) * ANCHO_CANVAS;
 
     // Distancia perpendicular para tamaño correcto
-    var distPerp = dist * Math.cos(anguloRel);
+    let distPerp = dist * Math.cos(anguloRel);
     if (distPerp < 0.1) return;
 
     // Verificar z-buffer: si hay pared delante, no dibujar
-    var colCentral = Math.floor(screenX / ANCHO_FRANJA);
+    let colCentral = Math.floor(screenX / ANCHO_FRANJA);
     if (colCentral >= 0 && colCentral < NUM_RAYOS && distPerp >= zBuffer[colCentral]) return;
 
     // Tamaño del emoji según distancia
-    var fontSize = Math.min(Math.max(ALTO_CANVAS / distPerp * 0.4, 10), 60);
+    let fontSize = Math.min(Math.max(ALTO_CANVAS / distPerp * 0.4, 10), 60);
 
     ctx3D.save();
     ctx3D.font = Math.floor(fontSize) + "px serif";
@@ -440,9 +312,9 @@ function crearMinimapBase() {
     minimapBase = document.createElement("canvas");
     minimapBase.width = ANCHO_MINIMAPA;
     minimapBase.height = ALTO_MINIMAPA;
-    var ctx = minimapBase.getContext("2d");
+    let ctx = minimapBase.getContext("2d");
 
-    var tamCelda = ANCHO_MINIMAPA / COLS;
+    let tamCelda = ANCHO_MINIMAPA / COLS;
 
     // Fondo
     ctx.fillStyle = "#0d0d1a";
@@ -450,8 +322,8 @@ function crearMinimapBase() {
 
     // Paredes
     ctx.fillStyle = "#2a1a3e";
-    for (var f = 0; f < FILAS; f++) {
-        for (var c = 0; c < COLS; c++) {
+    for (let f = 0; f < FILAS; f++) {
+        for (let c = 0; c < COLS; c++) {
             if (mapa[f][c] === 1) {
                 ctx.fillRect(
                     c * tamCelda, f * tamCelda,
@@ -466,7 +338,7 @@ function crearMinimapBase() {
 function renderizarMinimapa() {
     ctxMini.drawImage(minimapBase, 0, 0);
 
-    var tamCelda = ANCHO_MINIMAPA / COLS;
+    let tamCelda = ANCHO_MINIMAPA / COLS;
 
     // Salida (verde si tiene llave, gris si no)
     ctxMini.fillStyle = tieneLlave ? "#44ff44" : "#336633";
@@ -495,9 +367,9 @@ function renderizarMinimapa() {
     }
 
     // Jugador (avatar circular con glow)
-    var px = jugadorX * tamCelda;
-    var py = jugadorY * tamCelda;
-    var radioAvatar = 8;
+    let px = jugadorX * tamCelda;
+    let py = jugadorY * tamCelda;
+    let radioAvatar = 8;
 
     // Resplandor detrás del avatar
     ctxMini.save();
@@ -526,7 +398,7 @@ function renderizarMinimapa() {
     ctxMini.stroke();
 
     // Línea de dirección (más larga y gruesa)
-    var linLen = 12;
+    let linLen = 12;
     ctxMini.strokeStyle = "#ffcc00";
     ctxMini.lineWidth = 2;
     ctxMini.beginPath();
@@ -541,7 +413,7 @@ function renderizarMinimapa() {
     ctxMini.stroke();
 
     // Campo de visión (FOV) como dos líneas tenues
-    var fovLen = 18;
+    let fovLen = 18;
     ctxMini.strokeStyle = "rgba(255, 204, 0, 0.3)";
     ctxMini.lineWidth = 1;
     ctxMini.beginPath();
@@ -567,8 +439,8 @@ function renderizarMinimapa() {
 // --- Movimiento y colisiones ---
 
 function esPared(x, y) {
-    var col = Math.floor(x);
-    var fila = Math.floor(y);
+    let col = Math.floor(x);
+    let fila = Math.floor(y);
     if (fila < 0 || fila >= FILAS || col < 0 || col >= COLS) return true;
     return mapa[fila][col] === 1;
 }
@@ -587,7 +459,7 @@ function moverJugador() {
     if (teclas["ArrowRight"]) angulo += VELOCIDAD_GIRO;
 
     // Avanzar / retroceder
-    var dx = 0, dy = 0;
+    let dx = 0, dy = 0;
 
     if (teclas["ArrowUp"]) {
         dx += Math.cos(angulo) * VELOCIDAD_MOV;
@@ -600,14 +472,14 @@ function moverJugador() {
 
     // Colisión por eje separado (permite deslizarse contra paredes)
     if (dx !== 0) {
-        var nuevaX = jugadorX + dx;
+        let nuevaX = jugadorX + dx;
         if (!hayColision(nuevaX, jugadorY)) {
             jugadorX = nuevaX;
         }
     }
 
     if (dy !== 0) {
-        var nuevaY = jugadorY + dy;
+        let nuevaY = jugadorY + dy;
         if (!hayColision(jugadorX, nuevaY)) {
             jugadorY = nuevaY;
         }
@@ -619,8 +491,8 @@ function moverJugador() {
 function detectarLlave() {
     if (tieneLlave) return;
 
-    var celdaX = Math.floor(jugadorX);
-    var celdaY = Math.floor(jugadorY);
+    let celdaX = Math.floor(jugadorX);
+    let celdaY = Math.floor(jugadorY);
 
     if (celdaY === llaveFila && celdaX === llaveCol) {
         tieneLlave = true;
@@ -637,8 +509,8 @@ function detectarLlave() {
 function detectarSalida() {
     if (!tieneLlave) return;
 
-    var celdaX = Math.floor(jugadorX);
-    var celdaY = Math.floor(jugadorY);
+    let celdaX = Math.floor(jugadorX);
+    let celdaY = Math.floor(jugadorY);
 
     if (celdaY === entradaFila && celdaX === entradaCol) {
         activo = false;
@@ -661,7 +533,7 @@ function loop() {
     detectarLlave();
     detectarSalida();
 
-    var zBuffer = renderizar3D();
+    let zBuffer = renderizar3D();
     renderizarSprites(zBuffer);
     renderizarMinimapa();
 
@@ -690,14 +562,14 @@ export function iniciarHabitacion2(jugadorRef, callback) {
     activo = true;
 
     // Generar laberinto aleatorio
-    mapa = generarMapa();
+    mapa = generarMapa(FILAS, COLS, ATAJOS);
 
     // Entrada en la esquina inferior izquierda
     entradaFila = FILAS - 2;
     entradaCol = 1;
 
     // Colocar la llave en el punto más lejano de la entrada
-    var puntoLlave = encontrarPuntoLejano(mapa, entradaFila, entradaCol);
+    const puntoLlave = encontrarPuntoLejano(mapa, FILAS, COLS, entradaFila, entradaCol);
     llaveFila = puntoLlave[0];
     llaveCol = puntoLlave[1];
 
