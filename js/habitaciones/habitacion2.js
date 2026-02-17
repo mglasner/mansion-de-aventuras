@@ -2,7 +2,7 @@
 // Vista pseudo-3D con raycasting estilo Doom
 // El jugador debe encontrar la llave y volver a la salida
 
-import { generarMapa, encontrarPuntoLejano } from "../laberinto.js";
+import { generarMapa, encontrarPuntoLejano } from '../laberinto.js';
 
 // --- Constantes ---
 
@@ -58,56 +58,56 @@ let mensajeExito = null;
 // --- Crear pantalla HTML ---
 
 function crearPantalla() {
-    pantalla = document.createElement("div");
-    pantalla.id = "pantalla-habitacion2";
+    pantalla = document.createElement('div');
+    pantalla.id = 'pantalla-habitacion2';
 
-    let titulo = document.createElement("h2");
-    titulo.className = "titulo-habitacion";
-    titulo.textContent = "Habitación 2 — El Laberinto 3D";
+    const titulo = document.createElement('h2');
+    titulo.className = 'titulo-habitacion';
+    titulo.textContent = 'Habitación 2 — El Laberinto 3D';
 
-    indicador = document.createElement("p");
-    indicador.id = "laberinto3d-indicador";
+    indicador = document.createElement('p');
+    indicador.id = 'laberinto3d-indicador';
 
     // Contenedor para canvas 3D + minimapa
-    let contenedor = document.createElement("div");
-    contenedor.id = "contenedor-3d";
+    const contenedor = document.createElement('div');
+    contenedor.id = 'contenedor-3d';
 
-    canvas3D = document.createElement("canvas");
-    canvas3D.id = "canvas-3d";
+    canvas3D = document.createElement('canvas');
+    canvas3D.id = 'canvas-3d';
     canvas3D.width = ANCHO_CANVAS;
     canvas3D.height = ALTO_CANVAS;
-    ctx3D = canvas3D.getContext("2d");
+    ctx3D = canvas3D.getContext('2d');
 
-    canvasMini = document.createElement("canvas");
-    canvasMini.id = "canvas-minimapa";
+    canvasMini = document.createElement('canvas');
+    canvasMini.id = 'canvas-minimapa';
     canvasMini.width = ANCHO_MINIMAPA;
     canvasMini.height = ALTO_MINIMAPA;
-    ctxMini = canvasMini.getContext("2d");
+    ctxMini = canvasMini.getContext('2d');
 
     contenedor.appendChild(canvas3D);
     contenedor.appendChild(canvasMini);
 
     // Pre-crear gradientes (no cambian entre frames)
     gradCielo = ctx3D.createLinearGradient(0, 0, 0, ALTO_CANVAS / 2);
-    gradCielo.addColorStop(0, "#050510");
-    gradCielo.addColorStop(1, "#0f0a1a");
+    gradCielo.addColorStop(0, '#050510');
+    gradCielo.addColorStop(1, '#0f0a1a');
 
     gradSuelo = ctx3D.createLinearGradient(0, ALTO_CANVAS / 2, 0, ALTO_CANVAS);
-    gradSuelo.addColorStop(0, "#150d24");
-    gradSuelo.addColorStop(1, "#0a0510");
+    gradSuelo.addColorStop(0, '#150d24');
+    gradSuelo.addColorStop(1, '#0a0510');
 
-    mensajeExito = document.createElement("p");
-    mensajeExito.id = "laberinto3d-mensaje";
-    mensajeExito.classList.add("oculto");
+    mensajeExito = document.createElement('p');
+    mensajeExito.id = 'laberinto3d-mensaje';
+    mensajeExito.classList.add('oculto');
 
-    let hint = document.createElement("p");
-    hint.className = "laberinto-hint";
-    hint.textContent = "↑↓ avanzar/retroceder — ←→ girar";
+    const hint = document.createElement('p');
+    hint.className = 'laberinto-hint';
+    hint.textContent = '↑↓ avanzar/retroceder — ←→ girar';
 
-    let btnHuir = document.createElement("button");
-    btnHuir.id = "btn-huir-3d";
-    btnHuir.textContent = "← Huir al pasillo";
-    btnHuir.addEventListener("click", function () {
+    const btnHuir = document.createElement('button');
+    btnHuir.id = 'btn-huir-3d';
+    btnHuir.textContent = '← Huir al pasillo';
+    btnHuir.addEventListener('click', function () {
         limpiarHabitacion2();
         callbackSalir();
     });
@@ -119,7 +119,7 @@ function crearPantalla() {
     pantalla.appendChild(hint);
     pantalla.appendChild(btnHuir);
 
-    document.getElementById("juego").appendChild(pantalla);
+    document.getElementById('juego').appendChild(pantalla);
 }
 
 // --- Raycasting (algoritmo DDA) ---
@@ -134,22 +134,22 @@ function renderizar3D() {
     ctx3D.fillRect(0, ALTO_CANVAS / 2, ANCHO_CANVAS, ALTO_CANVAS / 2);
 
     // Z-buffer para sprites
-    let zBuffer = new Array(NUM_RAYOS);
+    const zBuffer = new Array(NUM_RAYOS);
 
     // Lanzar un rayo por cada columna
     for (let i = 0; i < NUM_RAYOS; i++) {
-        let anguloRayo = angulo - FOV / 2 + (i / NUM_RAYOS) * FOV;
+        const anguloRayo = angulo - FOV / 2 + (i / NUM_RAYOS) * FOV;
 
-        let rayDirX = Math.cos(anguloRayo);
-        let rayDirY = Math.sin(anguloRayo);
+        const rayDirX = Math.cos(anguloRayo);
+        const rayDirY = Math.sin(anguloRayo);
 
         // Celda actual del mapa
         let mapX = Math.floor(jugadorX);
         let mapY = Math.floor(jugadorY);
 
         // Distancia entre líneas de grid consecutivas a lo largo del rayo
-        let deltaDistX = Math.abs(1 / rayDirX);
-        let deltaDistY = Math.abs(1 / rayDirY);
+        const deltaDistX = Math.abs(1 / rayDirX);
+        const deltaDistY = Math.abs(1 / rayDirY);
 
         // Dirección de paso y distancia al primer borde
         let stepX, stepY, sideDistX, sideDistY;
@@ -209,12 +209,12 @@ function renderizar3D() {
         zBuffer[i] = distPerp;
 
         // Altura de la franja de pared en pantalla
-        let alturaPared = ALTO_CANVAS / distPerp;
-        let inicioY = Math.floor((ALTO_CANVAS - alturaPared) / 2);
-        let finY = Math.floor((ALTO_CANVAS + alturaPared) / 2);
+        const alturaPared = ALTO_CANVAS / distPerp;
+        const inicioY = Math.floor((ALTO_CANVAS - alturaPared) / 2);
+        const finY = Math.floor((ALTO_CANVAS + alturaPared) / 2);
 
         // Color con efecto de profundidad (más lejos = más oscuro)
-        let brillo = Math.min(1, 1.5 / distPerp);
+        const brillo = Math.min(1, 1.5 / distPerp);
         let r, g, b;
         if (lado === 1) {
             // Paredes N/S más oscuras
@@ -228,7 +228,7 @@ function renderizar3D() {
             b = Math.floor(85 * brillo);
         }
 
-        ctx3D.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+        ctx3D.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
         ctx3D.fillRect(i * ANCHO_FRANJA, inicioY, ANCHO_FRANJA, finY - inicioY);
     }
 
@@ -238,22 +238,28 @@ function renderizar3D() {
 // --- Sprites 3D (llave y salida visibles en el mundo 3D) ---
 
 function renderizarSprites(zBuffer) {
-    let sprites = [];
+    const sprites = [];
 
     if (!tieneLlave) {
-        sprites.push({ x: llaveCol + 0.5, y: llaveFila + 0.5, emoji: "\uD83D\uDD11", color: "#ffd700" });
+        sprites.push({
+            x: llaveCol + 0.5,
+            y: llaveFila + 0.5,
+            emoji: '\uD83D\uDD11',
+            color: '#ffd700',
+        });
     }
 
     sprites.push({
-        x: entradaCol + 0.5, y: entradaFila + 0.5,
-        emoji: "\uD83D\uDEAA",
-        color: tieneLlave ? "#44ff44" : "#444444",
+        x: entradaCol + 0.5,
+        y: entradaFila + 0.5,
+        emoji: '\uD83D\uDEAA',
+        color: tieneLlave ? '#44ff44' : '#444444',
     });
 
     // Ordenar por distancia (más lejanos primero para overlap correcto)
     sprites.sort(function (a, b) {
-        let da = (a.x - jugadorX) * (a.x - jugadorX) + (a.y - jugadorY) * (a.y - jugadorY);
-        let db = (b.x - jugadorX) * (b.x - jugadorX) + (b.y - jugadorY) * (b.y - jugadorY);
+        const da = (a.x - jugadorX) * (a.x - jugadorX) + (a.y - jugadorY) * (a.y - jugadorY);
+        const db = (b.x - jugadorX) * (b.x - jugadorX) + (b.y - jugadorY) * (b.y - jugadorY);
         return db - da;
     });
 
@@ -263,14 +269,14 @@ function renderizarSprites(zBuffer) {
 }
 
 function dibujarSprite(sprite, zBuffer) {
-    let dx = sprite.x - jugadorX;
-    let dy = sprite.y - jugadorY;
-    let dist = Math.sqrt(dx * dx + dy * dy);
+    const dx = sprite.x - jugadorX;
+    const dy = sprite.y - jugadorY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < 0.3) return;
 
     // Ángulo del sprite relativo al jugador
-    let anguloSprite = Math.atan2(dy, dx);
+    const anguloSprite = Math.atan2(dy, dx);
     let anguloRel = anguloSprite - angulo;
 
     // Normalizar a [-PI, PI]
@@ -281,23 +287,23 @@ function dibujarSprite(sprite, zBuffer) {
     if (Math.abs(anguloRel) > FOV / 2 + 0.15) return;
 
     // Posición horizontal en pantalla
-    let screenX = (0.5 + anguloRel / FOV) * ANCHO_CANVAS;
+    const screenX = (0.5 + anguloRel / FOV) * ANCHO_CANVAS;
 
     // Distancia perpendicular para tamaño correcto
-    let distPerp = dist * Math.cos(anguloRel);
+    const distPerp = dist * Math.cos(anguloRel);
     if (distPerp < 0.1) return;
 
     // Verificar z-buffer: si hay pared delante, no dibujar
-    let colCentral = Math.floor(screenX / ANCHO_FRANJA);
+    const colCentral = Math.floor(screenX / ANCHO_FRANJA);
     if (colCentral >= 0 && colCentral < NUM_RAYOS && distPerp >= zBuffer[colCentral]) return;
 
     // Tamaño del emoji según distancia
-    let fontSize = Math.min(Math.max(ALTO_CANVAS / distPerp * 0.4, 10), 60);
+    const fontSize = Math.min(Math.max((ALTO_CANVAS / distPerp) * 0.4, 10), 60);
 
     ctx3D.save();
-    ctx3D.font = Math.floor(fontSize) + "px serif";
-    ctx3D.textAlign = "center";
-    ctx3D.textBaseline = "middle";
+    ctx3D.font = Math.floor(fontSize) + 'px serif';
+    ctx3D.textAlign = 'center';
+    ctx3D.textBaseline = 'middle';
     ctx3D.shadowColor = sprite.color;
     ctx3D.shadowBlur = 15;
     ctx3D.fillText(sprite.emoji, screenX, ALTO_CANVAS / 2);
@@ -309,26 +315,23 @@ function dibujarSprite(sprite, zBuffer) {
 
 // Pre-renderiza las paredes en un canvas offscreen (no cambian)
 function crearMinimapBase() {
-    minimapBase = document.createElement("canvas");
+    minimapBase = document.createElement('canvas');
     minimapBase.width = ANCHO_MINIMAPA;
     minimapBase.height = ALTO_MINIMAPA;
-    let ctx = minimapBase.getContext("2d");
+    const ctx = minimapBase.getContext('2d');
 
-    let tamCelda = ANCHO_MINIMAPA / COLS;
+    const tamCelda = ANCHO_MINIMAPA / COLS;
 
     // Fondo
-    ctx.fillStyle = "#0d0d1a";
+    ctx.fillStyle = '#0d0d1a';
     ctx.fillRect(0, 0, ANCHO_MINIMAPA, ALTO_MINIMAPA);
 
     // Paredes
-    ctx.fillStyle = "#2a1a3e";
+    ctx.fillStyle = '#2a1a3e';
     for (let f = 0; f < FILAS; f++) {
         for (let c = 0; c < COLS; c++) {
             if (mapa[f][c] === 1) {
-                ctx.fillRect(
-                    c * tamCelda, f * tamCelda,
-                    tamCelda + 0.5, tamCelda + 0.5
-                );
+                ctx.fillRect(c * tamCelda, f * tamCelda, tamCelda + 0.5, tamCelda + 0.5);
             }
         }
     }
@@ -338,44 +341,36 @@ function crearMinimapBase() {
 function renderizarMinimapa() {
     ctxMini.drawImage(minimapBase, 0, 0);
 
-    let tamCelda = ANCHO_MINIMAPA / COLS;
+    const tamCelda = ANCHO_MINIMAPA / COLS;
 
     // Salida (verde si tiene llave, gris si no)
-    ctxMini.fillStyle = tieneLlave ? "#44ff44" : "#336633";
+    ctxMini.fillStyle = tieneLlave ? '#44ff44' : '#336633';
     ctxMini.beginPath();
-    ctxMini.arc(
-        (entradaCol + 0.5) * tamCelda,
-        (entradaFila + 0.5) * tamCelda,
-        4, 0, Math.PI * 2
-    );
+    ctxMini.arc((entradaCol + 0.5) * tamCelda, (entradaFila + 0.5) * tamCelda, 4, 0, Math.PI * 2);
     ctxMini.fill();
 
     // Llave (dorada con brillo, solo si no la tiene)
     if (!tieneLlave) {
         ctxMini.save();
-        ctxMini.shadowColor = "#ffd700";
+        ctxMini.shadowColor = '#ffd700';
         ctxMini.shadowBlur = 6;
-        ctxMini.fillStyle = "#ffd700";
+        ctxMini.fillStyle = '#ffd700';
         ctxMini.beginPath();
-        ctxMini.arc(
-            (llaveCol + 0.5) * tamCelda,
-            (llaveFila + 0.5) * tamCelda,
-            4, 0, Math.PI * 2
-        );
+        ctxMini.arc((llaveCol + 0.5) * tamCelda, (llaveFila + 0.5) * tamCelda, 4, 0, Math.PI * 2);
         ctxMini.fill();
         ctxMini.restore();
     }
 
     // Jugador (avatar circular con glow)
-    let px = jugadorX * tamCelda;
-    let py = jugadorY * tamCelda;
-    let radioAvatar = 8;
+    const px = jugadorX * tamCelda;
+    const py = jugadorY * tamCelda;
+    const radioAvatar = 8;
 
     // Resplandor detrás del avatar
     ctxMini.save();
-    ctxMini.shadowColor = "#ffcc00";
+    ctxMini.shadowColor = '#ffcc00';
     ctxMini.shadowBlur = 10;
-    ctxMini.fillStyle = "rgba(255, 204, 0, 0.4)";
+    ctxMini.fillStyle = 'rgba(255, 204, 0, 0.4)';
     ctxMini.beginPath();
     ctxMini.arc(px, py, radioAvatar + 2, 0, Math.PI * 2);
     ctxMini.fill();
@@ -387,25 +382,28 @@ function renderizarMinimapa() {
     ctxMini.arc(px, py, radioAvatar, 0, Math.PI * 2);
     ctxMini.closePath();
     ctxMini.clip();
-    ctxMini.drawImage(avatarImg, px - radioAvatar, py - radioAvatar, radioAvatar * 2, radioAvatar * 2);
+    ctxMini.drawImage(
+        avatarImg,
+        px - radioAvatar,
+        py - radioAvatar,
+        radioAvatar * 2,
+        radioAvatar * 2
+    );
     ctxMini.restore();
 
     // Borde del avatar (más grueso y brillante)
-    ctxMini.strokeStyle = "#ffcc00";
+    ctxMini.strokeStyle = '#ffcc00';
     ctxMini.lineWidth = 2.5;
     ctxMini.beginPath();
     ctxMini.arc(px, py, radioAvatar, 0, Math.PI * 2);
     ctxMini.stroke();
 
     // Línea de dirección (más larga y gruesa)
-    let linLen = 12;
-    ctxMini.strokeStyle = "#ffcc00";
+    const linLen = 12;
+    ctxMini.strokeStyle = '#ffcc00';
     ctxMini.lineWidth = 2;
     ctxMini.beginPath();
-    ctxMini.moveTo(
-        px + Math.cos(angulo) * radioAvatar,
-        py + Math.sin(angulo) * radioAvatar
-    );
+    ctxMini.moveTo(px + Math.cos(angulo) * radioAvatar, py + Math.sin(angulo) * radioAvatar);
     ctxMini.lineTo(
         px + Math.cos(angulo) * (radioAvatar + linLen),
         py + Math.sin(angulo) * (radioAvatar + linLen)
@@ -413,8 +411,8 @@ function renderizarMinimapa() {
     ctxMini.stroke();
 
     // Campo de visión (FOV) como dos líneas tenues
-    let fovLen = 18;
-    ctxMini.strokeStyle = "rgba(255, 204, 0, 0.3)";
+    const fovLen = 18;
+    ctxMini.strokeStyle = 'rgba(255, 204, 0, 0.3)';
     ctxMini.lineWidth = 1;
     ctxMini.beginPath();
     ctxMini.moveTo(
@@ -439,47 +437,50 @@ function renderizarMinimapa() {
 // --- Movimiento y colisiones ---
 
 function esPared(x, y) {
-    let col = Math.floor(x);
-    let fila = Math.floor(y);
+    const col = Math.floor(x);
+    const fila = Math.floor(y);
     if (fila < 0 || fila >= FILAS || col < 0 || col >= COLS) return true;
     return mapa[fila][col] === 1;
 }
 
 // Verifica colisión usando las 4 esquinas del radio de colisión
 function hayColision(x, y) {
-    return esPared(x - RADIO_COLISION, y - RADIO_COLISION) ||
-           esPared(x + RADIO_COLISION, y - RADIO_COLISION) ||
-           esPared(x - RADIO_COLISION, y + RADIO_COLISION) ||
-           esPared(x + RADIO_COLISION, y + RADIO_COLISION);
+    return (
+        esPared(x - RADIO_COLISION, y - RADIO_COLISION) ||
+        esPared(x + RADIO_COLISION, y - RADIO_COLISION) ||
+        esPared(x - RADIO_COLISION, y + RADIO_COLISION) ||
+        esPared(x + RADIO_COLISION, y + RADIO_COLISION)
+    );
 }
 
 function moverJugador() {
     // Rotación
-    if (teclas["ArrowLeft"]) angulo -= VELOCIDAD_GIRO;
-    if (teclas["ArrowRight"]) angulo += VELOCIDAD_GIRO;
+    if (teclas['ArrowLeft']) angulo -= VELOCIDAD_GIRO;
+    if (teclas['ArrowRight']) angulo += VELOCIDAD_GIRO;
 
     // Avanzar / retroceder
-    let dx = 0, dy = 0;
+    let dx = 0,
+        dy = 0;
 
-    if (teclas["ArrowUp"]) {
+    if (teclas['ArrowUp']) {
         dx += Math.cos(angulo) * VELOCIDAD_MOV;
         dy += Math.sin(angulo) * VELOCIDAD_MOV;
     }
-    if (teclas["ArrowDown"]) {
+    if (teclas['ArrowDown']) {
         dx -= Math.cos(angulo) * VELOCIDAD_MOV;
         dy -= Math.sin(angulo) * VELOCIDAD_MOV;
     }
 
     // Colisión por eje separado (permite deslizarse contra paredes)
     if (dx !== 0) {
-        let nuevaX = jugadorX + dx;
+        const nuevaX = jugadorX + dx;
         if (!hayColision(nuevaX, jugadorY)) {
             jugadorX = nuevaX;
         }
     }
 
     if (dy !== 0) {
-        let nuevaY = jugadorY + dy;
+        const nuevaY = jugadorY + dy;
         if (!hayColision(jugadorX, nuevaY)) {
             jugadorY = nuevaY;
         }
@@ -491,31 +492,31 @@ function moverJugador() {
 function detectarLlave() {
     if (tieneLlave) return;
 
-    let celdaX = Math.floor(jugadorX);
-    let celdaY = Math.floor(jugadorY);
+    const celdaX = Math.floor(jugadorX);
+    const celdaY = Math.floor(jugadorY);
 
     if (celdaY === llaveFila && celdaX === llaveCol) {
         tieneLlave = true;
 
-        indicador.textContent = "\uD83D\uDD11 \u00A1Llave obtenida! Vuelve a la salida";
-        indicador.classList.add("llave-obtenida");
+        indicador.textContent = '\uD83D\uDD11 \u00A1Llave obtenida! Vuelve a la salida';
+        indicador.classList.add('llave-obtenida');
 
         // Guardar en inventario y notificar a la barra superior
-        jugador.inventario.push("llave-habitacion-3");
-        document.dispatchEvent(new Event("inventario-cambio"));
+        jugador.inventario.push('llave-habitacion-3');
+        document.dispatchEvent(new Event('inventario-cambio'));
     }
 }
 
 function detectarSalida() {
     if (!tieneLlave) return;
 
-    let celdaX = Math.floor(jugadorX);
-    let celdaY = Math.floor(jugadorY);
+    const celdaX = Math.floor(jugadorX);
+    const celdaY = Math.floor(jugadorY);
 
     if (celdaY === entradaFila && celdaX === entradaCol) {
         activo = false;
-        mensajeExito.textContent = "\u00A1Escapaste con la llave!";
-        mensajeExito.classList.remove("oculto");
+        mensajeExito.textContent = '\u00A1Escapaste con la llave!';
+        mensajeExito.classList.remove('oculto');
 
         setTimeout(function () {
             limpiarHabitacion2();
@@ -533,7 +534,7 @@ function loop() {
     detectarLlave();
     detectarSalida();
 
-    let zBuffer = renderizar3D();
+    const zBuffer = renderizar3D();
     renderizarSprites(zBuffer);
     renderizarMinimapa();
 
@@ -543,7 +544,7 @@ function loop() {
 // --- Handlers de teclado ---
 
 function onKeyDown(e) {
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
         teclas[e.key] = true;
     }
@@ -589,13 +590,13 @@ export function iniciarHabitacion2(jugadorRef, callback) {
     crearMinimapBase();
 
     // Resetear indicador
-    indicador.textContent = "\uD83D\uDD11 Encuentra la llave";
-    indicador.classList.remove("llave-obtenida");
-    mensajeExito.classList.add("oculto");
+    indicador.textContent = '\uD83D\uDD11 Encuentra la llave';
+    indicador.classList.remove('llave-obtenida');
+    mensajeExito.classList.add('oculto');
 
     // Registrar controles
-    document.addEventListener("keydown", onKeyDown);
-    document.addEventListener("keyup", onKeyUp);
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
 
     // Iniciar game loop
     animacionId = requestAnimationFrame(loop);
@@ -610,8 +611,8 @@ export function limpiarHabitacion2() {
     }
 
     // Remover handlers de teclado
-    document.removeEventListener("keydown", onKeyDown);
-    document.removeEventListener("keyup", onKeyUp);
+    document.removeEventListener('keydown', onKeyDown);
+    document.removeEventListener('keyup', onKeyUp);
 
     // Limpiar teclas
     Object.keys(teclas).forEach(function (k) {

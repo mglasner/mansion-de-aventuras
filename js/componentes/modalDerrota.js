@@ -8,27 +8,27 @@ export function crearModalDerrota() {
 
     // --- Crear estructura DOM ---
 
-    let el = document.createElement("div");
-    el.className = "modal-derrota oculto";
+    const el = document.createElement('div');
+    el.className = 'modal-derrota oculto';
 
-    let fondo = document.createElement("div");
-    fondo.className = "modal-derrota-fondo";
+    const fondo = document.createElement('div');
+    fondo.className = 'modal-derrota-fondo';
 
-    let contenido = document.createElement("div");
-    contenido.className = "modal-derrota-caja";
+    const contenido = document.createElement('div');
+    contenido.className = 'modal-derrota-caja';
 
-    let icono = document.createElement("div");
-    icono.className = "modal-derrota-icono";
-    icono.textContent = "💀";
+    const icono = document.createElement('div');
+    icono.className = 'modal-derrota-icono';
+    icono.textContent = '💀';
 
-    let titulo = document.createElement("h2");
-    titulo.textContent = "Has sido derrotado...";
+    const titulo = document.createElement('h2');
+    titulo.textContent = 'Has sido derrotado...';
 
-    let mensaje = document.createElement("p");
+    const mensaje = document.createElement('p');
 
-    let btnAceptar = document.createElement("button");
-    btnAceptar.className = "modal-derrota-btn";
-    btnAceptar.textContent = "Volver a intentar";
+    const btnAceptar = document.createElement('button');
+    btnAceptar.className = 'modal-derrota-btn';
+    btnAceptar.textContent = 'Volver a intentar';
 
     contenido.appendChild(icono);
     contenido.appendChild(titulo);
@@ -40,7 +40,7 @@ export function crearModalDerrota() {
     // --- Funciones internas ---
 
     function cerrar() {
-        el.classList.add("oculto");
+        el.classList.add('oculto');
         // Quitar del DOM al cerrar
         if (el.parentNode) el.parentNode.removeChild(el);
         if (callbackAceptar) callbackAceptar();
@@ -48,27 +48,27 @@ export function crearModalDerrota() {
 
     // --- Eventos ---
 
-    btnAceptar.addEventListener("click", cerrar);
-    fondo.addEventListener("click", cerrar);
+    btnAceptar.addEventListener('click', cerrar);
+    fondo.addEventListener('click', cerrar);
 
     // --- API del componente ---
 
-    let api = {
+    const api = {
         // contenedor: elemento DOM donde montar el modal (ej: pantalla de habitación)
         mostrar: function (nombreJugador, contenedor) {
             mensaje.textContent = nombreJugador
-                ? nombreJugador + " no sobrevivió a La Casa del Terror."
-                : "No sobreviviste a La Casa del Terror.";
+                ? nombreJugador + ' no sobrevivió a La Casa del Terror.'
+                : 'No sobreviviste a La Casa del Terror.';
             contenedor.appendChild(el);
-            el.classList.remove("oculto");
+            el.classList.remove('oculto');
         },
 
         estaAbierto: function () {
-            return !el.classList.contains("oculto");
+            return !el.classList.contains('oculto');
         },
 
         manejarTecla: function (e) {
-            if (e.key === "Enter") {
+            if (e.key === 'Enter') {
                 e.preventDefault();
                 cerrar();
             }

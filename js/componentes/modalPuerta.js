@@ -9,32 +9,32 @@ export function crearModalPuerta(contenedor) {
 
     // --- Crear estructura DOM ---
 
-    let el = document.createElement("div");
-    el.id = "modal-puerta";
-    el.classList.add("oculto");
+    const el = document.createElement('div');
+    el.id = 'modal-puerta';
+    el.classList.add('oculto');
 
-    let fondo = document.createElement("div");
-    fondo.className = "modal-fondo";
+    const fondo = document.createElement('div');
+    fondo.className = 'modal-fondo';
 
-    let contenido = document.createElement("div");
-    contenido.className = "modal-contenido";
+    const contenido = document.createElement('div');
+    contenido.className = 'modal-contenido';
 
-    let titulo = document.createElement("h2");
-    titulo.id = "modal-titulo";
+    const titulo = document.createElement('h2');
+    titulo.id = 'modal-titulo';
 
-    let mensaje = document.createElement("p");
-    mensaje.id = "modal-mensaje";
+    const mensaje = document.createElement('p');
+    mensaje.id = 'modal-mensaje';
 
-    let botonesDiv = document.createElement("div");
-    botonesDiv.className = "modal-botones";
+    const botonesDiv = document.createElement('div');
+    botonesDiv.className = 'modal-botones';
 
-    let btnEntrar = document.createElement("button");
-    btnEntrar.id = "btn-entrar";
-    btnEntrar.textContent = "Entrar";
+    const btnEntrar = document.createElement('button');
+    btnEntrar.id = 'btn-entrar';
+    btnEntrar.textContent = 'Entrar';
 
-    let btnCancelar = document.createElement("button");
-    btnCancelar.id = "btn-cancelar";
-    btnCancelar.textContent = "No, mejor no";
+    const btnCancelar = document.createElement('button');
+    btnCancelar.id = 'btn-cancelar';
+    btnCancelar.textContent = 'No, mejor no';
 
     botonesDiv.appendChild(btnEntrar);
     botonesDiv.appendChild(btnCancelar);
@@ -45,68 +45,68 @@ export function crearModalPuerta(contenedor) {
     el.appendChild(contenido);
     contenedor.appendChild(el);
 
-    let botones = [btnEntrar, btnCancelar];
+    const botones = [btnEntrar, btnCancelar];
 
     // --- Funciones internas ---
 
     function actualizarFoco() {
         botones.forEach(function (btn, i) {
             if (i === botonSeleccionado) {
-                btn.classList.add("modal-btn-foco");
+                btn.classList.add('modal-btn-foco');
             } else {
-                btn.classList.remove("modal-btn-foco");
+                btn.classList.remove('modal-btn-foco');
             }
         });
     }
 
     function cerrarYEjecutar(callback) {
-        let puerta = puertaActiva;
+        const puerta = puertaActiva;
         api.cerrar();
         if (callback) callback(puerta);
     }
 
     // --- Eventos ---
 
-    btnEntrar.addEventListener("click", function () {
+    btnEntrar.addEventListener('click', function () {
         cerrarYEjecutar(callbackEntrar);
     });
 
-    btnCancelar.addEventListener("click", function () {
+    btnCancelar.addEventListener('click', function () {
         cerrarYEjecutar(callbackCancelar);
     });
 
-    fondo.addEventListener("click", function () {
+    fondo.addEventListener('click', function () {
         cerrarYEjecutar(callbackCancelar);
     });
 
     // --- API del componente ---
 
-    let api = {
+    const api = {
         mostrar: function (numeroPuerta) {
             puertaActiva = numeroPuerta;
-            titulo.textContent = "Habitación " + numeroPuerta;
-            mensaje.textContent = "¿Quieres entrar a esta habitación?";
-            el.classList.remove("oculto");
+            titulo.textContent = 'Habitación ' + numeroPuerta;
+            mensaje.textContent = '¿Quieres entrar a esta habitación?';
+            el.classList.remove('oculto');
             botonSeleccionado = 0;
             actualizarFoco();
         },
 
         cerrar: function () {
-            el.classList.add("oculto");
+            el.classList.add('oculto');
             puertaActiva = null;
         },
 
         estaAbierto: function () {
-            return !el.classList.contains("oculto");
+            return !el.classList.contains('oculto');
         },
 
         // Maneja navegación con flechas y Enter dentro del modal
         manejarTecla: function (e) {
-            if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                 e.preventDefault();
                 botonSeleccionado = botonSeleccionado === 0 ? 1 : 0;
                 actualizarFoco();
-            } else if (e.key === "Enter") {
+            } else if (e.key === 'Enter') {
                 e.preventDefault();
                 botones[botonSeleccionado].click();
             }

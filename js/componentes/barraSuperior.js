@@ -2,58 +2,58 @@
 // Muestra avatar, vida e inventario durante el juego
 
 const ICONOS_ITEMS = {
-    "llave-habitacion-2": "🔑",
-    "llave-habitacion-3": "🔑",
+    'llave-habitacion-2': '🔑',
+    'llave-habitacion-3': '🔑',
 };
 
 export function crearBarraSuperior(contenedor) {
     // --- Crear estructura DOM ---
 
-    let el = document.createElement("div");
-    el.id = "barra-superior";
-    el.classList.add("oculto");
+    const el = document.createElement('div');
+    el.id = 'barra-superior';
+    el.classList.add('oculto');
 
     // Jugador (avatar + nombre)
-    let jugadorDiv = document.createElement("div");
-    jugadorDiv.className = "barra-jugador";
+    const jugadorDiv = document.createElement('div');
+    jugadorDiv.className = 'barra-jugador';
 
-    let avatar = document.createElement("img");
-    avatar.id = "barra-avatar";
+    const avatar = document.createElement('img');
+    avatar.id = 'barra-avatar';
 
-    let nombre = document.createElement("span");
-    nombre.id = "barra-nombre";
+    const nombre = document.createElement('span');
+    nombre.id = 'barra-nombre';
 
     jugadorDiv.appendChild(avatar);
     jugadorDiv.appendChild(nombre);
 
     // Barra de vida
-    let vidaDiv = document.createElement("div");
-    vidaDiv.className = "barra-vida-jugador";
+    const vidaDiv = document.createElement('div');
+    vidaDiv.className = 'barra-vida-jugador';
 
-    let barraFondo = document.createElement("div");
-    barraFondo.className = "barra-vida-fondo";
+    const barraFondo = document.createElement('div');
+    barraFondo.className = 'barra-vida-fondo';
 
-    let barraRelleno = document.createElement("div");
-    barraRelleno.className = "barra-vida-relleno";
+    const barraRelleno = document.createElement('div');
+    barraRelleno.className = 'barra-vida-relleno';
 
     barraFondo.appendChild(barraRelleno);
 
-    let vidaTexto = document.createElement("span");
-    vidaTexto.className = "barra-vida-texto";
+    const vidaTexto = document.createElement('span');
+    vidaTexto.className = 'barra-vida-texto';
 
     vidaDiv.appendChild(barraFondo);
     vidaDiv.appendChild(vidaTexto);
 
     // Inventario
-    let invDiv = document.createElement("div");
-    invDiv.className = "barra-inventario";
+    const invDiv = document.createElement('div');
+    invDiv.className = 'barra-inventario';
 
-    let invLabel = document.createElement("span");
-    invLabel.className = "barra-inventario-label";
-    invLabel.textContent = "Items:";
+    const invLabel = document.createElement('span');
+    invLabel.className = 'barra-inventario-label';
+    invLabel.textContent = 'Items:';
 
-    let invItems = document.createElement("div");
-    invItems.className = "barra-inventario-items";
+    const invItems = document.createElement('div');
+    invItems.className = 'barra-inventario-items';
 
     invDiv.appendChild(invLabel);
     invDiv.appendChild(invItems);
@@ -66,46 +66,46 @@ export function crearBarraSuperior(contenedor) {
 
     // --- API del componente ---
 
-    let api = {
+    const api = {
         mostrar: function (jugador) {
             avatar.src = jugador.img;
             avatar.alt = jugador.nombre;
             nombre.textContent = jugador.nombre;
 
             // Clase de color según personaje
-            el.className = "barra-superior";
-            el.classList.add(jugador.clase.replace("jugador-", "barra-"));
+            el.className = 'barra-superior';
+            el.classList.add(jugador.clase.replace('jugador-', 'barra-'));
 
             api.actualizarVida(jugador);
             api.actualizarInventario(jugador);
         },
 
         ocultar: function () {
-            el.classList.add("oculto");
+            el.classList.add('oculto');
         },
 
         actualizarVida: function (jugador) {
-            let porcentaje = Math.round((jugador.vidaActual / jugador.vidaMax) * 100);
-            barraRelleno.style.width = porcentaje + "%";
-            vidaTexto.textContent = jugador.vidaActual + "/" + jugador.vidaMax;
+            const porcentaje = Math.round((jugador.vidaActual / jugador.vidaMax) * 100);
+            barraRelleno.style.width = porcentaje + '%';
+            vidaTexto.textContent = jugador.vidaActual + '/' + jugador.vidaMax;
         },
 
         actualizarInventario: function (jugador) {
             invItems.replaceChildren();
 
             if (jugador.inventario.length === 0) {
-                let vacio = document.createElement("span");
-                vacio.style.fontSize = "0.75rem";
-                vacio.style.color = "#555";
-                vacio.textContent = "—";
+                const vacio = document.createElement('span');
+                vacio.style.fontSize = '0.75rem';
+                vacio.style.color = '#555';
+                vacio.textContent = '—';
                 invItems.appendChild(vacio);
                 return;
             }
 
             jugador.inventario.forEach(function (item) {
-                let span = document.createElement("span");
-                span.className = "inventario-item";
-                span.textContent = ICONOS_ITEMS[item] || "📦";
+                const span = document.createElement('span');
+                span.className = 'inventario-item';
+                span.textContent = ICONOS_ITEMS[item] || '📦';
                 span.title = item;
                 invItems.appendChild(span);
             });

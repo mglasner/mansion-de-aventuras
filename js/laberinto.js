@@ -38,7 +38,12 @@ export function generarMapa(filas, cols, atajos) {
     }
 
     // Direcciones: arriba, derecha, abajo, izquierda
-    const dirs = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+    const dirs = [
+        [-1, 0],
+        [0, 1],
+        [1, 0],
+        [0, -1],
+    ];
 
     // DFS iterativo con stack (evita desbordamiento de pila)
     const stack = [[0, 0]];
@@ -47,7 +52,8 @@ export function generarMapa(filas, cols, atajos) {
 
     while (stack.length > 0) {
         const actual = stack[stack.length - 1];
-        const f = actual[0], c = actual[1];
+        const f = actual[0],
+            c = actual[1];
 
         // Buscar vecinos no visitados
         const vecinos = [];
@@ -62,7 +68,8 @@ export function generarMapa(filas, cols, atajos) {
         if (vecinos.length > 0) {
             // Elegir vecino aleatorio
             const elegido = vecinos[Math.floor(Math.random() * vecinos.length)];
-            const nf = elegido[0], nc = elegido[1];
+            const nf = elegido[0],
+                nc = elegido[1];
 
             // Abrir la pared entre las dos celdas
             mapa[f * 2 + 1 + dirs[elegido[2]][0]][c * 2 + 1 + dirs[elegido[2]][1]] = 0;
@@ -124,11 +131,18 @@ export function encontrarPuntoLejano(mapa, filas, cols, inicioF, inicioC) {
 
     let masLejano = [inicioF, inicioC];
     let maxDist = 0;
-    const dirs = [[-1, 0], [0, 1], [1, 0], [0, -1]];
+    const dirs = [
+        [-1, 0],
+        [0, 1],
+        [1, 0],
+        [0, -1],
+    ];
 
     while (idx < cola.length) {
         const actual = cola[idx++];
-        const f = actual[0], c = actual[1], dist = actual[2];
+        const f = actual[0],
+            c = actual[1],
+            dist = actual[2];
 
         // Solo considerar celdas lógicas (intersecciones) para la llave
         if (dist > maxDist && f % 2 === 1 && c % 2 === 1) {
@@ -139,7 +153,14 @@ export function encontrarPuntoLejano(mapa, filas, cols, inicioF, inicioC) {
         for (let d = 0; d < dirs.length; d++) {
             const nf = f + dirs[d][0];
             const nc = c + dirs[d][1];
-            if (nf >= 0 && nf < filas && nc >= 0 && nc < cols && !visitadoBFS[nf][nc] && mapa[nf][nc] === 0) {
+            if (
+                nf >= 0 &&
+                nf < filas &&
+                nc >= 0 &&
+                nc < cols &&
+                !visitadoBFS[nf][nc] &&
+                mapa[nf][nc] === 0
+            ) {
                 visitadoBFS[nf][nc] = true;
                 cola.push([nf, nc, dist + 1]);
             }
