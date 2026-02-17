@@ -272,6 +272,13 @@ const modalDerrota = crearModalDerrota();
 const transicion = crearTransicion();
 const dpad = crearControlesTouch();
 
+// Ocultar hint de teclado en dispositivos touch
+const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+if (esTouch) {
+    const hint = document.getElementById('controles-hint');
+    if (hint) hint.style.display = 'none';
+}
+
 // Escuchar cambios de inventario desde las habitaciones
 document.addEventListener('inventario-cambio', function () {
     if (estado.jugadorActual) {
@@ -466,6 +473,11 @@ document.addEventListener('keydown', function (e) {
                 iniciarJuego();
             }
         }
+        return;
+    }
+
+    if (e.key === 'Escape' && estado.estadoActual === ESTADOS.PASILLO) {
+        volverASeleccion();
         return;
     }
 

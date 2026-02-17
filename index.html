@@ -22,6 +22,13 @@
 
             <!-- Pantalla del pasillo (oculta al inicio) -->
             <div id="pantalla-juego" class="oculto">
+                <div class="cabecera-habitacion">
+                    <button id="btn-volver" class="btn-huir" title="Volver a elegir personaje (Esc)">
+                        <span class="btn-huir-flecha">←</span> 🚪
+                    </button>
+                    <h2 class="titulo-habitacion">El Pasillo</h2>
+                </div>
+
                 <div id="pasillo">
                     <!-- Decoración del pasillo -->
                     <div class="deco-cuadro deco-cuadro-izq">
@@ -56,8 +63,7 @@
                     </div>
                 </div>
 
-                <p id="controles-hint">Usa las flechas ← ↑ ↓ → para moverte</p>
-                <button id="btn-volver">← Volver a elegir personaje</button>
+                <p id="controles-hint">Usa las flechas ← ↑ ↓ → para moverte · Esc para volver</p>
             </div>
 
             <!-- Barra superior, modal y habitaciones se crean desde JS (componentes) -->

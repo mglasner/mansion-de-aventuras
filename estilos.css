@@ -1274,26 +1274,6 @@ h1 {
     }
 }
 
-/* --- Botón volver --- */
-
-#btn-volver {
-    margin-top: 10px;
-    padding: 10px 25px;
-    font-size: 0.95rem;
-    border: 2px solid var(--color-borde-claro);
-    border-radius: var(--radio-boton);
-    cursor: pointer;
-    background-color: transparent;
-    color: #888;
-    transition:
-        border-color 0.3s,
-        color 0.3s;
-}
-
-#btn-volver:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-}
 
 /* --- Modal de confirmación --- */
 
@@ -2580,7 +2560,6 @@ h1 {
 
 /* Targets mínimos de 44x44px y posición de botones en touch */
 @media (pointer: coarse) {
-    #btn-volver,
     #btn-entrar,
     #btn-cancelar,
     .modal-derrota-btn,
