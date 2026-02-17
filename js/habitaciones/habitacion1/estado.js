@@ -76,13 +76,29 @@ export function aplicarDanoJugador(dano) {
     est.contenedorLaberinto.appendChild(elem);
     setTimeout(function () {
         if (elem.parentNode) elem.parentNode.removeChild(elem);
-    }, 800);
+    }, 1000);
 
-    // Flash visual
+    // Flash en el sprite del jugador
     est.elementoJugador.classList.add('jugador-golpeado');
     setTimeout(function () {
         est.elementoJugador.classList.remove('jugador-golpeado');
     }, 300);
+
+    // Screen shake en el contenedor del laberinto
+    est.contenedorLaberinto.classList.remove('screen-shake');
+    void est.contenedorLaberinto.offsetWidth; // forzar reflow para reiniciar animación
+    est.contenedorLaberinto.classList.add('screen-shake');
+    setTimeout(function () {
+        est.contenedorLaberinto.classList.remove('screen-shake');
+    }, 300);
+
+    // Viñeta roja en el contenedor del laberinto
+    est.contenedorLaberinto.classList.remove('vineta-dano');
+    void est.contenedorLaberinto.offsetWidth;
+    est.contenedorLaberinto.classList.add('vineta-dano');
+    setTimeout(function () {
+        est.contenedorLaberinto.classList.remove('vineta-dano');
+    }, 400);
 
     if (!est.jugador.estaVivo()) {
         est.activo = false;
