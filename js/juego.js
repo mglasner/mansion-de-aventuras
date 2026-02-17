@@ -98,23 +98,76 @@ function generarTarjeta(nombre, datos, tipo) {
     return tarjeta;
 }
 
+// --- Carrusel con flechas ---
+
+function crearCarrusel(contenedor) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'carrusel-wrapper';
+    contenedor.parentNode.insertBefore(wrapper, contenedor);
+    wrapper.appendChild(contenedor);
+
+    const btnIzq = document.createElement('button');
+    btnIzq.className = 'carrusel-btn carrusel-btn-izq';
+    btnIzq.textContent = '\u2039';
+    btnIzq.type = 'button';
+
+    const btnDer = document.createElement('button');
+    btnDer.className = 'carrusel-btn carrusel-btn-der';
+    btnDer.textContent = '\u203A';
+    btnDer.type = 'button';
+
+    wrapper.appendChild(btnIzq);
+    wrapper.appendChild(btnDer);
+
+    function actualizarFlechas() {
+        btnIzq.disabled = contenedor.scrollLeft <= 0;
+        btnDer.disabled =
+            contenedor.scrollLeft >= contenedor.scrollWidth - contenedor.clientWidth - 1;
+    }
+
+    btnIzq.addEventListener('click', function () {
+        contenedor.scrollBy({ left: -220, behavior: 'smooth' });
+    });
+
+    btnDer.addEventListener('click', function () {
+        contenedor.scrollBy({ left: 220, behavior: 'smooth' });
+    });
+
+    contenedor.addEventListener('scroll', actualizarFlechas);
+    // Actualizar al cargar y cuando cambie el tamaño
+    actualizarFlechas();
+    window.addEventListener('resize', actualizarFlechas);
+}
+
 // --- Generar tarjetas dinámicamente ---
 
-// Generar tarjetas de personajes
+// Mezclar un array en orden aleatorio (Fisher-Yates)
+function mezclar(array) {
+    const copia = array.slice();
+    for (let i = copia.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+    return copia;
+}
+
+// Generar tarjetas de personajes (orden aleatorio)
 const contenedorPersonajes = document.querySelector('.personajes');
 contenedorPersonajes.replaceChildren();
-Object.keys(PERSONAJES).forEach(function (nombre) {
+mezclar(Object.keys(PERSONAJES)).forEach(function (nombre) {
     const tarjeta = generarTarjeta(nombre, PERSONAJES[nombre], 'personaje');
     contenedorPersonajes.appendChild(tarjeta);
 });
+crearCarrusel(contenedorPersonajes);
 
-// Generar tarjetas de villanos
+// Generar tarjetas de villanos (orden aleatorio)
 const contenedorVillanos = document.querySelector('.villanos');
 contenedorVillanos.replaceChildren();
-Object.keys(ENEMIGOS).forEach(function (nombre) {
+mezclar(Object.keys(ENEMIGOS)).forEach(function (nombre) {
     const tarjeta = generarTarjeta(nombre, ENEMIGOS[nombre], 'villano');
     contenedorVillanos.appendChild(tarjeta);
 });
+crearCarrusel(contenedorVillanos);
 
 // --- Estado del juego ---
 
@@ -178,7 +231,11 @@ function enfocarPersonaje(indice) {
     estado.indiceFoco = indice;
     if (indice >= 0 && indice < tarjetasPersonajes.length) {
         tarjetasPersonajes[indice].classList.add('enfocado');
-        tarjetasPersonajes[indice].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        tarjetasPersonajes[indice].scrollIntoView({
+            inline: 'center',
+            block: 'nearest',
+            behavior: 'smooth',
+        });
     }
 }
 
