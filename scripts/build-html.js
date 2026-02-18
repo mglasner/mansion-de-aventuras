@@ -16,3 +16,6 @@ writeFileSync('dist/index.html', html);
 
 // Copiar assets estáticos (imágenes y fuentes)
 cpSync('assets', 'dist/assets', { recursive: true });
+
+// Copiar service worker
+cpSync('sw.js', 'dist/sw.js');
