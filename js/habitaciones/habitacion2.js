@@ -26,6 +26,8 @@ import {
     generarTrampas3D,
     detectarTrampas3D,
     obtenerSpritesTrampas3D,
+    actualizarFuegoTrampas,
+    renderizarFuegoTrampas,
     limpiarTrampas3D,
 } from '../motor3d/trampas3d.js';
 
@@ -74,8 +76,8 @@ let ultimoFrame = 0;
 let framesLentos = 0;
 let flashDano = 0;
 
-// Pool de sprites preallocado para el loop (llave + puerta + ~30 decoraciones + ~50 trampas)
-const MAX_SPRITES_LOOP = 85;
+// Pool de sprites preallocado para el loop (llave + puerta + ~30 decoraciones + ~10 trampas inactivas)
+const MAX_SPRITES_LOOP = 50;
 const _sprites = Array.from({ length: MAX_SPRITES_LOOP }, () => ({
     x: 0,
     y: 0,
@@ -246,6 +248,7 @@ function loop(ahora) {
         actualizarDecoraciones(decoraciones, ahora);
     }
     actualizarParticulas(ahora, decoraciones ? decoraciones.antorchas : [], estado.x, estado.y);
+    actualizarFuegoTrampas(estado.x, estado.y);
 
     // Renderizar vista 3D
     const zBuffer = renderizar3D(
@@ -318,6 +321,7 @@ function loop(ahora) {
 
     // Partículas (después de sprites, encima de todo)
     renderizarParticulas(ctx3D, zBuffer, estado.x, estado.y, estado.angulo);
+    renderizarFuegoTrampas(ctx3D, zBuffer, estado.x, estado.y, estado.angulo);
 
     // Flash rojo de daño por trampas
     if (flashDano > 0) {
