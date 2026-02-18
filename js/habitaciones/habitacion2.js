@@ -22,6 +22,12 @@ import {
     limpiarParticulas,
 } from '../motor3d/particulas.js';
 import { precalcularMapaLuz } from '../motor3d/iluminacion.js';
+import {
+    generarTrampas3D,
+    detectarTrampas3D,
+    obtenerSpritesTrampas3D,
+    limpiarTrampas3D,
+} from '../motor3d/trampas3d.js';
 
 // --- Constantes del laberinto ---
 
@@ -66,15 +72,17 @@ let frameCount = 0;
 let usarTexturas = true;
 let ultimoFrame = 0;
 let framesLentos = 0;
+let flashDano = 0;
 
-// Pool de sprites preallocado para el loop (llave + puerta + ~30 decoraciones)
-const MAX_SPRITES_LOOP = 35;
+// Pool de sprites preallocado para el loop (llave + puerta + ~30 decoraciones + ~50 trampas)
+const MAX_SPRITES_LOOP = 85;
 const _sprites = Array.from({ length: MAX_SPRITES_LOOP }, () => ({
     x: 0,
     y: 0,
     z: undefined,
     emoji: '',
     color: '',
+    sinBrillo: false,
 }));
 let _spritesCount = 0;
 // Vista mutable: array cuyas entries apuntan a _sprites (se ajusta .length cada frame)
@@ -221,6 +229,12 @@ function loop(ahora) {
     detectarLlave();
     detectarSalida();
 
+    // Trampas de fuego
+    const danoTrampa = detectarTrampas3D(estado.x, estado.y, jugador);
+    if (danoTrampa > 0) {
+        flashDano = 6;
+    }
+
     // Iluminación dinámica (recalcular cada 3 frames)
     if (decoraciones && frameCount % 3 === 0) {
         mapaLuz = precalcularMapaLuz(FILAS, COLS, decoraciones.antorchas, ahora);
@@ -255,6 +269,7 @@ function loop(ahora) {
         s.emoji = '\uD83D\uDD11';
         s.color = '#ffd700';
         s.z = undefined;
+        s.sinBrillo = false;
     }
 
     const sPuerta = _sprites[_spritesCount++];
@@ -263,6 +278,7 @@ function loop(ahora) {
     sPuerta.emoji = '\uD83D\uDEAA';
     sPuerta.color = tieneLlave ? '#44ff44' : '#444444';
     sPuerta.z = undefined;
+    sPuerta.sinBrillo = false;
 
     // Agregar decoraciones como sprites
     if (decoraciones) {
@@ -275,7 +291,21 @@ function loop(ahora) {
             dst.z = src.z;
             dst.emoji = src.emoji;
             dst.color = src.color;
+            dst.sinBrillo = false;
         }
+    }
+
+    // Agregar trampas como sprites
+    const trap = obtenerSpritesTrampas3D(estado.x, estado.y);
+    for (let i = 0; i < trap.count; i++) {
+        const src = trap.sprites[i];
+        const dst = _sprites[_spritesCount++];
+        dst.x = src.x;
+        dst.y = src.y;
+        dst.z = src.z;
+        dst.emoji = src.emoji;
+        dst.color = src.color;
+        dst.sinBrillo = src.sinBrillo;
     }
 
     // Crear vista del array con solo los sprites activos
@@ -288,6 +318,13 @@ function loop(ahora) {
 
     // Partículas (después de sprites, encima de todo)
     renderizarParticulas(ctx3D, zBuffer, estado.x, estado.y, estado.angulo);
+
+    // Flash rojo de daño por trampas
+    if (flashDano > 0) {
+        ctx3D.fillStyle = 'rgba(255, 0, 0, ' + (flashDano / 10) + ')';
+        ctx3D.fillRect(0, 0, canvas.ancho, canvas.alto);
+        flashDano--;
+    }
 
     // Minimapa
     renderizarMinimapa(ctxMini, minimapBase, {
@@ -335,6 +372,7 @@ export function iniciarHabitacion2(jugadorRef, callback, dpadRef) {
     usarTexturas = true;
     ultimoFrame = 0;
     framesLentos = 0;
+    flashDano = 0;
 
     // Escalar canvas al viewport
     calcularDimensiones();
@@ -366,11 +404,17 @@ export function iniciarHabitacion2(jugadorRef, callback, dpadRef) {
     // Generar decoraciones ambientales
     decoraciones = generarDecoraciones(mapa, FILAS, COLS);
 
+    // Generar trampas de fuego
+    generarTrampas3D(mapa, FILAS, COLS, entradaFila, entradaCol, llaveFila, llaveCol);
+
     // Inicializar partículas
     inicializarEmisores(mapa, FILAS, COLS);
 
     // Modo inmersivo: expandir contenedor para usar más viewport
-    document.getElementById('juego').classList.add('juego-inmersivo');
+    const juegoEl = document.getElementById('juego');
+    juegoEl.classList.add('juego-inmersivo');
+    // Ancho del canvas + borde del contenedor (3px × 2) para alinear la barra superior
+    juegoEl.style.setProperty('--ancho-3d', canvas.ancho + 6 + 'px');
 
     // Crear pantalla DOM
     crearPantalla(!!dpadRef);
@@ -414,12 +458,15 @@ export function limpiarHabitacion2() {
 
     // Limpiar motor 3D
     limpiarParticulas();
+    limpiarTrampas3D();
     texturas = null;
     decoraciones = null;
     mapaLuz = null;
 
     // Restaurar contenedor normal
-    document.getElementById('juego').classList.remove('juego-inmersivo');
+    const juegoEl = document.getElementById('juego');
+    juegoEl.classList.remove('juego-inmersivo');
+    juegoEl.style.removeProperty('--ancho-3d');
 
     if (pantalla && pantalla.parentNode) {
         pantalla.parentNode.removeChild(pantalla);

@@ -41,13 +41,16 @@ function dibujarSprite(ctx, sprite, zBuffer, jugadorX, jugadorY, angulo) {
     const screenY = canvas.alto / 2 - (z - 0.5) * alturaPared;
 
     // Pseudo-glow sin shadowBlur (mucho más rápido)
-    ctx.save();
-    ctx.globalAlpha = 0.25;
-    ctx.font = Math.floor(fontSize * 1.4) + 'px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(sprite.emoji, screenX, screenY);
-    ctx.restore();
+    // Sprites con sinBrillo=true se dibujan sin la capa de glow (más nítidos)
+    if (!sprite.sinBrillo) {
+        ctx.save();
+        ctx.globalAlpha = 0.25;
+        ctx.font = Math.floor(fontSize * 1.4) + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(sprite.emoji, screenX, screenY);
+        ctx.restore();
+    }
 
     // Sprite principal
     ctx.font = Math.floor(fontSize) + 'px serif';
