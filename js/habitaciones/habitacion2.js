@@ -31,6 +31,12 @@ import {
     renderizarFuegoTrampas,
     limpiarTrampas3D,
 } from '../motor3d/trampas3d.js';
+import {
+    inicializarHUD,
+    actualizarHUD,
+    renderizarHUD,
+    limpiarHUD,
+} from '../motor3d/hudPrimeraPersona.js';
 
 // --- Constantes del laberinto ---
 
@@ -332,6 +338,10 @@ function loop(ahora) {
     );
     renderizarFuegoTrampas(ctx3D, zBuffer, estado.x, estado.y, estado.angulo);
 
+    // HUD de primera persona (brazos/manos)
+    actualizarHUD(teclas, flashDano);
+    renderizarHUD(ctx3D);
+
     // Flash rojo de daño por trampas
     if (flashDano > 0) {
         ctx3D.fillStyle = 'rgba(255, 0, 0, ' + flashDano / 10 + ')';
@@ -423,6 +433,9 @@ export function iniciarHabitacion2(jugadorRef, callback, dpadRef) {
     // Inicializar partículas
     inicializarEmisores(mapa, FILAS, COLS);
 
+    // HUD de primera persona (brazos/manos del personaje)
+    inicializarHUD(jugador);
+
     // Modo inmersivo: expandir contenedor para usar más viewport
     const juegoEl = document.getElementById('juego');
     juegoEl.classList.add('juego-inmersivo');
@@ -472,6 +485,7 @@ export function limpiarHabitacion2() {
     // Limpiar motor 3D
     limpiarParticulas();
     limpiarTrampas3D();
+    limpiarHUD();
     texturas = null;
     decoraciones = null;
     mapaLuz = null;
