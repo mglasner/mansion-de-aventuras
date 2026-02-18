@@ -3,7 +3,7 @@
 // El laberinto se genera aleatoriamente cada vez
 
 import { generarMapa, encontrarPuntoLejano } from '../../laberinto.js';
-import { CONFIG, est, calcularTamCelda } from './estado.js';
+import { CONFIG, CFG, est, calcularTamCelda } from './estado.js';
 import {
     colocarTrampas,
     actualizarTrampas,
@@ -44,7 +44,7 @@ function crearPantalla(esTouch) {
 
     const titulo = document.createElement('h2');
     titulo.className = 'titulo-habitacion';
-    titulo.textContent = 'Habitación 1 — El Laberinto';
+    titulo.textContent = CFG.meta.titulo;
 
     cabecera.appendChild(btnHuir);
     cabecera.appendChild(titulo);
@@ -120,18 +120,18 @@ export function iniciarHabitacion1(jugadorRef, callback, dpadRef) {
     colocarTrampas();
     colocarTrampasLentas();
 
-    // Velocidad según atributo del personaje (7 = referencia)
-    est.velocidadBase = CONFIG.VELOCIDAD * (est.jugador.velocidad / 7);
+    // Velocidad según atributo del personaje
+    est.velocidadBase =
+        CONFIG.VELOCIDAD * (est.jugador.velocidad / CFG.jugador.velocidadReferencia);
     est.velocidadActual = est.velocidadBase;
     if (est.timerLentitud) {
         clearTimeout(est.timerLentitud);
         est.timerLentitud = null;
     }
 
-    // Escala visual según estatura (1.55 = referencia, no afecta colisiones)
-    const ESCALA_BASE = 1.45;
-    const ESTATURA_REF = 1.55;
-    est.escalaVisual = ESCALA_BASE * (est.jugador.estatura / ESTATURA_REF);
+    // Escala visual según estatura (no afecta colisiones)
+    est.escalaVisual =
+        CFG.jugador.escalaVisualBase * (est.jugador.estatura / CFG.jugador.estaturaReferencia);
 
     // Colocar al Trasgo
     iniciarTrasgo();
@@ -148,7 +148,7 @@ export function iniciarHabitacion1(jugadorRef, callback, dpadRef) {
     actualizarPosicion();
 
     // Resetear indicador
-    est.indicador.textContent = '🔑 Encuentra la llave';
+    est.indicador.textContent = CFG.textos.indicadorBusqueda;
     est.indicador.classList.remove('llave-obtenida');
     est.mensajeExito.classList.add('oculto');
 
@@ -310,12 +310,12 @@ function detectarLlave() {
 
         est.elementoLlave.classList.add('llave-recogida');
 
-        est.indicador.textContent = '🔑 ¡Llave obtenida! Vuelve a la salida';
+        est.indicador.textContent = CFG.textos.indicadorLlaveObtenida;
         est.indicador.classList.add('llave-obtenida');
 
-        est.jugador.inventario.push('llave-habitacion-2');
+        est.jugador.inventario.push(CFG.meta.itemInventario);
         document.dispatchEvent(new Event('inventario-cambio'));
-        lanzarToast('¡Llave encontrada!', '🔑', 'item');
+        lanzarToast(CFG.textos.toastLlave, '🔑', 'item');
     }
 }
 
@@ -331,14 +331,14 @@ function detectarSalida() {
 
     if (celda.fila === est.entradaFila && celda.col === est.entradaCol) {
         est.activo = false;
-        est.mensajeExito.textContent = '¡Escapaste con la llave!';
+        est.mensajeExito.textContent = CFG.textos.mensajeExito;
         est.mensajeExito.classList.remove('oculto');
-        lanzarToast('¡Escapaste con la llave!', '🚪', 'exito');
+        lanzarToast(CFG.textos.mensajeExito, '🚪', 'exito');
 
         setTimeout(function () {
             limpiarHabitacion1();
             est.callbackSalir();
-        }, 1500);
+        }, CFG.meta.timeoutExito);
     }
 }
 

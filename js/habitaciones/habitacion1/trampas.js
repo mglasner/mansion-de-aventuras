@@ -2,14 +2,16 @@
 // Trampas de fuego (daño) y trampas de lentitud (ralentización)
 
 import { mezclar } from '../../laberinto.js';
-import { CONFIG, est, getCeldaJugador, aplicarDanoJugador } from './estado.js';
+import { CONFIG, CFG, est, getCeldaJugador, aplicarDanoJugador } from './estado.js';
 import { lanzarToast } from '../../componentes/toast.js';
 
 // --- Trampas de fuego ---
 
-// Coloca entre 3 y 5 trampas en celdas lógicas lejos de la entrada y la llave
+// Coloca trampas de fuego en celdas lógicas lejos de la entrada y la llave
 export function colocarTrampas() {
-    const numTrampas = 3 + Math.floor(Math.random() * 3);
+    const tf = CFG.trampasFuego;
+    const rango = tf.cantidadMax - tf.cantidadMin + 1;
+    const numTrampas = tf.cantidadMin + Math.floor(Math.random() * rango);
     const celdasLibres = [];
 
     for (let f = 1; f < CONFIG.FILAS - 1; f++) {
@@ -17,7 +19,11 @@ export function colocarTrampas() {
             if (est.mapa[f][c] !== 0) continue;
             if (f === est.entradaFila && c === est.entradaCol) continue;
             if (f === est.llaveFila && c === est.llaveCol) continue;
-            if (Math.abs(f - est.entradaFila) + Math.abs(c - est.entradaCol) <= 3) continue;
+            if (
+                Math.abs(f - est.entradaFila) + Math.abs(c - est.entradaCol) <=
+                tf.distanciaMinEntrada
+            )
+                continue;
             if (f % 2 !== 1 || c % 2 !== 1) continue;
             celdasLibres.push([f, c]);
         }
@@ -26,12 +32,13 @@ export function colocarTrampas() {
     mezclar(celdasLibres);
     est.trampas = [];
 
+    const rangoPeriodo = tf.periodoMax - tf.periodoMin;
     for (let i = 0; i < Math.min(numTrampas, celdasLibres.length); i++) {
         est.trampas.push({
             fila: celdasLibres[i][0],
             col: celdasLibres[i][1],
-            periodo: 1500 + Math.floor(Math.random() * 2000),
-            desfase: Math.floor(Math.random() * 3000),
+            periodo: tf.periodoMin + Math.floor(Math.random() * rangoPeriodo),
+            desfase: Math.floor(Math.random() * tf.desfaseMax),
             ultimoGolpe: 0,
             elemento: null,
         });
@@ -64,7 +71,9 @@ export function detectarTrampas() {
         const t = est.trampas[i];
         if (celda.fila === t.fila && celda.col === t.col && esTrampaActiva(t)) {
             if (ahora - t.ultimoGolpe >= CONFIG.COOLDOWN_TRAMPA) {
-                const dano = 5 + Math.floor(Math.random() * 6);
+                const tf = CFG.trampasFuego;
+                const rangoDano = tf.danoMax - tf.danoMin + 1;
+                const dano = tf.danoMin + Math.floor(Math.random() * rangoDano);
                 t.ultimoGolpe = ahora;
                 aplicarDanoJugador(dano);
                 lanzarToast('Trampa de fuego (-' + dano + ')', '🔥', 'dano');
@@ -90,9 +99,11 @@ export function renderizarTrampas() {
 
 // --- Trampas de lentitud ---
 
-// Coloca 2-3 trampas que ralentizan al jugador
+// Coloca trampas que ralentizan al jugador
 export function colocarTrampasLentas() {
-    const numTrampas = 2 + Math.floor(Math.random() * 2);
+    const tl = CFG.trampasLentitud;
+    const rango = tl.cantidadMax - tl.cantidadMin + 1;
+    const numTrampas = tl.cantidadMin + Math.floor(Math.random() * rango);
     const celdasLibres = [];
 
     // Evitar celdas ocupadas por trampas de fuego
@@ -106,7 +117,11 @@ export function colocarTrampasLentas() {
             if (est.mapa[f][c] !== 0) continue;
             if (f === est.entradaFila && c === est.entradaCol) continue;
             if (f === est.llaveFila && c === est.llaveCol) continue;
-            if (Math.abs(f - est.entradaFila) + Math.abs(c - est.entradaCol) <= 3) continue;
+            if (
+                Math.abs(f - est.entradaFila) + Math.abs(c - est.entradaCol) <=
+                tl.distanciaMinEntrada
+            )
+                continue;
             if (f % 2 !== 1 || c % 2 !== 1) continue;
             if (ocupadas[f + ',' + c]) continue;
             celdasLibres.push([f, c]);
@@ -116,14 +131,17 @@ export function colocarTrampasLentas() {
     mezclar(celdasLibres);
     est.trampasLentas = [];
 
+    const rangoPeriodo = tl.periodoMax - tl.periodoMin;
+    const rangoReduccion = tl.reduccionMax - tl.reduccionMin;
+    const rangoDuracion = tl.duracionMax - tl.duracionMin;
     for (let i = 0; i < Math.min(numTrampas, celdasLibres.length); i++) {
         est.trampasLentas.push({
             fila: celdasLibres[i][0],
             col: celdasLibres[i][1],
-            periodo: 2000 + Math.floor(Math.random() * 2000),
-            desfase: Math.floor(Math.random() * 3000),
-            reduccion: 0.3 + Math.random() * 0.3,
-            duracion: 3000 + Math.floor(Math.random() * 1000),
+            periodo: tl.periodoMin + Math.floor(Math.random() * rangoPeriodo),
+            desfase: Math.floor(Math.random() * tl.desfaseMax),
+            reduccion: tl.reduccionMin + Math.random() * rangoReduccion,
+            duracion: tl.duracionMin + Math.floor(Math.random() * rangoDuracion),
             ultimoGolpe: 0,
             elemento: null,
         });

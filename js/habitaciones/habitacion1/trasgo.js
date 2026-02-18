@@ -3,7 +3,7 @@
 
 import { ENEMIGOS } from '../../enemigos.js';
 import { mezclar } from '../../laberinto.js';
-import { CONFIG, est, getCeldaJugador, aplicarDanoJugador } from './estado.js';
+import { CONFIG, CFG, est, getCeldaJugador, aplicarDanoJugador } from './estado.js';
 import { lanzarToast } from '../../componentes/toast.js';
 
 // Busca una celda a distancia media de la entrada para colocar al Trasgo
@@ -45,9 +45,9 @@ function posicionInicialTrasgo() {
         }
     }
 
-    // Elegir celdas lógicas a 40-70% de la distancia máxima
-    const distMin = Math.floor(maxDist * 0.4);
-    const distMax = Math.floor(maxDist * 0.7);
+    // Elegir celdas lógicas a rango configurado de la distancia máxima
+    const distMin = Math.floor(maxDist * CFG.trasgo.posicionDistMin);
+    const distMax = Math.floor(maxDist * CFG.trasgo.posicionDistMax);
     const candidatas = [];
 
     for (const key in distancias) {

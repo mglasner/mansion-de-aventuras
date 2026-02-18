@@ -3,7 +3,7 @@
 
 import { ENEMIGOS } from '../../enemigos.js';
 import { mezclar } from '../../laberinto.js';
-import { CONFIG, est, getCeldaJugador, aplicarDanoJugador } from './estado.js';
+import { CONFIG, CFG, est, getCeldaJugador, aplicarDanoJugador } from './estado.js';
 import { calcularCamino } from './trasgo.js';
 import { lanzarToast } from '../../componentes/toast.js';
 
@@ -58,9 +58,9 @@ function posicionInicialTerror() {
         }
     }
 
-    // Elegir celdas a 50-80% de la distancia máxima (más lejos que el Trasgo)
-    const distMin = Math.floor(maxDist * 0.5);
-    const distMax = Math.floor(maxDist * 0.8);
+    // Elegir celdas a rango configurado de la distancia máxima (más lejos que el Trasgo)
+    const distMin = Math.floor(maxDist * CFG.villanoTerror.posicionDistMin);
+    const distMax = Math.floor(maxDist * CFG.villanoTerror.posicionDistMax);
     const candidatas = [];
 
     // Celda del Trasgo para evitarla
@@ -100,10 +100,10 @@ function iniciarVillanoTerror() {
     const datos = enemigos[0];
     const pos = posicionInicialTerror();
 
-    // Escala visual según estatura del villano (misma referencia que el jugador)
-    const ESCALA_BASE = 1.45;
-    const ESTATURA_REF = 1.55;
-    const escalaVisual = ESCALA_BASE * (datos.estatura / ESTATURA_REF);
+    // Escala visual según estatura del villano
+    const escalaVisual =
+        CFG.villanoTerror.escalaVisualBase *
+        (datos.estatura / CFG.villanoTerror.estaturaReferencia);
 
     est.villanoTerror = {
         datos: datos,
@@ -120,7 +120,7 @@ function iniciarVillanoTerror() {
     renderizarVillanoTerror();
 
     // Toast de alerta
-    lanzarToast('¡' + datos.nombre + ' ha aparecido!', '💀', 'dano');
+    lanzarToast(CFG.textos.toastTerror.replace('{nombre}', datos.nombre), '💀', 'dano');
 }
 
 // Renderiza el villano terror en el laberinto
@@ -172,8 +172,10 @@ export function actualizarVillanoTerror() {
         est.villanoTerror.camino = calcularCamino(celdaV.fila, celdaV.col, celdaJ.fila, celdaJ.col);
     }
 
-    // Velocidad escalada por atributo del enemigo (6 = referencia del Trasgo)
-    const velocidad = CONFIG.VELOCIDAD_TERROR * (est.villanoTerror.datos.velocidad / 6);
+    // Velocidad escalada por atributo del enemigo
+    const velocidad =
+        CONFIG.VELOCIDAD_TERROR *
+        (est.villanoTerror.datos.velocidad / CFG.villanoTerror.velocidadReferencia);
 
     // Mover hacia el siguiente punto del camino
     if (est.villanoTerror.camino.length > 0) {

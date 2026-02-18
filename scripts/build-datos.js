@@ -1,6 +1,9 @@
-// Script de build: convierte datos/*.yaml → js/personajes.js y js/enemigos.js
+// Script de build: convierte datos/*.yaml → JS generado
+// - personajes.yaml → js/personajes.js
+// - enemigos.yaml   → js/enemigos.js
+// - habitacion*.yaml → js/habitaciones/habitacion*/config.js
 
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import yaml from 'js-yaml';
 import prettier from 'prettier';
 
@@ -120,6 +123,100 @@ function generarJS(datos, clase, importPath) {
     ].join('\n');
 }
 
+// --- Habitaciones: YAML → config.js ---
+
+// Schema de validación: sección → campos requeridos
+const SCHEMA_HABITACION1 = {
+    meta: ['titulo', 'itemInventario', 'timeoutExito'],
+    textos: [
+        'indicadorBusqueda',
+        'indicadorLlaveObtenida',
+        'toastLlave',
+        'mensajeExito',
+        'toastTerror',
+    ],
+    laberinto: ['filas', 'columnas', 'atajos'],
+    jugador: [
+        'tamBase',
+        'velocidadBase',
+        'velocidadReferencia',
+        'margenColision',
+        'toleranciaEsquina',
+        'escalaVisualBase',
+        'estaturaReferencia',
+    ],
+    trampasFuego: [
+        'cantidadMin',
+        'cantidadMax',
+        'distanciaMinEntrada',
+        'periodoMin',
+        'periodoMax',
+        'desfaseMax',
+        'cooldown',
+        'danoMin',
+        'danoMax',
+    ],
+    trampasLentitud: [
+        'cantidadMin',
+        'cantidadMax',
+        'distanciaMinEntrada',
+        'periodoMin',
+        'periodoMax',
+        'desfaseMax',
+        'cooldown',
+        'reduccionMin',
+        'reduccionMax',
+        'duracionMin',
+        'duracionMax',
+    ],
+    trasgo: [
+        'tamBase',
+        'velocidadBase',
+        'cooldownBaseAtaque',
+        'intervaloPathfinding',
+        'posicionDistMin',
+        'posicionDistMax',
+    ],
+    villanoTerror: [
+        'tamBase',
+        'velocidadBase',
+        'velocidadReferencia',
+        'countdown',
+        'intervaloPathfinding',
+        'posicionDistMin',
+        'posicionDistMax',
+        'escalaVisualBase',
+        'estaturaReferencia',
+    ],
+    render: ['tamCeldaBase'],
+};
+
+// Valida una habitación contra su schema
+function validarHabitacion(datos, archivo, schema) {
+    const errores = [];
+
+    for (const [seccion, campos] of Object.entries(schema)) {
+        if (!datos[seccion]) {
+            errores.push(`  - falta sección "${seccion}"`);
+            continue;
+        }
+        for (const campo of campos) {
+            if (datos[seccion][campo] == null || datos[seccion][campo] === '') {
+                errores.push(`  - ${seccion}.${campo}: falta valor`);
+            }
+        }
+    }
+
+    if (errores.length > 0) {
+        throw new Error(`${archivo}:\n${errores.join('\n')}`);
+    }
+}
+
+// Genera JS de config para una habitación (objeto plano exportado)
+function generarConfigJS(datos) {
+    return `${CABECERA}\nexport const CFG = ${JSON.stringify(datos, null, 4)};\n`;
+}
+
 async function main() {
     const configPrettier = await leerConfigPrettier();
 
@@ -140,6 +237,18 @@ async function main() {
     const enemigosFmt = await prettier.format(enemigosJS, configPrettier);
     writeFileSync('js/enemigos.js', enemigosFmt);
     console.log('js/enemigos.js generado');
+
+    // Habitación 1
+    const hab1Archivo = 'datos/habitacion1.yaml';
+    if (existsSync(hab1Archivo)) {
+        const hab1Yaml = readFileSync(hab1Archivo, 'utf-8');
+        const hab1Data = yaml.load(hab1Yaml);
+        validarHabitacion(hab1Data, 'habitacion1.yaml', SCHEMA_HABITACION1);
+        const hab1JS = generarConfigJS(hab1Data);
+        const hab1Fmt = await prettier.format(hab1JS, configPrettier);
+        writeFileSync('js/habitaciones/habitacion1/config.js', hab1Fmt);
+        console.log('js/habitaciones/habitacion1/config.js generado');
+    }
 }
 
 main();

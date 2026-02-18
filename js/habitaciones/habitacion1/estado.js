@@ -1,27 +1,32 @@
 // Estado compartido y utilidades de la Habitación 1
 // Todos los submódulos (trampas, trasgo) acceden a este estado
 
-// --- Constantes ---
+import { CFG } from './config.js';
+
+// Re-exportar CFG para que los submódulos accedan a valores específicos
+export { CFG };
+
+// --- Constantes (inicializadas desde config, mutadas por calcularTamCelda) ---
 
 export const CONFIG = {
-    TAM_CELDA: 30,
-    TAM_JUGADOR: 22,
-    VELOCIDAD: 3,
-    MARGEN_COLISION: 2,
-    TOLERANCIA_ESQUINA: 8,
-    FILAS: 17,
-    COLS: 17,
-    ATAJOS: 8,
-    COOLDOWN_TRAMPA: 1000,
-    COOLDOWN_TRAMPA_LENTA: 500,
-    TAM_TRASGO: 20,
-    VELOCIDAD_TRASGO: 2,
-    COOLDOWN_BASE: 10500,
-    INTERVALO_PATHFINDING: 500,
-    COUNTDOWN_TERROR: 15,
-    INTERVALO_PATHFINDING_TERROR: 500,
-    TAM_TERROR: 22,
-    VELOCIDAD_TERROR: 2,
+    TAM_CELDA: CFG.render.tamCeldaBase,
+    TAM_JUGADOR: CFG.jugador.tamBase,
+    VELOCIDAD: CFG.jugador.velocidadBase,
+    MARGEN_COLISION: CFG.jugador.margenColision,
+    TOLERANCIA_ESQUINA: CFG.jugador.toleranciaEsquina,
+    FILAS: CFG.laberinto.filas,
+    COLS: CFG.laberinto.columnas,
+    ATAJOS: CFG.laberinto.atajos,
+    COOLDOWN_TRAMPA: CFG.trampasFuego.cooldown,
+    COOLDOWN_TRAMPA_LENTA: CFG.trampasLentitud.cooldown,
+    TAM_TRASGO: CFG.trasgo.tamBase,
+    VELOCIDAD_TRASGO: CFG.trasgo.velocidadBase,
+    COOLDOWN_BASE: CFG.trasgo.cooldownBaseAtaque,
+    INTERVALO_PATHFINDING: CFG.trasgo.intervaloPathfinding,
+    COUNTDOWN_TERROR: CFG.villanoTerror.countdown,
+    INTERVALO_PATHFINDING_TERROR: CFG.villanoTerror.intervaloPathfinding,
+    TAM_TERROR: CFG.villanoTerror.tamBase,
+    VELOCIDAD_TERROR: CFG.villanoTerror.velocidadBase,
 };
 
 // --- Estado mutable ---
@@ -59,17 +64,17 @@ export const est = {
     mensajeExito: null,
 };
 
-// Valores base para escalar proporcionalmente
+// Valores base para escalar proporcionalmente (derivados del config)
 const VALORES_BASE = {
-    TAM_CELDA: 30,
-    TAM_JUGADOR: 22,
-    TAM_TRASGO: 20,
-    TAM_TERROR: 22,
-    VELOCIDAD: 3,
-    VELOCIDAD_TRASGO: 2,
-    VELOCIDAD_TERROR: 2,
-    MARGEN_COLISION: 2,
-    TOLERANCIA_ESQUINA: 8,
+    TAM_CELDA: CFG.render.tamCeldaBase,
+    TAM_JUGADOR: CFG.jugador.tamBase,
+    TAM_TRASGO: CFG.trasgo.tamBase,
+    TAM_TERROR: CFG.villanoTerror.tamBase,
+    VELOCIDAD: CFG.jugador.velocidadBase,
+    VELOCIDAD_TRASGO: CFG.trasgo.velocidadBase,
+    VELOCIDAD_TERROR: CFG.villanoTerror.velocidadBase,
+    MARGEN_COLISION: CFG.jugador.margenColision,
+    TOLERANCIA_ESQUINA: CFG.jugador.toleranciaEsquina,
 };
 
 // Calcula TAM_CELDA según el espacio disponible y escala todo proporcionalmente
