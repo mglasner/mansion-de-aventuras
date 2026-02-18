@@ -1,6 +1,5 @@
 // Código de La Casa del Terror
 import { PERSONAJES } from './personajes.js';
-import { ENEMIGOS } from './enemigos.js';
 import { iniciarHabitacion1, limpiarHabitacion1 } from './habitaciones/habitacion1/index.js';
 import { iniciarHabitacion2, limpiarHabitacion2 } from './habitaciones/habitacion2.js';
 import { crearBarraSuperior } from './componentes/barraSuperior.js';
@@ -9,6 +8,9 @@ import { crearModalDerrota } from './componentes/modalDerrota.js';
 import { crearTransicion } from './componentes/transicion.js';
 import { crearControlesTouch } from './componentes/controlesTouch.js';
 import { crearToast } from './componentes/toast.js';
+import { crearElemento } from './utils.js';
+import { TIERS, llenarStats } from './componentes/stats.js';
+import { crearLibroVillanos } from './componentes/libroVillanos.js';
 
 // --- Estados del juego (máquina de estados) ---
 
@@ -28,87 +30,7 @@ function registrarHabitacion(numero, modulo) {
 registrarHabitacion('1', { iniciar: iniciarHabitacion1, limpiar: limpiarHabitacion1 });
 registrarHabitacion('2', { iniciar: iniciarHabitacion2, limpiar: limpiarHabitacion2 });
 
-// --- Tiers de villanos ---
-
-const TIERS = {
-    esbirro: { emoji: '\u{1F479}', label: 'Esbirro' },
-    terror: { emoji: '\u{1F480}', label: 'Terror' },
-    pesadilla: { emoji: '\u{1F441}\uFE0F', label: 'Pesadilla' },
-    leyenda: { emoji: '\u{1F525}', label: 'Leyenda Oscura' },
-};
-
 // --- Generación dinámica de tarjetas ---
-
-function crearElemento(tag, clase, texto) {
-    const el = document.createElement(tag);
-    if (clase) el.className = clase;
-    if (texto) el.textContent = texto;
-    return el;
-}
-
-// Llena la sección de stats (vida + ataques) de una tarjeta
-function llenarStats(tarjeta, datos) {
-    tarjeta.querySelector('.descripcion').textContent = datos.descripcion;
-
-    const stats = tarjeta.querySelector('.stats');
-
-    // Barra de vida (escala: 150 = 100%)
-    const statVida = crearElemento('div', 'stat-vida');
-    statVida.appendChild(crearElemento('span', 'stat-label', 'Vida'));
-    const barraFondo = crearElemento('div', 'barra-vida-fondo');
-    const barraRelleno = crearElemento('div', 'barra-vida-relleno');
-    barraRelleno.style.transform = 'scaleX(' + datos.vidaMax / 150 + ')';
-    barraFondo.appendChild(barraRelleno);
-    statVida.appendChild(barraFondo);
-    statVida.appendChild(crearElemento('span', 'stat-valor', datos.vidaMax.toString()));
-    stats.appendChild(statVida);
-
-    // Barra de velocidad (escala: 10 = 100%)
-    if (datos.velocidad !== undefined) {
-        const statVel = crearElemento('div', 'stat-velocidad');
-        statVel.appendChild(crearElemento('span', 'stat-label', 'Velocidad'));
-        const barraFondoVel = crearElemento('div', 'barra-vida-fondo');
-        const barraRellenoVel = crearElemento('div', 'barra-velocidad-relleno');
-        barraRellenoVel.style.transform = 'scaleX(' + datos.velocidad / 10 + ')';
-        barraFondoVel.appendChild(barraRellenoVel);
-        statVel.appendChild(barraFondoVel);
-        statVel.appendChild(crearElemento('span', 'stat-valor', datos.velocidad.toString()));
-        stats.appendChild(statVel);
-    }
-
-    // Atributos extra (edad, estatura)
-    if (datos.edad !== undefined || datos.estatura !== undefined) {
-        const statAtributos = crearElemento('div', 'stat-atributos');
-        statAtributos.appendChild(crearElemento('span', 'stat-label', 'Atributos'));
-
-        if (datos.edad !== undefined) {
-            const fila = crearElemento('div', 'ataque');
-            fila.appendChild(crearElemento('span', 'ataque-nombre', 'Edad'));
-            fila.appendChild(crearElemento('span', 'stat-valor', datos.edad + ' años'));
-            statAtributos.appendChild(fila);
-        }
-
-        if (datos.estatura !== undefined) {
-            const fila = crearElemento('div', 'ataque');
-            fila.appendChild(crearElemento('span', 'ataque-nombre', 'Estatura'));
-            fila.appendChild(crearElemento('span', 'stat-valor', datos.estatura + ' m'));
-            statAtributos.appendChild(fila);
-        }
-
-        stats.appendChild(statAtributos);
-    }
-
-    // Ataques
-    const statAtaques = crearElemento('div', 'stat-ataques');
-    statAtaques.appendChild(crearElemento('span', 'stat-label', 'Ataques'));
-    datos.ataques.forEach(function (ataque) {
-        const ataqueDiv = crearElemento('div', 'ataque');
-        ataqueDiv.appendChild(crearElemento('span', 'ataque-nombre', ataque.nombre));
-        ataqueDiv.appendChild(crearElemento('span', 'ataque-dano', ataque.dano.toString()));
-        statAtaques.appendChild(ataqueDiv);
-    });
-    stats.appendChild(statAtaques);
-}
 
 // Genera una tarjeta de personaje o villano con la misma estructura HTML
 function generarTarjeta(nombre, datos, tipo) {
@@ -219,14 +141,11 @@ mezclar(Object.keys(PERSONAJES)).forEach(function (nombre) {
 });
 crearCarrusel(contenedorPersonajes);
 
-// Generar tarjetas de villanos (orden aleatorio)
+// Libro de villanos (reemplaza al carrusel)
 const contenedorVillanos = document.querySelector('.villanos');
-contenedorVillanos.replaceChildren();
-mezclar(Object.keys(ENEMIGOS)).forEach(function (nombre) {
-    const tarjeta = generarTarjeta(nombre, ENEMIGOS[nombre], 'villano');
-    contenedorVillanos.appendChild(tarjeta);
-});
-crearCarrusel(contenedorVillanos);
+crearLibroVillanos(contenedorVillanos);
+const tituloVillanos = document.querySelector('.titulo-villanos');
+if (tituloVillanos) tituloVillanos.remove();
 
 // --- Estado del juego ---
 
