@@ -16,7 +16,7 @@ const ENEMIGOS = {
             clase: 'villano-siniestra',
             descripcion: 'Espectro furioso. Destruye todo a su paso.',
             edad: 500,
-            velocidad: 8,
+            velocidad: 5,
             estatura: 1.8,
         }
     ),
@@ -78,7 +78,7 @@ const ENEMIGOS = {
             clase: 'villano-profano',
             descripcion: 'Sigiloso y despiadado. Aparece cuando menos lo esperas.',
             edad: 800,
-            velocidad: 9,
+            velocidad: 4,
             estatura: 2.1,
         }
     ),

@@ -18,6 +18,11 @@ export const CONFIG = {
     VELOCIDAD_TRASGO: 2,
     COOLDOWN_TRASGO: 1500,
     INTERVALO_PATHFINDING: 500,
+    COUNTDOWN_TERROR: 10,
+    COOLDOWN_TERROR: 1500,
+    INTERVALO_PATHFINDING_TERROR: 500,
+    TAM_TERROR: 22,
+    VELOCIDAD_TERROR: 2,
 };
 
 // --- Estado mutable ---
@@ -31,6 +36,9 @@ export const est = {
     trampas: [],
     trampasLentas: [],
     trasgo: null,
+    villanoTerror: null,
+    countdownTerror: null,
+    tiempoRestante: 0,
     velocidadBase: CONFIG.VELOCIDAD,
     velocidadActual: CONFIG.VELOCIDAD,
     escalaVisual: 1,
@@ -57,8 +65,10 @@ const VALORES_BASE = {
     TAM_CELDA: 30,
     TAM_JUGADOR: 22,
     TAM_TRASGO: 20,
+    TAM_TERROR: 22,
     VELOCIDAD: 3,
     VELOCIDAD_TRASGO: 2,
+    VELOCIDAD_TERROR: 2,
     MARGEN_COLISION: 2,
     TOLERANCIA_ESQUINA: 8,
 };
@@ -84,8 +94,10 @@ export function calcularTamCelda() {
     const escala = CONFIG.TAM_CELDA / VALORES_BASE.TAM_CELDA;
     CONFIG.TAM_JUGADOR = Math.max(12, Math.round(VALORES_BASE.TAM_JUGADOR * escala));
     CONFIG.TAM_TRASGO = Math.max(10, Math.round(VALORES_BASE.TAM_TRASGO * escala));
+    CONFIG.TAM_TERROR = Math.max(12, Math.round(VALORES_BASE.TAM_TERROR * escala));
     CONFIG.VELOCIDAD = Math.max(1.5, VALORES_BASE.VELOCIDAD * escala);
     CONFIG.VELOCIDAD_TRASGO = Math.max(1, VALORES_BASE.VELOCIDAD_TRASGO * escala);
+    CONFIG.VELOCIDAD_TERROR = Math.max(1, VALORES_BASE.VELOCIDAD_TERROR * escala);
     CONFIG.MARGEN_COLISION = Math.max(1, Math.round(VALORES_BASE.MARGEN_COLISION * escala));
     CONFIG.TOLERANCIA_ESQUINA = Math.max(3, Math.round(VALORES_BASE.TOLERANCIA_ESQUINA * escala));
 }

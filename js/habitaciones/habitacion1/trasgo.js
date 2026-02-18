@@ -68,7 +68,7 @@ function posicionInicialTrasgo() {
 }
 
 // Pathfinding BFS: calcula el camino más corto entre dos celdas
-function calcularCamino(origenF, origenC, destinoF, destinoC) {
+export function calcularCamino(origenF, origenC, destinoF, destinoC) {
     const cola = [[origenF, origenC]];
     let idx = 0;
     const previo = {};
