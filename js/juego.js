@@ -28,6 +28,15 @@ function registrarHabitacion(numero, modulo) {
 registrarHabitacion('1', { iniciar: iniciarHabitacion1, limpiar: limpiarHabitacion1 });
 registrarHabitacion('2', { iniciar: iniciarHabitacion2, limpiar: limpiarHabitacion2 });
 
+// --- Tiers de villanos ---
+
+const TIERS = {
+    esbirro: { emoji: '\u{1F479}', label: 'Esbirro' },
+    terror: { emoji: '\u{1F480}', label: 'Terror' },
+    pesadilla: { emoji: '\u{1F441}\uFE0F', label: 'Pesadilla' },
+    leyenda: { emoji: '\u{1F525}', label: 'Leyenda Oscura' },
+};
+
 // --- Generación dinámica de tarjetas ---
 
 function crearElemento(tag, clase, texto) {
@@ -121,6 +130,17 @@ function generarTarjeta(nombre, datos, tipo) {
     img.alt = nombre;
     avatarDiv.appendChild(img);
     tarjeta.appendChild(avatarDiv);
+
+    // Badge de tier (solo villanos)
+    if (tipo === 'villano' && datos.tier && TIERS[datos.tier]) {
+        const tier = TIERS[datos.tier];
+        const badge = crearElemento(
+            'span',
+            'tier-badge tier-' + datos.tier,
+            tier.emoji + ' ' + tier.label
+        );
+        tarjeta.appendChild(badge);
+    }
 
     // Nombre
     tarjeta.appendChild(crearElemento('h3', null, nombre));

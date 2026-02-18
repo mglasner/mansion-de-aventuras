@@ -45,6 +45,7 @@ class Enemigo extends Entidad {
         if (typeof datos === 'string') {
             this.descripcion = datos;
         } else if (datos) {
+            this.tier = datos.tier;
             this.img = datos.img;
             this.clase = datos.clase;
             this.descripcion = datos.descripcion || '';

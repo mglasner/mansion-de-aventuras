@@ -1,4 +1,5 @@
 Siniestra:
+  tier: terror
   vida: 150
   img: assets/img/enemigos/siniestra.webp
   clase: villano-siniestra
@@ -15,6 +16,7 @@ Siniestra:
       descripcion: Onda de terror puro
 
 Trasgo:
+  tier: esbirro
   vida: 50
   img: assets/img/enemigos/trasgo.webp
   clase: villano-trasgo
@@ -31,6 +33,7 @@ Trasgo:
       descripcion: Trampa escondida en el suelo
 
 El Errante:
+  tier: terror
   vida: 140
   img: assets/img/enemigos/errante.webp
   clase: villano-errante
@@ -47,6 +50,7 @@ El Errante:
       descripcion: Aullido paralizante del más allá
 
 El Profano:
+  tier: terror
   vida: 180
   img: assets/img/enemigos/profano.webp
   clase: villano-profano
