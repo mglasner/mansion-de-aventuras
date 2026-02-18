@@ -732,11 +732,15 @@ h1 {
 /* Ataques */
 .stat-atributos {
     margin-top: 6px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.stat-atributos .tier-badge {
+    position: static;
 }
 
 .stat-ataques {
-    margin-top: 8px;
+    margin-top: 12px;
 }
 
 .ataque {
@@ -3332,11 +3336,6 @@ h1 {
         text-shadow 0.5s;
 }
 
-.libro-detalle-cabecera .tier-badge {
-    position: static;
-    display: inline-block;
-    margin-bottom: 4px;
-}
 
 /* Descripción grande (panel perfil) */
 .libro-descripcion-grande {
@@ -3998,8 +3997,7 @@ h1 {
     .libro-villanos {
         flex-direction: column;
         max-width: 100%;
-        height: auto;
-        max-height: calc(80vh - 20px);
+        height: calc(80vh - 20px);
     }
 
     .libro-pagina-izq {

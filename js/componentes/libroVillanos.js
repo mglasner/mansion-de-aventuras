@@ -28,13 +28,6 @@ function crearCabecera(nombre, datos, claseAvatar) {
 
     const cabecera = crearElemento('div', 'libro-detalle-cabecera');
     cabecera.appendChild(crearElemento('h3', null, nombre));
-
-    if (datos.tier && TIERS[datos.tier]) {
-        const tier = TIERS[datos.tier];
-        cabecera.appendChild(
-            crearElemento('span', 'tier-badge tier-' + datos.tier, tier.emoji + ' ' + tier.label)
-        );
-    }
     frag.appendChild(cabecera);
 
     return frag;
@@ -109,9 +102,18 @@ function generarDetalle(nombre) {
     }
 
     // Atributos
-    if (datos.edad !== undefined || datos.estatura !== undefined) {
+    {
         const statAtrib = crearElemento('div', 'stat-atributos');
         statAtrib.appendChild(crearElemento('span', 'stat-label', 'Atributos'));
+        if (datos.tier && TIERS[datos.tier]) {
+            const tier = TIERS[datos.tier];
+            const fila = crearElemento('div', 'ataque');
+            fila.appendChild(crearElemento('span', 'ataque-nombre', 'Rango'));
+            fila.appendChild(
+                crearElemento('span', 'tier-badge tier-' + datos.tier, tier.emoji + ' ' + tier.label)
+            );
+            statAtrib.appendChild(fila);
+        }
         if (datos.edad !== undefined) {
             const fila = crearElemento('div', 'ataque');
             fila.appendChild(crearElemento('span', 'ataque-nombre', 'Edad'));
