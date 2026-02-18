@@ -5,6 +5,49 @@ import yaml from 'js-yaml';
 import prettier from 'prettier';
 
 const CABECERA = '// GENERADO desde datos/*.yaml — no editar directamente\n';
+const IMG_PLACEHOLDER = 'assets/img/placeholder.webp';
+
+const CAMPOS_ENTIDAD = ['vida', 'clase', 'descripcion', 'edad', 'velocidad', 'estatura'];
+const CAMPOS_ATAQUE = ['nombre', 'dano', 'descripcion'];
+
+// Valida que una entidad tenga todos los campos requeridos
+function validar(nombre, datos, archivo) {
+    const errores = [];
+
+    for (const campo of CAMPOS_ENTIDAD) {
+        if (datos[campo] == null || datos[campo] === '') {
+            errores.push(`  - falta "${campo}"`);
+        }
+    }
+
+    if (!datos.img) {
+        datos.img = IMG_PLACEHOLDER;
+        console.warn(`  ⚠ ${nombre}: sin imagen, usando placeholder`);
+    }
+
+    if (!Array.isArray(datos.ataques) || datos.ataques.length === 0) {
+        errores.push('  - debe tener al menos 1 ataque');
+    } else {
+        datos.ataques.forEach((ataque, i) => {
+            for (const campo of CAMPOS_ATAQUE) {
+                if (ataque[campo] == null || ataque[campo] === '') {
+                    errores.push(`  - ataque #${i + 1}: falta "${campo}"`);
+                }
+            }
+        });
+    }
+
+    if (errores.length > 0) {
+        throw new Error(`${archivo} → ${nombre}:\n${errores.join('\n')}`);
+    }
+}
+
+// Valida todas las entidades de un archivo
+function validarTodos(datos, archivo) {
+    for (const [nombre, d] of Object.entries(datos)) {
+        validar(nombre, d, archivo);
+    }
+}
 
 // Lee la config de Prettier del proyecto
 async function leerConfigPrettier() {
@@ -67,6 +110,7 @@ async function main() {
     // Personajes
     const personajesYaml = readFileSync('datos/personajes.yaml', 'utf-8');
     const personajesData = yaml.load(personajesYaml);
+    validarTodos(personajesData, 'personajes.yaml');
     const personajesJS = generarJS(personajesData, 'Personaje', './entidades.js');
     const personajesFmt = await prettier.format(personajesJS, configPrettier);
     writeFileSync('js/personajes.js', personajesFmt);
@@ -75,6 +119,7 @@ async function main() {
     // Enemigos
     const enemigosYaml = readFileSync('datos/enemigos.yaml', 'utf-8');
     const enemigosData = yaml.load(enemigosYaml);
+    validarTodos(enemigosData, 'enemigos.yaml');
     const enemigosJS = generarJS(enemigosData, 'Enemigo', './entidades.js');
     const enemigosFmt = await prettier.format(enemigosJS, configPrettier);
     writeFileSync('js/enemigos.js', enemigosFmt);
