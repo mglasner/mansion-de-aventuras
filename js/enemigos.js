@@ -104,7 +104,7 @@ const ENEMIGOS = {
         ],
         {
             tier: 'esbirro',
-            img: 'assets/img/enemigos/topete.png',
+            img: 'assets/img/enemigos/topete.webp',
             clase: 'villano-topete',
             descripcion:
                 'Topete tiene 5 años, cachetes de ángel y el corazón de un pequeño demonio travieso. Es la sombra fiel de su hermana Pototo: donde va una, va la otra, y donde hay una travesura, Topete ya está ahí con su sonrisa de "yo no fui". DonBu intentó encadenarla una vez... tres veces... bueno, ya perdió la cuenta. Ella siempre se escapa, y para colmo usa las cadenas rotas como juguetes.\n\nNo te dejes engañar por su tamaño: sus berrinches explosivos hacen temblar los pasillos enteros, y cuando agita sus cadenitas al aire, hasta Siniestra se hace a un lado. Su madre Pamelotota dice que es "expresiva". DonBu dice que es un terremoto con coletas.',
@@ -128,7 +128,7 @@ const ENEMIGOS = {
         ],
         {
             tier: 'esbirro',
-            img: 'assets/img/enemigos/pototo.png',
+            img: 'assets/img/enemigos/pototo.webp',
             clase: 'villano-pototo',
             descripcion:
                 'Pototo es la mayor de las hermanas del caos y la mente maestra detrás de cada travesura en La Casa del Terror. Con 10 años ya tiene un historial de bromas que haría llorar a cualquier villano adulto. Su pelo largo y oscuro esconde una mirada calculadora detrás del antifaz: cuando cruza los brazos y sonríe de lado, DonBu sabe que algo terrible está por pasar.\n\nSu especialidad es el plan a largo plazo: puede pasar días fingiendo ser una niña buena hasta que llega el momento perfecto para soltar su risa burlesca y desatar el caos. Cuando DonBu logra atraparla y encadenarla, ella lo mira fijo y dice "¿en serio, papá?" con una calma que da escalofríos. A los cinco minutos ya está libre y planeando la siguiente travesura.',
@@ -136,6 +136,34 @@ const ENEMIGOS = {
             velocidad: 8,
             velAtaque: 6,
             estatura: 1.35,
+        }
+    ),
+
+    'La Grotesca': new Enemigo(
+        'La Grotesca',
+        200,
+        [
+            {
+                nombre: 'Tela sombría',
+                dano: 22,
+                descripcion: 'Envuelve al rival con telas malditas',
+            },
+            {
+                nombre: 'Caída fatal',
+                dano: 28,
+                descripcion: 'Se lanza desde lo alto con todo su peso',
+            },
+        ],
+        {
+            tier: 'pesadilla',
+            img: 'assets/img/enemigos/grotesca.webp',
+            clase: 'villano-grotesca',
+            descripcion:
+                'Hubo un tiempo en que La Grotesca era la artista más deslumbrante del Gran Circo de las Sombras. Su nombre artístico era "Bella Estrella" y cuando volaba por las telas aéreas, el público contenía la respiración. Pero todo cambió en la Gran Final, cuando una niña de 10 años llamada Rosé la superó en la competencia... y Bella cayó desde lo más alto. La envidia y la rabia la transformaron en algo irreconocible.\n\nAhora se hace llamar La Grotesca y arrastra sus viejas telas por los pasillos oscuros, buscando venganza. Su cuerpo se hinchó con la furia acumulada, su maquillaje se corrió para siempre y su belleza se marchitó, pero su habilidad con las telas sigue intacta... solo que ahora las usa para atrapar en vez de para brillar. Si escuchas el sonido de telas arrastrándose por el suelo, ya es tarde para escapar.',
+            edad: 35,
+            velocidad: 3,
+            velAtaque: 5,
+            estatura: 1.6,
         }
     ),
 };

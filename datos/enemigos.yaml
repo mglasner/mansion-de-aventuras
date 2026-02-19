@@ -3,7 +3,7 @@ Siniestra:
     vida: 150
     img: assets/img/enemigos/siniestra.webp
     clase: villano-siniestra
-    descripcion: 'Nadie sabe quién fue Siniestra antes de convertirse en espectro, pero los rumores dicen que era una hechicera que hizo un trato con las sombras... y las sombras no cumplieron su parte. Ahora vaga furiosa por los pasillos, dejando un rastro de llamas oscuras que se apagan solas al amanecer. Si escuchas un susurro helado detrás de ti, ya es demasiado tarde para correr.'
+    descripcion: "Nadie sabe quién fue Siniestra antes de convertirse en espectro, pero los rumores dicen que era una hechicera que hizo un trato con las sombras... y las sombras no cumplieron su parte.\n\nAhora vaga furiosa por los pasillos, dejando un rastro de llamas oscuras que se apagan solas al amanecer. Si escuchas un susurro helado detrás de ti, ya es demasiado tarde para correr."
     edad: 500
     velocidad: 5
     velAtaque: 3
@@ -21,7 +21,7 @@ Trasgo:
     vida: 50
     img: assets/img/enemigos/trasgo.webp
     clase: villano-trasgo
-    descripcion: 'Trasgo es el villano que nadie se toma en serio... y eso le enfurece muchísimo. Este pequeño duende verde lleva siglos intentando dar miedo, pero siempre tropieza con sus propias trampas. Una vez intentó asustar a un gato y terminó trepado a un árbol pidiendo ayuda. Eso sí, no te confíes: de vez en cuando le sale una travesura que realmente duele.'
+    descripcion: "Trasgo es el villano que nadie se toma en serio... y eso le enfurece muchísimo. Este pequeño duende verde lleva siglos intentando dar miedo, pero siempre tropieza con sus propias trampas.\n\nUna vez intentó asustar a un gato y terminó trepado a un árbol pidiendo ayuda. Eso sí, no te confíes: de vez en cuando le sale una travesura que realmente duele."
     edad: 120
     velocidad: 6
     velAtaque: 7
@@ -39,7 +39,7 @@ El Errante:
     vida: 140
     img: assets/img/enemigos/errante.webp
     clase: villano-errante
-    descripcion: 'El Errante lleva mil años caminando sin descanso por los rincones más oscuros de La Casa del Terror. Dicen que busca algo que perdió hace siglos, pero nadie sabe qué es. Lo único seguro es que no le gusta que lo interrumpan: cada intruso que se cruza en su camino recibe una mordida tóxica como advertencia. Lento pero implacable, siempre te encuentra.'
+    descripcion: "El Errante lleva mil años caminando sin descanso por los rincones más oscuros de La Casa del Terror. Dicen que busca algo que perdió hace siglos, pero nadie sabe qué es.\n\nLo único seguro es que no le gusta que lo interrumpan: cada intruso que se cruza en su camino recibe una mordida tóxica como advertencia. Lento pero implacable, siempre te encuentra."
     edad: 1000
     velocidad: 3
     velAtaque: 3
@@ -57,7 +57,7 @@ El Profano:
     vida: 180
     img: assets/img/enemigos/profano.webp
     clase: villano-profano
-    descripcion: 'El Profano es una sombra con forma humana que se desliza entre las paredes sin hacer ruido. Fue el guardián de un templo olvidado, pero algo lo corrompió y ahora solo obedece a la oscuridad. Aparece cuando menos lo esperas, siempre detrás de ti, siempre en silencio. Los más valientes juran haber visto sus ojos brillar en la negrura un segundo antes de sentir el frío de su cuchillada sombría.'
+    descripcion: "El Profano es una sombra con forma humana que se desliza entre las paredes sin hacer ruido. Fue el guardián de un templo olvidado, pero algo lo corrompió y ahora solo obedece a la oscuridad.\n\nAparece cuando menos lo esperas, siempre detrás de ti, siempre en silencio. Los más valientes juran haber visto sus ojos brillar en la negrura un segundo antes de sentir el frío de su cuchillada sombría."
     edad: 800
     velocidad: 4
     velAtaque: 3
@@ -69,3 +69,57 @@ El Profano:
         - nombre: Emboscada
           dano: 15
           descripcion: Aparece por sorpresa y ataca
+
+Topete:
+    tier: esbirro
+    vida: 35
+    img: assets/img/enemigos/topete.webp
+    clase: villano-topete
+    descripcion: "Topete tiene 5 años, cachetes de ángel y el corazón de un pequeño demonio travieso. Es la sombra fiel de su hermana Pototo: donde va una, va la otra, y donde hay una travesura, Topete ya está ahí con su sonrisa de \"yo no fui\". DonBu intentó encadenarla una vez... tres veces... bueno, ya perdió la cuenta. Ella siempre se escapa, y para colmo usa las cadenas rotas como juguetes.\n\nNo te dejes engañar por su tamaño: sus berrinches explosivos hacen temblar los pasillos enteros, y cuando agita sus cadenitas al aire, hasta Siniestra se hace a un lado. Su madre Pamelotota dice que es \"expresiva\". DonBu dice que es un terremoto con coletas."
+    edad: 5
+    velocidad: 7
+    velAtaque: 8
+    estatura: 0.9
+    ataques:
+        - nombre: Berrinche explosivo
+          dano: 6
+          descripcion: Rabieta que hace temblar el piso
+        - nombre: Cadenazo
+          dano: 10
+          descripcion: Golpe con las cadenas rotas
+
+Pototo:
+    tier: esbirro
+    vida: 45
+    img: assets/img/enemigos/pototo.webp
+    clase: villano-pototo
+    descripcion: "Pototo es la mayor de las hermanas del caos y la mente maestra detrás de cada travesura en La Casa del Terror. Con 10 años ya tiene un historial de bromas que haría llorar a cualquier villano adulto. Su pelo largo y oscuro esconde una mirada calculadora detrás del antifaz: cuando cruza los brazos y sonríe de lado, DonBu sabe que algo terrible está por pasar.\n\nSu especialidad es el plan a largo plazo: puede pasar días fingiendo ser una niña buena hasta que llega el momento perfecto para soltar su risa burlesca y desatar el caos. Cuando DonBu logra atraparla y encadenarla, ella lo mira fijo y dice \"¿en serio, papá?\" con una calma que da escalofríos. A los cinco minutos ya está libre y planeando la siguiente travesura."
+    edad: 10
+    velocidad: 8
+    velAtaque: 6
+    estatura: 1.35
+    ataques:
+        - nombre: Risa burlesca
+          dano: 8
+          descripcion: Carcajada tan fuerte que aturde
+        - nombre: Travesura doble
+          dano: 12
+          descripcion: Plan maestro coordinado con su hermana
+
+La Grotesca:
+    tier: pesadilla
+    vida: 200
+    img: assets/img/enemigos/grotesca.webp
+    clase: villano-grotesca
+    descripcion: "Hubo un tiempo en que La Grotesca era la artista más deslumbrante del Gran Circo de las Sombras. Su nombre artístico era \"Bella Estrella\" y cuando volaba por las telas aéreas, el público contenía la respiración. Pero todo cambió en la Gran Final, cuando una niña de 10 años llamada Rosé la superó en la competencia... y Bella cayó desde lo más alto. La envidia y la rabia la transformaron en algo irreconocible.\n\nAhora se hace llamar La Grotesca y arrastra sus viejas telas por los pasillos oscuros, buscando venganza. Su cuerpo se hinchó con la furia acumulada, su maquillaje se corrió para siempre y su belleza se marchitó, pero su habilidad con las telas sigue intacta... solo que ahora las usa para atrapar en vez de para brillar. Si escuchas el sonido de telas arrastrándose por el suelo, ya es tarde para escapar."
+    edad: 35
+    velocidad: 3
+    velAtaque: 5
+    estatura: 1.6
+    ataques:
+        - nombre: Tela sombría
+          dano: 22
+          descripcion: Envuelve al rival con telas malditas
+        - nombre: Caída fatal
+          dano: 28
+          descripcion: Se lanza desde lo alto con todo su peso

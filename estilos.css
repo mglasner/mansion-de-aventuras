@@ -1237,6 +1237,35 @@ h1 {
     background-color: rgb(224 96 160 / 15%);
 }
 
+/* La Grotesca — vino/púrpura oscuro */
+.villano-grotesca {
+    --v-color: #a8325a;
+    --v-oscuro: #5c1a30;
+    --v-glow: rgb(168 50 90 / 40%);
+    --v-tenue: rgb(168 50 90 / 12%);
+
+    border-color: #3a0a1a;
+    background-color: #150810;
+}
+
+.villano-grotesca h3 {
+    color: #a8325a;
+}
+
+.villano-grotesca .avatar img {
+    border-color: #5c1a30;
+    box-shadow: 0 0 10px rgb(168 50 90 / 40%);
+}
+
+.villano-grotesca .barra-vida-relleno {
+    background: linear-gradient(90deg, #5c1a30, #a8325a);
+}
+
+.villano-grotesca .ataque-dano {
+    color: #a8325a;
+    background-color: rgb(168 50 90 / 15%);
+}
+
 /* --- Overlay de empezar (sobre tarjeta seleccionada) --- */
 
 .seleccion-overlay {
