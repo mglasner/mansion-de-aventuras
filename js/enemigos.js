@@ -166,6 +166,34 @@ const ENEMIGOS = {
             estatura: 1.6,
         }
     ),
+
+    'El Disonante': new Enemigo(
+        'El Disonante',
+        220,
+        [
+            {
+                nombre: 'Nota discordante',
+                dano: 22,
+                descripcion: 'Una nota tan desafinada que hace temblar los huesos',
+            },
+            {
+                nombre: 'Réquiem sombrío',
+                dano: 28,
+                descripcion: 'Melodía oscura que drena la energía vital',
+            },
+        ],
+        {
+            tier: 'pesadilla',
+            img: 'assets/img/enemigos/disonante.webp',
+            clase: 'villano-disonante',
+            descripcion:
+                'Hubo un tiempo en que El Disonante fue el violinista más talentoso del mundo de las sombras. Su mejor amigo, un joven cantante llamado Luminox, le prometió que triunfarían juntos: "Tú compones, yo canto, seremos leyenda". Pero Luminox robó sus melodías, se convirtió en el idol más famoso del reino y jamás lo mencionó. La traición le retorció el alma... y la cara. Hoy su rostro es tan desagradable como las notas que arranca de su violín roto.\n\nAhora arrastra su violín agrietado por los pasillos, dejando un rastro de notas amargas que hacen llorar a las paredes. Odia el K-pop con cada fibra de su ser: si escucha un ritmo pegajoso, entra en un frenesí de cuerdas chirriantes. Por eso cuando supo que Lina, una idol que llena estadios, había entrado a La Casa del Terror, afinó su arco por primera vez en décadas. Esta vez, dice, el público escuchará su versión de la historia.',
+            edad: 200,
+            velocidad: 4,
+            velAtaque: 5,
+            estatura: 1.85,
+        }
+    ),
 };
 
 export { ENEMIGOS };

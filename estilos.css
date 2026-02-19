@@ -1266,6 +1266,35 @@ h1 {
     background-color: rgb(168 50 90 / 15%);
 }
 
+/* El Disonante — ámbar/siena */
+.villano-disonante {
+    --v-color: #c89030;
+    --v-oscuro: #6e4e18;
+    --v-glow: rgb(200 144 48 / 40%);
+    --v-tenue: rgb(200 144 48 / 12%);
+
+    border-color: #3a2a0e;
+    background-color: #1a1408;
+}
+
+.villano-disonante h3 {
+    color: #c89030;
+}
+
+.villano-disonante .avatar img {
+    border-color: #6e4e18;
+    box-shadow: 0 0 10px rgb(200 144 48 / 40%);
+}
+
+.villano-disonante .barra-vida-relleno {
+    background: linear-gradient(90deg, #6e4e18, #c89030);
+}
+
+.villano-disonante .ataque-dano {
+    color: #c89030;
+    background-color: rgb(200 144 48 / 15%);
+}
+
 /* --- Overlay de empezar (sobre tarjeta seleccionada) --- */
 
 .seleccion-overlay {
@@ -4310,6 +4339,28 @@ h1 {
     font-weight: bold;
 }
 
+/* Separador entre tiers — línea dorada con diamante */
+.libro-indice-sep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(255 215 0 / 25%), transparent);
+    margin: 6px 8px;
+    position: relative;
+    pointer-events: none;
+}
+
+.libro-indice-sep::after {
+    content: '\25C6';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.45rem;
+    color: rgb(255 215 0 / 40%);
+    background: var(--color-fondo-principal, #1a1a2e);
+    padding: 0 4px;
+    line-height: 1;
+}
+
 /* Contenido del villano */
 .libro-detalle-wrap {
     flex: 1;
@@ -4415,6 +4466,8 @@ h1 {
 
 /* Descripción grande (panel perfil) */
 .libro-descripcion-grande {
+    display: block;
+    -webkit-line-clamp: unset;
     font-size: 0.9rem;
     line-height: 1.6;
     color: rgb(210 195 170);
@@ -5191,6 +5244,17 @@ h1 {
     .libro-indice-activo {
         border-left-color: transparent;
         border-bottom-color: var(--v-color, var(--color-accent));
+    }
+
+    .libro-indice-sep {
+        width: 1px;
+        height: auto;
+        margin: 2px 4px;
+        background: linear-gradient(180deg, transparent, rgb(255 215 0 / 25%), transparent);
+    }
+
+    .libro-indice-sep::after {
+        display: none;
     }
 
     .libro-lomo {

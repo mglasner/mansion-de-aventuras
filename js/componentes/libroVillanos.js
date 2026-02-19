@@ -186,8 +186,20 @@ function construirLibro() {
     paginaIzq.appendChild(ornamentoSup);
 
     const listaIndice = crearElemento('ul', 'libro-indice');
+    let tierAnterior = null;
     nombres.forEach(function (nombre, i) {
         const datos = ENEMIGOS[nombre];
+
+        // Separador entre tiers
+        if (datos.tier && datos.tier !== tierAnterior) {
+            if (tierAnterior !== null) {
+                const sep = crearElemento('li', 'libro-indice-sep');
+                sep.setAttribute('aria-hidden', 'true');
+                listaIndice.appendChild(sep);
+            }
+            tierAnterior = datos.tier;
+        }
+
         const item = crearElemento('li', 'libro-indice-item');
         item.dataset.villano = nombre;
         item.dataset.indice = i;
