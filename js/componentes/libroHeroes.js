@@ -88,11 +88,7 @@ function generarIntro() {
     const contenido = crearElemento('div', 'libro-detalle-contenido libro-intro');
 
     contenido.appendChild(
-        crearElemento(
-            'h2',
-            'libro-intro-game-titulo',
-            'La Mansi\u00f3n de Aventuras'
-        )
+        crearElemento('h2', 'libro-intro-game-titulo', 'La Mansi\u00f3n de Aventuras')
     );
     contenido.appendChild(crearElemento('div', 'libro-ornamento'));
 
