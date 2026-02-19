@@ -42,8 +42,8 @@ export function crearCarta(data) {
     back.className = 'memorice-carta-back';
 
     const imgBack = document.createElement('img');
-    imgBack.src = 'assets/img/icons/icon-192.png';
-    imgBack.alt = 'La Casa del Terror';
+    imgBack.src = 'assets/img/habitaciones/habitacion3.webp';
+    imgBack.alt = 'El Memorice';
     imgBack.draggable = false;
     back.appendChild(imgBack);
 
