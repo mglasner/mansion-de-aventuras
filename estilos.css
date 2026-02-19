@@ -4713,14 +4713,12 @@ h1 {
 
     .libro-pagina-der {
         padding: 12px;
+        background: none;
+        background-color: inherit;
     }
 
     .libro-pagina-der::before {
-        background: radial-gradient(
-            ellipse at center 40%,
-            var(--v-tenue, transparent) 0%,
-            transparent 100%
-        );
+        display: none;
     }
 
     .libro-detalle-contenido {
