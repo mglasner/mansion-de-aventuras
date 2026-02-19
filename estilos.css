@@ -3358,6 +3358,11 @@ h1 {
     }
 }
 
+/* Ocultar D-pad cuando un libro (heroario/villanario) está abierto */
+body:has(.libro-modal:not(.oculto)) .dpad-contenedor {
+    display: none !important;
+}
+
 /* --- Notificaciones toast --- */
 
 .toast-contenedor {
