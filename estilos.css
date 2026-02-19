@@ -3939,18 +3939,29 @@ h1 {
     text-align: center;
 }
 
-/* --- Botón Empezar del Heroario --- */
-
-.libro-heroes .libro-pagina-der {
-    position: relative;
+/* --- Colores del índice del Heroario --- */
+.libro-heroes .libro-titulo {
+    color: rgb(230 200 160 / 95%);
+    text-shadow:
+        0 0 8px rgb(230 200 160 / 20%),
+        0 1px 2px rgb(0 0 0 / 60%);
 }
 
+.libro-heroes .libro-subtitulo {
+    color: rgb(220 205 180 / 70%);
+}
+
+/* --- Botón Empezar del Heroario --- */
 .libro-heroes-empezar {
-    position: absolute;
-    bottom: 58px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
+    margin-top: auto;
+    width: 100%;
+    padding: 8px 0;
+    font-size: 0.85rem;
+}
+
+/* Ocultar botón Empezar en la página de inicio */
+.libro-en-inicio .libro-heroes-empezar {
+    display: none;
 }
 
 /* Item de inicio en el índice */
@@ -3958,11 +3969,6 @@ h1 {
     font-style: italic;
     font-size: 0.7rem;
     letter-spacing: 0.04em;
-}
-
-/* Ocultar botón Empezar en la página de inicio */
-.libro-en-inicio .libro-heroes-empezar {
-    display: none;
 }
 
 /* --- Página de bienvenida del Heroario --- */
@@ -4600,10 +4606,6 @@ h1 {
 
     .libro-nav-contador {
         font-size: 0.65rem;
-    }
-
-    .libro-heroes-empezar {
-        bottom: 50px;
     }
 
     .libro-boton img {
