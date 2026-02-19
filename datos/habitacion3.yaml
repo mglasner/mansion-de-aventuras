@@ -19,7 +19,7 @@ tablero:
 
 # --- Intentos del jugador ---
 intentos:
-    max: 20                  # intentos totales permitidos
+    max: 30                  # intentos totales permitidos
     alerta: 5                # umbral para alerta visual (pulsing rojo)
     margenAdvertencia: 3     # margen de turnos sobrantes para lanzar toast
 

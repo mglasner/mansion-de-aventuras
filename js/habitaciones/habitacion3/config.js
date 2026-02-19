@@ -13,7 +13,7 @@ export const CFG = {
         numVillanos: 5,
     },
     intentos: {
-        max: 20,
+        max: 30,
         alerta: 5,
         margenAdvertencia: 3,
     },
