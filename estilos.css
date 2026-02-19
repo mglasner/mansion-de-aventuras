@@ -4698,8 +4698,9 @@ h1 {
     }
 
     /* Espacio extra para que el contenido pueda scrollear más allá del botón Empezar */
-    .libro-heroes .libro-detalle-wrap {
-        padding-bottom: 44px;
+    .libro-heroes .libro-descripcion-grande,
+    .libro-heroes .stats {
+        padding-bottom: 48px;
     }
 
     .libro-lomo {
