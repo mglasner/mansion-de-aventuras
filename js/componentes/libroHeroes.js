@@ -83,6 +83,47 @@ function generarDetalle(nombre, tabInicial) {
     return contenido;
 }
 
+// Genera la página de bienvenida del Heroario
+function generarIntro() {
+    const contenido = crearElemento('div', 'libro-detalle-contenido libro-intro');
+
+    contenido.appendChild(crearElemento('h3', 'libro-intro-titulo', 'Bienvenido al Heroario'));
+    contenido.appendChild(crearElemento('div', 'libro-ornamento'));
+
+    const texto = crearElemento('div', 'libro-intro-texto');
+    texto.appendChild(
+        crearElemento(
+            'p',
+            null,
+            'La Casa del Terror es un juego de aventuras donde t\u00fa eliges a tu h\u00e9roe y exploras una mansi\u00f3n llena de misterios, trampas y villanos.'
+        )
+    );
+    texto.appendChild(
+        crearElemento(
+            'p',
+            null,
+            'En este Heroario encontrar\u00e1s a todos los h\u00e9roes disponibles. Cada uno tiene habilidades \u00fanicas que te ayudar\u00e1n a superar los desaf\u00edos que te esperan.'
+        )
+    );
+    texto.appendChild(
+        crearElemento(
+            'p',
+            null,
+            '\u00bfQuieres conocer a los villanos? Abre el Villanario con el bot\u00f3n m\u00e1gico que encontrar\u00e1s abajo a la izquierda.'
+        )
+    );
+    texto.appendChild(
+        crearElemento(
+            'p',
+            'libro-intro-cta',
+            '\u00a1Elige un h\u00e9roe del \u00edndice y comienza la aventura!'
+        )
+    );
+    contenido.appendChild(texto);
+
+    return contenido;
+}
+
 // Entidades adaptadas para el libro: clase debe ser personaje-X (no jugador-X)
 function adaptarEntidades() {
     const adaptado = {};
@@ -103,6 +144,10 @@ export function crearLibroHeroes(contenedor) {
         claseRaiz: 'libro-heroes',
         titulo: 'Heroario',
         subtitulo: 'Elige tu personaje',
+        paginaInicio: {
+            textoIndice: '\u2726 Bienvenida',
+            generarContenido: generarIntro,
+        },
         pieContenido: function (paginaDer, obtenerNombreActual) {
             const btnEmpezar = crearElemento(
                 'button',

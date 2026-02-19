@@ -21,7 +21,7 @@ export function crearCabecera(nombre, datos, claseAvatar) {
 }
 
 // Construye un libro completo (índice + detalle + navegación)
-// opciones: { entidades, generarDetalle, claseRaiz, ordenar, crearItemIndice, crearSeparador, titulo, subtitulo, pieContenido }
+// opciones: { entidades, generarDetalle, claseRaiz, ordenar, crearItemIndice, crearSeparador, titulo, subtitulo, pieContenido, paginaInicio }
 export function crearLibro(opciones) {
     const entidades = opciones.entidades;
     const generarDetalle = opciones.generarDetalle;
@@ -44,12 +44,36 @@ export function crearLibro(opciones) {
     const titulo = opciones.titulo || '';
     const subtitulo = opciones.subtitulo || '';
     const pieContenido = opciones.pieContenido || null;
+    const paginaInicio = opciones.paginaInicio || null;
 
     const nombres = ordenar(Object.keys(entidades));
+    // Si hay página de inicio, el índice 0 es la intro y las entidades empiezan en 1
+    const offset = paginaInicio ? 1 : 0;
+    const totalPaginas = offset + nombres.length;
     let indiceActual = 0;
     let transicionEnCurso = false;
 
-    const libro = crearElemento('div', claseRaiz + ' ' + entidades[nombres[0]].clase);
+    // Helpers para mapear índice global → entidad
+    function esIntro(i) {
+        return paginaInicio && i === 0;
+    }
+
+    function getNombrePorIndice(i) {
+        return nombres[i - offset];
+    }
+
+    function getClasePorIndice(i) {
+        if (esIntro(i)) return '';
+        return entidades[getNombrePorIndice(i)].clase;
+    }
+
+    function getDetallePorIndice(i, tabAnterior) {
+        if (esIntro(i)) return paginaInicio.generarContenido();
+        return generarDetalle(getNombrePorIndice(i), tabAnterior);
+    }
+
+    const claseInicial = getClasePorIndice(0);
+    const libro = crearElemento('div', claseRaiz + (claseInicial ? ' ' + claseInicial : ''));
 
     // --- Página izquierda: índice ---
     const paginaIzq = crearElemento('div', 'libro-pagina libro-pagina-izq');
@@ -64,8 +88,35 @@ export function crearLibro(opciones) {
     paginaIzq.appendChild(crearElemento('div', 'libro-ornamento'));
 
     const listaIndice = crearElemento('ul', 'libro-indice');
+
+    // Item de página de inicio (si existe)
+    if (paginaInicio) {
+        const itemInicio = crearElemento('li', 'libro-indice-item libro-indice-inicio');
+        itemInicio.dataset.indice = '0';
+        itemInicio.tabIndex = 0;
+        itemInicio.textContent = paginaInicio.textoIndice;
+        itemInicio.classList.add('libro-indice-activo');
+
+        itemInicio.addEventListener('click', function () {
+            navegarA(0);
+        });
+        itemInicio.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                navegarA(0);
+            }
+        });
+        listaIndice.appendChild(itemInicio);
+
+        // Separador después de la intro
+        const sep = crearElemento('li', 'libro-indice-sep');
+        sep.setAttribute('aria-hidden', 'true');
+        listaIndice.appendChild(sep);
+    }
+
     nombres.forEach(function (nombre, i) {
         const datos = entidades[nombre];
+        const indiceGlobal = i + offset;
 
         // Separador opcional entre grupos
         if (crearSeparador(nombres, i)) {
@@ -76,19 +127,19 @@ export function crearLibro(opciones) {
 
         const item = crearElemento('li', 'libro-indice-item');
         item.dataset.nombre = nombre;
-        item.dataset.indice = i;
+        item.dataset.indice = indiceGlobal;
         item.tabIndex = 0;
         item.textContent = crearItemIndice(nombre, datos);
 
-        if (i === 0) item.classList.add('libro-indice-activo');
+        if (!paginaInicio && i === 0) item.classList.add('libro-indice-activo');
 
         item.addEventListener('click', function () {
-            navegarA(i);
+            navegarA(indiceGlobal);
         });
         item.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                navegarA(i);
+                navegarA(indiceGlobal);
             }
         });
 
@@ -112,7 +163,7 @@ export function crearLibro(opciones) {
     });
 
     const detalleWrap = crearElemento('div', 'libro-detalle-wrap');
-    detalleWrap.appendChild(generarDetalle(nombres[0]));
+    detalleWrap.appendChild(getDetallePorIndice(0));
     paginaDer.appendChild(detalleWrap);
 
     // Navegación inferior
@@ -125,11 +176,11 @@ export function crearLibro(opciones) {
         navegarA(indiceActual - 1);
     });
 
-    const contador = crearElemento('span', 'libro-nav-contador', '1 / ' + nombres.length);
+    const contador = crearElemento('span', 'libro-nav-contador', '1 / ' + totalPaginas);
 
     const btnSiguiente = crearElemento('button', 'libro-nav-btn', '\u203A');
     btnSiguiente.type = 'button';
-    btnSiguiente.disabled = nombres.length <= 1;
+    btnSiguiente.disabled = totalPaginas <= 1;
     btnSiguiente.addEventListener('click', function () {
         navegarA(indiceActual + 1);
     });
@@ -142,7 +193,8 @@ export function crearLibro(opciones) {
     // Pie de contenido opcional (ej: botón Empezar del Heroario)
     if (pieContenido) {
         pieContenido(paginaDer, function () {
-            return nombres[indiceActual];
+            if (esIntro(indiceActual)) return nombres[0];
+            return getNombrePorIndice(indiceActual);
         });
     }
 
@@ -154,7 +206,7 @@ export function crearLibro(opciones) {
     // --- Navegación con crossfade ---
     function navegarA(nuevoIndice) {
         if (transicionEnCurso) return;
-        if (nuevoIndice < 0 || nuevoIndice >= nombres.length) return;
+        if (nuevoIndice < 0 || nuevoIndice >= totalPaginas) return;
         if (nuevoIndice === indiceActual) return;
 
         transicionEnCurso = true;
@@ -167,12 +219,13 @@ export function crearLibro(opciones) {
         setTimeout(function () {
             const tabAnterior = (contenidoActual && contenidoActual._tabActivo) || 'perfil';
             detalleWrap.replaceChildren();
-            const nuevoContenido = generarDetalle(nombres[nuevoIndice], tabAnterior);
+            const nuevoContenido = getDetallePorIndice(nuevoIndice, tabAnterior);
             nuevoContenido.classList.add('libro-fade-in');
             detalleWrap.appendChild(nuevoContenido);
 
             // Propagar clase de la entidad al libro
-            libro.className = claseRaiz + ' ' + entidades[nombres[nuevoIndice]].clase;
+            const claseEntidad = getClasePorIndice(nuevoIndice);
+            libro.className = claseRaiz + (claseEntidad ? ' ' + claseEntidad : '');
 
             indiceActual = nuevoIndice;
             actualizarIndice();
@@ -186,13 +239,14 @@ export function crearLibro(opciones) {
 
     function actualizarIndice() {
         const items = listaIndice.querySelectorAll('.libro-indice-item');
-        items.forEach(function (item, i) {
-            item.classList.toggle('libro-indice-activo', i === indiceActual);
+        items.forEach(function (item) {
+            const idx = parseInt(item.dataset.indice, 10);
+            item.classList.toggle('libro-indice-activo', idx === indiceActual);
         });
 
         btnAnterior.disabled = indiceActual === 0;
-        btnSiguiente.disabled = indiceActual === nombres.length - 1;
-        contador.textContent = indiceActual + 1 + ' / ' + nombres.length;
+        btnSiguiente.disabled = indiceActual === totalPaginas - 1;
+        contador.textContent = indiceActual + 1 + ' / ' + totalPaginas;
     }
 
     // Navegación por teclado (flechas dentro del libro)
@@ -214,7 +268,8 @@ export function crearLibro(opciones) {
         libro: libro,
         manejarTecladoLibro: manejarTecladoLibro,
         getNombreActual: function () {
-            return nombres[indiceActual];
+            if (esIntro(indiceActual)) return nombres[0];
+            return getNombrePorIndice(indiceActual);
         },
     };
 }
