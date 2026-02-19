@@ -3960,6 +3960,11 @@ h1 {
     letter-spacing: 0.04em;
 }
 
+/* Ocultar botón Empezar en la página de inicio */
+.libro-en-inicio .libro-heroes-empezar {
+    display: none;
+}
+
 /* --- Página de bienvenida del Heroario --- */
 .libro-intro {
     text-align: center;
@@ -3972,8 +3977,8 @@ h1 {
 
 .libro-intro-titulo {
     font-family: var(--font-display);
-    font-size: 1.2rem;
-    color: rgb(255 215 0 / 90%);
+    font-size: 1.15rem;
+    color: rgb(230 200 160 / 95%);
     letter-spacing: 0.06em;
     margin-bottom: 6px;
 }
@@ -3983,20 +3988,20 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 12px;
-    max-width: 280px;
+    gap: 14px;
+    max-width: 290px;
 }
 
 .libro-intro-texto p {
-    font-size: 0.78rem;
-    line-height: 1.55;
-    color: rgb(210 195 170 / 90%);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: rgb(220 205 180 / 95%);
 }
 
 .libro-intro-cta {
-    color: rgb(255 215 0 / 80%) !important;
+    color: rgb(240 210 150 / 95%) !important;
     font-family: var(--font-display);
-    font-size: 0.82rem !important;
+    font-size: 0.92rem !important;
     margin-top: 4px;
 }
 

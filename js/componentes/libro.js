@@ -73,7 +73,12 @@ export function crearLibro(opciones) {
     }
 
     const claseInicial = getClasePorIndice(0);
-    const libro = crearElemento('div', claseRaiz + (claseInicial ? ' ' + claseInicial : ''));
+    const libro = crearElemento(
+        'div',
+        claseRaiz +
+            (claseInicial ? ' ' + claseInicial : '') +
+            (esIntro(0) ? ' libro-en-inicio' : '')
+    );
 
     // --- Página izquierda: índice ---
     const paginaIzq = crearElemento('div', 'libro-pagina libro-pagina-izq');
@@ -225,7 +230,8 @@ export function crearLibro(opciones) {
 
             // Propagar clase de la entidad al libro
             const claseEntidad = getClasePorIndice(nuevoIndice);
-            libro.className = claseRaiz + (claseEntidad ? ' ' + claseEntidad : '');
+            const claseInicio = esIntro(nuevoIndice) ? ' libro-en-inicio' : '';
+            libro.className = claseRaiz + (claseEntidad ? ' ' + claseEntidad : '') + claseInicio;
 
             indiceActual = nuevoIndice;
             actualizarIndice();

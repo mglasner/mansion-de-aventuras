@@ -87,7 +87,9 @@ function generarDetalle(nombre, tabInicial) {
 function generarIntro() {
     const contenido = crearElemento('div', 'libro-detalle-contenido libro-intro');
 
-    contenido.appendChild(crearElemento('h3', 'libro-intro-titulo', 'Bienvenido al Heroario'));
+    contenido.appendChild(
+        crearElemento('h3', 'libro-intro-titulo', 'Bienvenido a la Mansi\u00f3n de Aventuras')
+    );
     contenido.appendChild(crearElemento('div', 'libro-ornamento'));
 
     const texto = crearElemento('div', 'libro-intro-texto');
