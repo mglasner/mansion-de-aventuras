@@ -3415,7 +3415,7 @@ h1 {
     }
 }
 
-.toast-salida {
+.toast.toast-salida {
     animation: toast-salida 0.3s ease forwards;
 }
 
@@ -4713,6 +4713,14 @@ h1 {
 
     .libro-pagina-der {
         padding: 12px;
+    }
+
+    .libro-pagina-der::before {
+        background: radial-gradient(
+            ellipse at center 40%,
+            var(--v-tenue, transparent) 0%,
+            transparent 100%
+        );
     }
 
     .libro-detalle-contenido {
