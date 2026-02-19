@@ -1,4 +1,4 @@
-// Libro de Villanos — bestiario con índice y detalle (botón flotante + modal)
+// Villanario — bestiario con índice y detalle (botón flotante + modal)
 
 import { crearElemento } from '../utils.js';
 import { TIERS } from './stats.js';
@@ -176,8 +176,11 @@ function construirLibro() {
     // --- Página izquierda: índice ---
     const paginaIzq = crearElemento('div', 'libro-pagina libro-pagina-izq');
 
-    const titulo = crearElemento('h3', 'libro-titulo', 'Libro de Villanos');
+    const titulo = crearElemento('h3', 'libro-titulo', 'Villanario');
     paginaIzq.appendChild(titulo);
+
+    const subtitulo = crearElemento('p', 'libro-subtitulo', 'La enciclopedia de villanos');
+    paginaIzq.appendChild(subtitulo);
 
     const ornamentoSup = crearElemento('div', 'libro-ornamento');
     paginaIzq.appendChild(ornamentoSup);
@@ -330,10 +333,10 @@ export function crearLibroVillanos(contenedor) {
 
     const imgBoton = document.createElement('img');
     imgBoton.src = 'assets/img/libro-villanos.webp';
-    imgBoton.alt = 'Libro de Villanos';
+    imgBoton.alt = 'Villanario';
     boton.appendChild(imgBoton);
 
-    const textoBoton = crearElemento('span', 'libro-boton-texto', 'Libro de Villanos');
+    const textoBoton = crearElemento('span', 'libro-boton-texto', 'Villanario');
     boton.appendChild(textoBoton);
 
     // Chispas mágicas
