@@ -120,6 +120,11 @@ function generarIntro() {
         if (btn) btn.click();
     });
     pVillanos.appendChild(linkVillanos);
+    pVillanos.appendChild(
+        document.createTextNode(
+            ' Abre el Villanario con el bot\u00f3n m\u00e1gico de abajo a la derecha.'
+        )
+    );
     texto.appendChild(pVillanos);
     texto.appendChild(
         crearElemento(
