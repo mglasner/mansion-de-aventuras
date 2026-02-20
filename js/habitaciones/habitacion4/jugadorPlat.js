@@ -2,7 +2,7 @@
 // Estados: idle, correr, saltar, caer, golpeado
 
 import { CFG } from './config.js';
-import { resolverColisionX, resolverColisionY, esAbismo, esMeta } from './fisicas.js';
+import { resolverColisionX, resolverColisionY, esMeta } from './fisicas.js';
 import { obtenerSpawnJugador } from './nivel.js';
 import { obtenerSpriteJugador } from './spritesPlat.js';
 import {
@@ -35,8 +35,6 @@ let jumpBufferFrames = 0;
 let invulFrames = 0;
 let knockbackVx = 0;
 let colorJugador = '#bb86fc';
-let respawnX = 0;
-let respawnY = 0;
 let jugadorRef = null;
 let teclasRef = {};
 
@@ -73,8 +71,6 @@ export function iniciarJugador(jugador, teclas) {
     jumpBufferFrames = 0;
     invulFrames = 0;
     knockbackVx = 0;
-    respawnX = x;
-    respawnY = y;
     estado = 'idle';
     frameAnim = 0;
     contadorAnim = 0;
@@ -137,12 +133,6 @@ export function actualizarJugador() {
     vy = resY.vy;
     estaEnSuelo = resY.enSuelo;
 
-    // Actualizar ultimo punto seguro en suelo
-    if (estaEnSuelo && !detectarAbismo()) {
-        respawnX = x;
-        respawnY = y;
-    }
-
     // Invulnerabilidad
     if (invulFrames > 0) invulFrames--;
 
@@ -180,13 +170,6 @@ function actualizarEstado(inputX) {
     }
 }
 
-export function detectarAbismo() {
-    // Verificar si el centro inferior del jugador esta en abismo
-    const centroX = x + ancho / 2;
-    const pieY = y + alto + 2;
-    return esAbismo(centroX, pieY);
-}
-
 export function detectarMetaTile() {
     // Verificar si el jugador toca un tile META
     const centroX = x + ancho / 2;
@@ -194,26 +177,12 @@ export function detectarMetaTile() {
     return esMeta(centroX, centroY);
 }
 
-// Se llama solo cuando el jugador ya cayo debajo del nivel (verificado por el caller)
+// Caer al fuego del abismo = muerte instantanea
 export function caerAlAbismo() {
-    if (!jugadorRef || invulFrames > 0) return false;
-
-    jugadorRef.recibirDano(FIS.danoAbismo);
+    if (!jugadorRef) return;
+    jugadorRef.recibirDano(9999);
     document.dispatchEvent(new Event('vida-cambio'));
-
-    if (!jugadorRef.estaVivo()) {
-        document.dispatchEvent(new Event('jugador-muerto'));
-        return true;
-    }
-
-    // Respawn en ultimo punto seguro
-    x = respawnX;
-    y = respawnY;
-    vy = 0;
-    vx = 0;
-    knockbackVx = 0;
-    invulFrames = FIS.invulnerabilidad;
-    return false;
+    document.dispatchEvent(new Event('jugador-muerto'));
 }
 
 export function recibirDano(dano, desdeX) {
@@ -303,10 +272,6 @@ export function esInvulnerable() {
 
 export function acabaDeAterrizar() {
     return estaEnSuelo && !estabaSuelo;
-}
-
-export function obtenerEstado() {
-    return estado;
 }
 
 export function obtenerColor() {

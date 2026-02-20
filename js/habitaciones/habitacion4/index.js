@@ -196,20 +196,12 @@ function verificarColisionesEnemigos() {
 
 function verificarAbismo() {
     const jug = obtenerPosicion();
-    const limiteY = obtenerFilas() * CFG.tiles.tamano;
-
-    if (jug.y > limiteY) {
-        const murio = caerAlAbismo();
-        sacudir(6);
-        if (murio) {
-            muerto = true;
-        } else {
-            lanzarToast(
-                '-' + CFG.fisicas.danoAbismo + ' HP (abismo)',
-                '\ud83d\udd73\ufe0f',
-                'dano'
-            );
-        }
+    // Muerte instantanea al caer al fuego (pies pasan la zona de suelo)
+    const limiteAbismo = (obtenerFilas() - 2) * TAM;
+    if (jug.y + jug.alto >= limiteAbismo) {
+        caerAlAbismo();
+        sacudir(8);
+        muerto = true;
     }
 }
 

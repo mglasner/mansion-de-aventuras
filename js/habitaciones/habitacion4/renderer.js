@@ -69,12 +69,13 @@ export function renderizarTiles(ctx, camaraX, anchoCanvas, altoCanvas, bossVivo,
                     ctx.fillRect(px, py, TAM, TAM);
                 }
             } else if (tipo === T.ABISMO) {
-                const variante = hashVariante(fila, col);
-                const tex = obtenerTextura('ABISMO', variante);
+                // Fuego animado: frame temporal + offset espacial para variacion
+                const fireFrame = (Math.floor(tiempo / 150) + hashVariante(fila, col)) % 4;
+                const tex = obtenerTextura('ABISMO', fireFrame);
                 if (tex) {
                     ctx.drawImage(tex, px, py);
                 } else {
-                    ctx.fillStyle = COL.colorAbismo;
+                    ctx.fillStyle = '#c03c0a';
                     ctx.fillRect(px, py, TAM, TAM);
                 }
             } else if (tipo === T.META) {

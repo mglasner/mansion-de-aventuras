@@ -7,9 +7,14 @@ import { obtenerTile, obtenerFilas, obtenerColumnas } from './nivel.js';
 const T = CFG.tiles.tipos;
 const TAM = CFG.tiles.tamano;
 
-// Un tile es sólido si es suelo o plataforma
+// Un tile sólido bloquea en todas las direcciones (suelo, paredes, techo)
 function tileEsSolido(tipo) {
-    return tipo === T.SUELO || tipo === T.PLATAFORMA;
+    return tipo === T.SUELO;
+}
+
+// Plataformas one-way: solo bloquean al caer desde arriba
+function tileEsPlataforma(tipo) {
+    return tipo === T.PLATAFORMA;
 }
 
 // Verifica si un pixel cae en tile sólido
@@ -22,16 +27,6 @@ export function esSolido(px, py) {
     return tileEsSolido(obtenerTile(fila, col));
 }
 
-// Detecta si un pixel está en tile de abismo
-export function esAbismo(px, py) {
-    const col = Math.floor(px / TAM);
-    const fila = Math.floor(py / TAM);
-    if (fila < 0 || fila >= obtenerFilas() || col < 0 || col >= obtenerColumnas()) {
-        return false;
-    }
-    return obtenerTile(fila, col) === T.ABISMO;
-}
-
 // Detecta si un pixel está en tile META
 export function esMeta(px, py) {
     const col = Math.floor(px / TAM);
@@ -42,12 +37,30 @@ export function esMeta(px, py) {
     return obtenerTile(fila, col) === T.META;
 }
 
-// Verifica si hay suelo 1px debajo de los pies
+// Verifica si la entidad esta parada sobre una plataforma one-way
+// Solo es true si los pies estan en el borde superior del tile (dentro de 2px)
+function enPlataforma(px, py) {
+    const col = Math.floor(px / TAM);
+    const fila = Math.floor(py / TAM);
+    if (fila < 0 || fila >= obtenerFilas() || col < 0 || col >= obtenerColumnas()) {
+        return false;
+    }
+    if (!tileEsPlataforma(obtenerTile(fila, col))) return false;
+    // Solo contar si los pies estan en el borde superior (no atravesando)
+    const topePlataforma = fila * TAM;
+    return py - topePlataforma <= 2;
+}
+
+// Verifica si hay suelo o plataforma debajo de los pies
 export function enSuelo(x, y, ancho, alto) {
     const py = y + alto;
-    // Revisar 2 puntos en la base (esquinas inferiores con margen)
     const margen = 2;
-    return esSolido(x + margen, py) || esSolido(x + ancho - margen, py);
+    return (
+        esSolido(x + margen, py) ||
+        esSolido(x + ancho - margen, py) ||
+        enPlataforma(x + margen, py) ||
+        enPlataforma(x + ancho - margen, py)
+    );
 }
 
 // Resolver colisión horizontal
@@ -85,7 +98,7 @@ export function resolverColisionY(x, y, ancho, alto, vy) {
     const margenX = 2;
 
     if (vy > 0) {
-        // Cayendo: revisar suelo
+        // Cayendo: revisar suelo sólido
         const pie = nuevaY + alto;
         const puntos = [x + margenX, x + ancho / 2, x + ancho - margenX];
         for (let i = 0; i < puntos.length; i++) {
@@ -94,6 +107,23 @@ export function resolverColisionY(x, y, ancho, alto, vy) {
                 return { y: fila * TAM - alto, vy: 0, enSuelo: true };
             }
         }
+
+        // Cayendo: revisar plataformas one-way (solo aterrizar si venia de arriba)
+        const pieAnterior = y + alto;
+        for (let i = 0; i < puntos.length; i++) {
+            const col = Math.floor(puntos[i] / TAM);
+            const fila = Math.floor(pie / TAM);
+            if (fila >= 0 && fila < obtenerFilas() && col >= 0 && col < obtenerColumnas()) {
+                if (tileEsPlataforma(obtenerTile(fila, col))) {
+                    const topePlataforma = fila * TAM;
+                    // Solo aterrizar si los pies estaban arriba del borde de la plataforma
+                    if (pieAnterior <= topePlataforma + 1) {
+                        return { y: topePlataforma - alto, vy: 0, enSuelo: true };
+                    }
+                }
+            }
+        }
+
         return { y: nuevaY, vy, enSuelo: false };
     }
 

@@ -74,14 +74,17 @@ function generarPlataforma(variante) {
     const ctx = c.getContext('2d');
     const seed = variante * 13.7 + 50;
 
-    // Base: roca flotante
-    ctx.fillStyle = '#3a3a7e';
-    ctx.fillRect(0, 0, TAM, TAM);
+    // Plataforma one-way: solo la superficie superior (5px de grosor)
+    const grosor = 5;
 
-    // Textura rugosa
-    for (let py = 0; py < TAM; py++) {
+    // Superficie de roca
+    ctx.fillStyle = '#4a4a8e';
+    ctx.fillRect(0, 0, TAM, grosor);
+
+    // Textura rugosa en la superficie
+    for (let py = 0; py < grosor; py++) {
         for (let px = 0; px < TAM; px++) {
-            const n = ruido(px, py, seed) * 0.1 - 0.05;
+            const n = ruido(px, py, seed) * 0.12 - 0.06;
             if (n > 0) {
                 ctx.fillStyle = 'rgba(255,255,255,' + n.toFixed(3) + ')';
             } else {
@@ -91,43 +94,64 @@ function generarPlataforma(variante) {
         }
     }
 
-    // Bordes sombreados (inferior y laterales)
-    ctx.fillStyle = 'rgba(0,0,0,0.12)';
-    ctx.fillRect(0, TAM - 2, TAM, 2); // borde inferior
-    ctx.fillRect(0, 0, 1, TAM); // borde izq
-    ctx.fillRect(TAM - 1, 0, 1, TAM); // borde der
+    // Highlight superior brillante (indica superficie de aterrizaje)
+    ctx.fillStyle = 'rgba(180,180,255,0.25)';
+    ctx.fillRect(0, 0, TAM, 1);
+    ctx.fillStyle = 'rgba(140,140,220,0.15)';
+    ctx.fillRect(0, 1, TAM, 1);
 
-    // Highlight superior (2px brillantes)
-    ctx.fillStyle = 'rgba(255,255,255,0.18)';
-    ctx.fillRect(0, 0, TAM, 2);
-
-    // Toque de "musgo" azulado en esquinas
-    ctx.fillStyle = 'rgba(100,140,200,0.08)';
-    ctx.fillRect(0, 0, 4, 3);
-    ctx.fillRect(TAM - 4, 0, 4, 3);
+    // Borde inferior difuminado (fade out)
+    ctx.fillStyle = 'rgba(60,60,120,0.3)';
+    ctx.fillRect(0, grosor - 1, TAM, 1);
 
     return c;
 }
 
-function generarAbismo(variante) {
+function generarFuego(frame) {
     const c = document.createElement('canvas');
     c.width = TAM;
     c.height = TAM;
     const ctx = c.getContext('2d');
+    const seed = frame * 17.1;
 
-    // Gradiente profundo
-    const grad = ctx.createLinearGradient(0, 0, 0, TAM);
-    grad.addColorStop(0, '#0a0a20');
-    grad.addColorStop(1, '#020208');
+    // Fondo oscuro
+    ctx.fillStyle = '#120005';
+    ctx.fillRect(0, 0, TAM, TAM);
+
+    // Resplandor base desde abajo
+    const grad = ctx.createLinearGradient(0, TAM, 0, 0);
+    grad.addColorStop(0, 'rgba(200,60,10,0.7)');
+    grad.addColorStop(0.5, 'rgba(160,30,5,0.3)');
+    grad.addColorStop(1, 'rgba(60,5,0,0)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, TAM, TAM);
 
-    // Borde superior irregular (simulando borde roto)
-    if (variante < 2) {
-        ctx.fillStyle = 'rgba(30,30,60,0.3)';
-        for (let px = 0; px < TAM; px++) {
-            const h = Math.floor(ruido(px, variante, 9.1) * 3);
-            ctx.fillRect(px, 0, 1, h);
+    // Columnas de llamas con alturas variables
+    for (let px = 0; px < TAM; px++) {
+        const h = 3 + Math.floor(ruido(px, 0, seed) * (TAM - 4));
+        for (let py = TAM - 1; py >= TAM - h; py--) {
+            const t = (TAM - py) / h; // 0=base, 1=punta
+            const n = ruido(px, py, seed);
+            if (n < 0.3) continue;
+
+            // Rojo en la base, naranja en medio, amarillo en las puntas
+            let r, g, b;
+            if (t < 0.4) {
+                r = 180 + Math.floor(n * 60);
+                g = 25 + Math.floor(t * 90);
+                b = 5;
+            } else if (t < 0.7) {
+                r = 220 + Math.floor(n * 35);
+                g = 90 + Math.floor((t - 0.4) * 340);
+                b = 10;
+            } else {
+                r = 255;
+                g = 200 + Math.floor(n * 55);
+                b = 40 + Math.floor((t - 0.7) * 160);
+            }
+            const alpha = (0.5 + n * 0.4) * (1 - t * 0.3);
+            ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha.toFixed(2) + ')';
+            ctx.fillRect(px, py, 1, 1);
         }
     }
 
@@ -146,7 +170,7 @@ export function iniciarTexturas() {
     for (let v = 0; v < VARIANTES; v++) {
         texturas.SUELO.push(generarSuelo(v));
         texturas.PLATAFORMA.push(generarPlataforma(v));
-        texturas.ABISMO.push(generarAbismo(v));
+        texturas.ABISMO.push(generarFuego(v));
     }
 }
 

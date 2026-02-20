@@ -23,7 +23,6 @@ export const CFG = {
         fuerzaStompRebote: -5,
         coyoteTime: 6,
         jumpBuffer: 6,
-        danoAbismo: 15,
         invulnerabilidad: 60,
         knockbackX: 3,
         knockbackY: -4,
@@ -38,13 +37,10 @@ export const CFG = {
         velocidadFases: [1.0, 1.4],
     },
     render: {
-        colorCielo: '#0a0a2e',
-        colorAbismo: '#050510',
         colorSuelo: '#2a2a5e',
         colorPlataforma: '#3a3a7e',
         colorEnemigo: '#e94560',
         colorBoss: '#bb86fc',
-        colorMeta: '#6bfc86',
     },
     escalado: {
         estaturaRef: 1.55, // Lina = escala 1.0
