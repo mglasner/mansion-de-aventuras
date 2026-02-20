@@ -16,8 +16,8 @@ const INPUT_DIR = path.join(__dirname, '..', 'assets', 'img', 'generadas');
 const OUTPUT_DIR = path.join(__dirname, '..', 'assets', 'img', 'sprites-plat');
 
 // Tamaño final de cada frame en el sprite sheet
-const FRAME_W = 32;
-const FRAME_H = 40;
+const FRAME_W = 48;
+const FRAME_H = 60;
 
 // Personajes a procesar
 const SHEETS = [
@@ -29,6 +29,15 @@ const SHEETS = [
     { input: 'spritesheet_kira_v1.jpg', output: 'kira.png', name: 'Kira' },
     { input: 'spritesheet_pompom_v1.jpg', output: 'pompom.png', name: 'Pompom' },
     { input: 'spritesheet_orejas_v1.jpg', output: 'orejas.png', name: 'Orejas' },
+    // Enemigos
+    { input: 'spritesheet_trasgo_v1.jpg', output: 'trasgo.png', name: 'Trasgo' },
+    { input: 'spritesheet_topete_v1.jpg', output: 'topete.png', name: 'Topete' },
+    { input: 'spritesheet_pototo_v1.jpg', output: 'pototo.png', name: 'Pototo' },
+    { input: 'spritesheet_siniestra_v1.jpg', output: 'siniestra.png', name: 'Siniestra' },
+    { input: 'spritesheet_errante_v1.jpg', output: 'errante.png', name: 'Errante' },
+    { input: 'spritesheet_profano_v1.jpg', output: 'profano.png', name: 'Profano' },
+    { input: 'spritesheet_grotesca_v1.jpg', output: 'grotesca.png', name: 'Grotesca' },
+    { input: 'spritesheet_disonante_v1.jpg', output: 'disonante.png', name: 'Disonante' },
 ];
 
 // --- Utilidades ---

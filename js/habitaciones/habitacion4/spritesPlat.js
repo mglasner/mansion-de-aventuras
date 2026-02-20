@@ -1,14 +1,15 @@
-// Habitacion 4 — El Abismo: Sprites de personajes
+// Habitacion 4 — El Abismo: Sprites de personajes y enemigos
 // Carga sprite sheets PNG (generados con IA) y los parte en frames.
 // Fallback: genera sprites procedurales si no hay sprite sheet disponible.
 //
-// Layout del strip (15 frames): [idle×2, run×6, jump, fall, hit, atk1×2, atk2×2]
+// Jugadores (15 frames): [idle×2, run×6, jump, fall, hit, atk1×2, atk2×2]
+// Enemigos (9 frames):   [idle×2, walk×4, hit, atk×2]
 // Cada frame mide FRAME_W x FRAME_H pixeles.
 
 // --- Constantes ---
 
-const FRAME_W = 32;
-const FRAME_H = 40;
+const FRAME_W = 48;
+const FRAME_H = 60;
 
 // Layouts de frames segun cantidad total en el strip
 // Layout 9:  idle(2) + run(4) + jump(1) + fall(1) + hit(1)
@@ -42,6 +43,26 @@ const SPRITE_SHEETS = {
     rosé: { src: 'assets/img/sprites-plat/rose.png', frames: 15 },
     lina: { src: 'assets/img/sprites-plat/lina.png', frames: 15 },
     pandajuro: { src: 'assets/img/sprites-plat/pandajuro.png', frames: 15 },
+};
+
+// Layout de enemigos (9 frames): idle(2) + walk(4) + hit(1) + atk(2)
+const ENEMY_LAYOUT = {
+    idle: { inicio: 0, cantidad: 2 },
+    patrulla: { inicio: 2, cantidad: 4 },
+    golpeado: { inicio: 6, cantidad: 1 },
+    ataque: { inicio: 7, cantidad: 2 },
+};
+
+// Enemigos con sprite sheet (nombre completo en minusculas → archivo)
+const ENEMY_SPRITE_SHEETS = {
+    siniestra: { src: 'assets/img/sprites-plat/siniestra.png' },
+    trasgo: { src: 'assets/img/sprites-plat/trasgo.png' },
+    'el errante': { src: 'assets/img/sprites-plat/errante.png' },
+    'el profano': { src: 'assets/img/sprites-plat/profano.png' },
+    topete: { src: 'assets/img/sprites-plat/topete.png' },
+    pototo: { src: 'assets/img/sprites-plat/pototo.png' },
+    'la grotesca': { src: 'assets/img/sprites-plat/grotesca.png' },
+    'el disonante': { src: 'assets/img/sprites-plat/disonante.png' },
 };
 
 // --- Estado ---
@@ -114,10 +135,11 @@ export function usaSpriteSheet() {
     return spriteSheetCargado;
 }
 
-// --- Sprites de enemigos (sin cambios, siguen procedurales) ---
+// --- Sprites de enemigos ---
 
-let spritesEsbirros = null;
-let spritesBoss = null;
+let spritesEsbirros = null; // cache procedural
+let spritesBoss = null; // cache procedural
+let spritesEnemigosSheet = {}; // nombre → { idle: [canvas,..], patrulla: [...], ... }
 
 function px(ctx, x, y, color) {
     ctx.fillStyle = color;
@@ -197,6 +219,33 @@ export function obtenerSpriteEnemigo(color, ancho, alto, esBoss, estado, frameIn
 export function iniciarSpritesEnemigos() {
     spritesEsbirros = {};
     spritesBoss = {};
+    spritesEnemigosSheet = {};
+}
+
+// Carga sprite sheet de un enemigo por nombre (se llama al crear cada enemigo)
+export function iniciarSpritesEnemigo(nombreEnemigo) {
+    const key = nombreEnemigo.toLowerCase();
+    if (spritesEnemigosSheet[key] !== undefined) return; // ya cargado o cargando
+
+    const config = ENEMY_SPRITE_SHEETS[key];
+    if (!config) return;
+
+    spritesEnemigosSheet[key] = null; // marcar como cargando
+    cargarImagen(config.src)
+        .then((img) => {
+            spritesEnemigosSheet[key] = cortarFrames(img, ENEMY_LAYOUT);
+        })
+        .catch(() => {
+            // mantener procedurales como fallback
+        });
+}
+
+export function obtenerSpriteEnemigoSheet(nombreEnemigo, estado, frameIndex) {
+    const key = nombreEnemigo.toLowerCase();
+    const frames = spritesEnemigosSheet[key];
+    if (!frames || !frames[estado]) return null;
+    const arr = frames[estado];
+    return arr[frameIndex % arr.length];
 }
 
 export function obtenerColorBossFase(ratio) {
@@ -209,6 +258,7 @@ export function limpiarSprites() {
     spritesJugador = null;
     spritesEsbirros = null;
     spritesBoss = null;
+    spritesEnemigosSheet = {};
     spriteSheetCargado = false;
 }
 

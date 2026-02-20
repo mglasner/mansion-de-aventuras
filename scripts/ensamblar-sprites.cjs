@@ -14,8 +14,8 @@ const sharp = require('sharp');
 const path = require('path');
 
 const SPRITE_DIR = path.join(__dirname, '..', 'assets', 'img', 'sprites-plat');
-const FRAME_W = 32;
-const FRAME_H = 40;
+const FRAME_W = 48;
+const FRAME_H = 60;
 
 // Mapeo: indices de frames detectados → orden final en el strip
 // Usar numero para frame normal, { idx, flip: true } para espejo horizontal
@@ -51,6 +51,39 @@ const PERSONAJES = {
     pandajuro: {
         // 58 detectados, solo frames grandes; skip frame 47 (run redundante)
         frames: [6, 13, 18, 23, 29, 33, 40, 42, 48, 49, 50, 51, 52, 55, 56],
+    },
+    // --- Enemigos (layout 9: idle×2 + walk×4 + hit + atk×2) ---
+    trasgo: {
+        // 9 frames limpios, mapeo directo
+        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    },
+    topete: {
+        // 9 frames limpios, mapeo directo
+        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    },
+    pototo: {
+        // 9 frames limpios, mapeo directo
+        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    },
+    siniestra: {
+        // 13 detectados; skip 0 (9x2 ruido), 6 (6x1 ruido), 7 (2x1 ruido), 12 (llama suelta)
+        frames: [1, 2, 3, 4, 5, 8, 9, 10, 11],
+    },
+    errante: {
+        // 9 frames limpios, mapeo directo
+        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    },
+    profano: {
+        // 9 frames limpios, mapeo directo
+        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    },
+    grotesca: {
+        // 9 frames limpios, mapeo directo
+        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    },
+    disonante: {
+        // 9 frames limpios, mapeo directo
+        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     },
 };
 

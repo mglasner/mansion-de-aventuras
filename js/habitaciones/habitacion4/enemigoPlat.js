@@ -5,7 +5,12 @@
 import { CFG } from './config.js';
 import { resolverColisionX, resolverColisionY, esSolido, enSuelo } from './fisicas.js';
 import { ENEMIGOS } from '../../enemigos.js';
-import { obtenerSpriteEnemigo, obtenerColorBossFase } from './spritesPlat.js';
+import {
+    obtenerSpriteEnemigo,
+    obtenerSpriteEnemigoSheet,
+    obtenerColorBossFase,
+    iniciarSpritesEnemigo,
+} from './spritesPlat.js';
 
 const TAM = CFG.tiles.tamano;
 const ENE = CFG.enemigos;
@@ -47,6 +52,9 @@ function crearEnemigo(col, fila, esBoss) {
     } else if (esBoss) {
         nombre = 'Boss';
     }
+
+    // Cargar sprite sheet del enemigo (si existe)
+    iniciarSpritesEnemigo(nombre);
 
     return {
         x: col * TAM + (TAM - ancho) / 2,
@@ -142,14 +150,18 @@ export function actualizarEnemigos() {
         e.y = resY.y;
         e.vy = resY.vy;
 
-        // Animacion
+        // Animacion (ciclo de 12 para soportar 2 y 4 frames)
         e.contadorAnim++;
         if (e.contadorAnim >= 10) {
             e.contadorAnim = 0;
-            e.frameAnim = (e.frameAnim + 1) % 2;
+            e.frameAnim = (e.frameAnim + 1) % 12;
         }
     }
 }
+
+// Constantes de sprite sheet para centrado (48×60 sobre hitbox)
+const SPRITE_W = 48;
+const SPRITE_H = 60;
 
 export function renderizarEnemigos(ctx, camaraX) {
     for (let i = 0; i < enemigos.length; i++) {
@@ -159,29 +171,61 @@ export function renderizarEnemigos(ctx, camaraX) {
         if (!e.vivo) {
             if (e.framesMuerte > 0) {
                 const escala = e.framesMuerte / 20;
-                const drawX = Math.round(e.x - camaraX + (e.ancho * (1 - escala)) / 2);
-                const drawY = Math.round(e.y + e.alto * (1 - escala));
-                const w = Math.round(e.ancho * escala);
-                const h = Math.round(e.alto * escala);
-                ctx.fillStyle = e.esBoss ? COL.colorBoss : COL.colorEnemigo;
                 ctx.globalAlpha = escala;
-                ctx.fillRect(drawX, drawY, w, h);
+
+                // Si tiene sprite sheet, encoger el sprite completo
+                const sheetSprite = obtenerSpriteEnemigoSheet(e.nombre, 'golpeado', 0);
+                if (sheetSprite) {
+                    const sw = Math.round(SPRITE_W * escala);
+                    const sh = Math.round(SPRITE_H * escala);
+                    const sx = Math.round(
+                        e.x - camaraX - (SPRITE_W - e.ancho) / 2 + (SPRITE_W * (1 - escala)) / 2
+                    );
+                    const sy = Math.round(e.y - (SPRITE_H - e.alto) + SPRITE_H * (1 - escala));
+                    ctx.drawImage(sheetSprite, sx, sy, sw, sh);
+                } else {
+                    const drawX = Math.round(e.x - camaraX + (e.ancho * (1 - escala)) / 2);
+                    const drawY = Math.round(e.y + e.alto * (1 - escala));
+                    const w = Math.round(e.ancho * escala);
+                    const h = Math.round(e.alto * escala);
+                    ctx.fillStyle = e.esBoss ? COL.colorBoss : COL.colorEnemigo;
+                    ctx.fillRect(drawX, drawY, w, h);
+                }
                 ctx.globalAlpha = 1;
             }
             continue;
         }
 
-        const drawX = Math.round(e.x - camaraX);
-        const drawY = Math.round(e.y);
+        const hitboxX = Math.round(e.x - camaraX);
+        const hitboxY = Math.round(e.y);
 
-        // Determinar color (boss cambia por fase)
+        // Estado de animacion
+        const estadoAnim = Math.abs(e.vx) > 0.1 ? 'patrulla' : 'idle';
+
+        // Intentar sprite sheet primero
+        const spriteSheet = obtenerSpriteEnemigoSheet(e.nombre, estadoAnim, e.frameAnim);
+        if (spriteSheet) {
+            // Centrar sprite 48×60 sobre hitbox (pies alineados, centrado horizontal)
+            const offX = hitboxX - (SPRITE_W - e.ancho) / 2;
+            const offY = hitboxY - (SPRITE_H - e.alto);
+            ctx.save();
+            if (e.direccion < 0) {
+                ctx.translate(offX + SPRITE_W, offY);
+                ctx.scale(-1, 1);
+                ctx.drawImage(spriteSheet, 0, 0);
+            } else {
+                ctx.drawImage(spriteSheet, offX, offY);
+            }
+            ctx.restore();
+            continue;
+        }
+
+        // Fallback: sprite procedural
         let colorActual = e.esBoss ? COL.colorBoss : COL.colorEnemigo;
         if (e.esBoss && e.vidaMax > 0) {
             colorActual = obtenerColorBossFase(e.vidaActual / e.vidaMax);
         }
 
-        // Intentar usar sprite
-        const estadoAnim = Math.abs(e.vx) > 0.1 ? 'patrulla' : 'idle';
         const sprite = obtenerSpriteEnemigo(
             colorActual,
             e.ancho,
@@ -194,29 +238,29 @@ export function renderizarEnemigos(ctx, camaraX) {
         if (sprite) {
             ctx.save();
             if (e.direccion < 0) {
-                ctx.translate(drawX + e.ancho, drawY);
+                ctx.translate(hitboxX + e.ancho, hitboxY);
                 ctx.scale(-1, 1);
                 ctx.drawImage(sprite, 0, 0);
             } else {
-                ctx.drawImage(sprite, drawX, drawY);
+                ctx.drawImage(sprite, hitboxX, hitboxY);
             }
             ctx.restore();
         } else {
-            // Fallback: renderizado basico
+            // Fallback ultimo: rectangulo basico
             ctx.fillStyle = colorActual;
-            ctx.fillRect(drawX, drawY, e.ancho, e.alto);
+            ctx.fillRect(hitboxX, hitboxY, e.ancho, e.alto);
 
             ctx.fillStyle = 'rgba(255,255,255,0.15)';
-            ctx.fillRect(drawX, drawY, e.ancho, 2);
+            ctx.fillRect(hitboxX, hitboxY, e.ancho, 2);
 
-            const ojoY = drawY + (e.esBoss ? 5 : 3);
+            const ojoY = hitboxY + (e.esBoss ? 5 : 3);
             ctx.fillStyle = '#fff';
             if (e.direccion > 0) {
-                ctx.fillRect(drawX + e.ancho - 5, ojoY, 2, 2);
-                ctx.fillRect(drawX + e.ancho - 9, ojoY, 2, 2);
+                ctx.fillRect(hitboxX + e.ancho - 5, ojoY, 2, 2);
+                ctx.fillRect(hitboxX + e.ancho - 9, ojoY, 2, 2);
             } else {
-                ctx.fillRect(drawX + 3, ojoY, 2, 2);
-                ctx.fillRect(drawX + 7, ojoY, 2, 2);
+                ctx.fillRect(hitboxX + 3, ojoY, 2, 2);
+                ctx.fillRect(hitboxX + 7, ojoY, 2, 2);
             }
         }
     }
