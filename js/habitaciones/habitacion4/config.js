@@ -59,8 +59,6 @@ export const CFG = {
         velPlatMax: 3.5, // px/frame para vel=9
         fuerzaSaltoBase: -7.5,
         fuerzaSaltoFactor: 0.3, // cuanto se ajusta por escala
-        velPatrullaFactor: 0.4, // esbirros: velPlat * este factor
-        velBossFactor: 0.5, // boss: velPlat * este factor
     },
     camara: {
         shakeDecay: 0.9,

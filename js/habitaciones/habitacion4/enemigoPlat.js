@@ -21,30 +21,26 @@ import {
 const TAM = CFG.tiles.tamano;
 const BOSS = CFG.boss;
 const COL = CFG.render;
-const ESC = CFG.escalado;
 
 // --- Pool de esbirros disponibles ---
 
 const ESBIRROS = Object.values(ENEMIGOS).filter(function (e) {
     return e.tier === 'esbirro';
 });
+const ELITES = Object.values(ENEMIGOS).filter(function (e) {
+    return e.tier === 'elite';
+});
 
 // --- Clase Enemigo Platformer ---
 
-function crearEnemigo(col, fila, esBossFlag) {
-    // Seleccionar un esbirro aleatorio o el boss
-    let datos;
+function crearEnemigo(col, fila, esBossFlag, datosEnemigo) {
+    // Usar datos proporcionados directamente
+    const datos = datosEnemigo || null;
     let vidaMax;
 
     if (esBossFlag) {
-        // Buscar un elite para el boss
-        const elites = Object.values(ENEMIGOS).filter(function (e) {
-            return e.tier === 'elite';
-        });
-        datos = elites[Math.floor(Math.random() * elites.length)];
         vidaMax = datos ? datos.vidaMax : 100;
     } else {
-        datos = ESBIRROS.length > 0 ? ESBIRROS[Math.floor(Math.random() * ESBIRROS.length)] : null;
         vidaMax = 1; // 1 stomp = derrotado
     }
 
@@ -64,8 +60,7 @@ function crearEnemigo(col, fila, esBossFlag) {
 
     // Calcular velocidad desde atributo velocidad del enemigo
     const velAttr = datos ? datos.velocidad : 5;
-    const velPlat = calcularVelocidadPlat(velAttr);
-    const velFinal = esBossFlag ? velPlat * ESC.velBossFactor : velPlat * ESC.velPatrullaFactor;
+    const velFinal = calcularVelocidadPlat(velAttr);
 
     // Cargar sprite sheet del enemigo (si existe)
     iniciarSpritesEnemigo(nombre);
@@ -101,15 +96,25 @@ export function iniciarEnemigos(spawnsEnemigos, spawnBoss) {
     enemigos = [];
     bossVivo = true;
 
-    // Crear esbirros
-    for (let i = 0; i < spawnsEnemigos.length; i++) {
+    // Crear esbirros: uno de cada tipo, sin repetir
+    const esbirrosDisponibles = ESBIRROS.slice();
+    for (let i = esbirrosDisponibles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [esbirrosDisponibles[i], esbirrosDisponibles[j]] = [
+            esbirrosDisponibles[j],
+            esbirrosDisponibles[i],
+        ];
+    }
+    const totalEsbirros = Math.min(spawnsEnemigos.length, esbirrosDisponibles.length);
+    for (let i = 0; i < totalEsbirros; i++) {
         const spawn = spawnsEnemigos[i];
-        enemigos.push(crearEnemigo(spawn.col, spawn.fila, false));
+        enemigos.push(crearEnemigo(spawn.col, spawn.fila, false, esbirrosDisponibles[i]));
     }
 
-    // Crear boss
+    // Crear boss: elegir un elite aleatorio
     if (spawnBoss) {
-        enemigos.push(crearEnemigo(spawnBoss.col, spawnBoss.fila, true));
+        const bossData = ELITES[Math.floor(Math.random() * ELITES.length)];
+        enemigos.push(crearEnemigo(spawnBoss.col, spawnBoss.fila, true, bossData));
     }
 }
 
