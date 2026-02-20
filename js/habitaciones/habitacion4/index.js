@@ -159,11 +159,18 @@ function verificarColisionesEnemigos() {
 
         if (!aabbColision(jugRect, eneRect)) continue;
 
-        // Stomp: pie del jugador sobre mitad superior del enemigo + cayendo
+        // Stomp: pie del jugador sobre mitad superior del enemigo + cayendo con fuerza
+        // Se exige vy minima porque con escalado proporcional un personaje alto
+        // (ej: PandaJuro 1.70m) tiene los pies a la altura de la mitad de un
+        // enemigo bajo (ej: Trasgo 0.60m) estando en el mismo suelo, y la
+        // gravedad residual del frame (vy > 0) gatillaba stomp al caminar.
         const pieJugador = jug.y + jug.alto;
         const mitadEnemigo = e.y + e.alto / 2;
 
-        if (jug.vy > 0 && pieJugador <= mitadEnemigo + CFG.enemigos.stompMargen) {
+        if (
+            jug.vy >= CFG.enemigos.stompVyMin &&
+            pieJugador <= mitadEnemigo + CFG.enemigos.stompMargen
+        ) {
             const dano = jugador.ataques[0] ? jugador.ataques[0].dano : 10;
             const resultado = stomperEnemigo(e, dano);
             aplicarStompRebote();

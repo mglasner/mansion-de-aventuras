@@ -30,6 +30,7 @@ export const CFG = {
     },
     enemigos: {
         stompMargen: 4,
+        stompVyMin: 2, // vy minima para stomp (evita kills al caminar entre personajes de distinta estatura)
         cooldownAtaque: 60,
     },
     boss: {
