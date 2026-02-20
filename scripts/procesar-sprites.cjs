@@ -43,7 +43,9 @@ const SHEETS = [
 // --- Utilidades ---
 
 function esVerde(r, g, b) {
-    return g > 80 && g > r * 1.2 && g > b * 1.2;
+    // Solo chroma key brillante (#00ff00): verde muy alto, rojo y azul muy bajos
+    // Los verdes de personajes (duendes, etc) son mas oscuros/apagados y se preservan
+    return g > 150 && r < 100 && b < 100 && g > r * 2 && g > b * 2;
 }
 
 function encontrarBandas(histograma, umbral) {
@@ -106,7 +108,9 @@ async function procesarSheet(config) {
 
     // 4. Detectar filas de sprites (bandas horizontales con contenido)
     const bandasY = encontrarBandas(histY, width * 0.005);
-    console.log(`  Bandas verticales: ${bandasY.length} (${bandasY.map((b) => `${b.inicio}-${b.fin}`).join(', ')})`);
+    console.log(
+        `  Bandas verticales: ${bandasY.length} (${bandasY.map((b) => `${b.inicio}-${b.fin}`).join(', ')})`
+    );
 
     // 5. Para cada banda vertical, detectar columnas de sprites
     const frames = [];
@@ -120,12 +124,14 @@ async function procesarSheet(config) {
             }
         }
 
-        const bandasX = encontrarBandas(histBandaX, (bandaY.largo * 0.01));
+        const bandasX = encontrarBandas(histBandaX, bandaY.largo * 0.01);
 
         for (const bandaX of bandasX) {
             // Encontrar bounding box exacto dentro de esta celda
-            let minX = bandaX.fin, maxX = bandaX.inicio;
-            let minY = bandaY.fin, maxY = bandaY.inicio;
+            let minX = bandaX.fin,
+                maxX = bandaX.inicio;
+            let minY = bandaY.fin,
+                maxY = bandaY.inicio;
 
             for (let y = bandaY.inicio; y <= bandaY.fin; y++) {
                 for (let x = bandaX.inicio; x <= bandaX.fin; x++) {
@@ -167,7 +173,10 @@ async function procesarSheet(config) {
         const extracted = await transparentImg
             .clone()
             .extract({ left: f.x, top: f.y, width: f.w, height: f.h })
-            .resize(FRAME_W, FRAME_H, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+            .resize(FRAME_W, FRAME_H, {
+                fit: 'contain',
+                background: { r: 0, g: 0, b: 0, alpha: 0 },
+            })
             .png()
             .toBuffer();
 
