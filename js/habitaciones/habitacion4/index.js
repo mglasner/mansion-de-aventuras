@@ -10,7 +10,13 @@ import {
     obtenerFilas,
     obtenerColumnas,
 } from './nivel.js';
-import { crearPantalla } from './domPlat.js';
+import {
+    crearPantalla,
+    actualizarHUDObjetivo,
+    actualizarHUDBoss,
+    ocultarHUDBoss,
+    limpiarDOM,
+} from './domPlat.js';
 import {
     iniciarCamara,
     actualizarCamara,
@@ -27,7 +33,6 @@ import {
     renderizarTiles,
     renderizarVineta,
     renderizarFlash,
-    renderizarHUD,
     renderizarIndicadorBoss,
     limpiarRenderer,
 } from './renderer.js';
@@ -359,13 +364,18 @@ function renderFrame() {
 
     ctx.restore();
 
-    // HUD (sin shake)
-    const bossInfo = obtenerInfoBoss();
-    renderizarHUD(ctx, anchoCanvas, altoCanvas, esBossVivo(), bossInfo);
+    // HUD via overlays HTML (texto nitido a resolucion nativa)
+    const bossActivo = esBossVivo();
+    actualizarHUDObjetivo(
+        bossActivo ? 'Derrota al boss y encuentra la salida' : 'Boss derrotado! Busca la salida'
+    );
 
-    // Indicador de direccion del boss
-    if (esBossVivo() && bossInfo) {
+    const bossInfo = obtenerInfoBoss();
+    if (bossActivo && bossInfo) {
+        actualizarHUDBoss(bossInfo.nombre, bossInfo.vidaActual / bossInfo.vidaMax);
         renderizarIndicadorBoss(ctx, bossInfo.x, camX, anchoCanvas, tiempo);
+    } else {
+        ocultarHUDBoss();
     }
 }
 
@@ -501,6 +511,7 @@ export function limpiarHabitacion4() {
     limpiarTexturas();
     limpiarSprites();
     limpiarRenderer();
+    limpiarDOM();
     filaNiebla = -1;
     filaOjos = -1;
 
@@ -508,6 +519,10 @@ export function limpiarHabitacion4() {
         pantalla.parentNode.removeChild(pantalla);
         pantalla = null;
     }
+
+    // Restaurar modo normal del contenedor
+    const juegoEl = document.getElementById('juego');
+    if (juegoEl) juegoEl.classList.remove('juego-inmersivo');
 
     ctx = null;
 }

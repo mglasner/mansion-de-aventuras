@@ -1,14 +1,22 @@
-// Habitacion 4 — El Abismo: Creacion del DOM (pantalla, canvas, cabecera)
+// Habitacion 4 — El Abismo: Creacion del DOM (pantalla, canvas, cabecera, HUD overlays)
 
 import { CFG } from './config.js';
 
-function calcularEscala(contenedor) {
-    const rect = contenedor.getBoundingClientRect();
-    const disponibleAncho = rect.width - 16;
-    const disponibleAlto = rect.height - 60;
+// Referencias a overlays del HUD
+let hudObjetivo = null;
+let hudBossContenedor = null;
+let hudBossNombre = null;
+let hudBossVida = null;
 
-    const escalaX = Math.floor(disponibleAncho / CFG.canvas.anchoBase) || 1;
-    const escalaY = Math.floor(disponibleAlto / CFG.canvas.altoBase) || 1;
+function calcularEscala(canvas) {
+    // Medir espacio real: desde el tope del canvas hasta el fondo del viewport
+    // Esto descuenta automaticamente barra superior, cabecera, padding, etc.
+    const rect = canvas.getBoundingClientRect();
+    const disponibleAncho = window.innerWidth - 20;
+    const disponibleAlto = window.innerHeight - rect.top - 10;
+
+    const escalaX = disponibleAncho / CFG.canvas.anchoBase;
+    const escalaY = disponibleAlto / CFG.canvas.altoBase;
 
     return Math.max(1, Math.min(escalaX, escalaY));
 }
@@ -43,12 +51,42 @@ export function crearPantalla(esTouch, onHuir) {
     cabecera.appendChild(btnHuir);
     cabecera.appendChild(titulo);
 
+    // Wrapper para canvas + HUD overlays
+    const wrapper = document.createElement('div');
+    wrapper.className = 'plat-wrapper';
+
     // Canvas (dimensiones logicas fijas)
     const canvas = document.createElement('canvas');
     canvas.id = 'canvas-platformer';
     canvas.width = anchoCanvas;
     canvas.height = altoCanvas;
     const ctx = canvas.getContext('2d');
+
+    // HUD overlay: texto de objetivo (arriba)
+    hudObjetivo = document.createElement('div');
+    hudObjetivo.className = 'plat-hud-objetivo';
+
+    // HUD overlay: barra de boss (abajo)
+    hudBossContenedor = document.createElement('div');
+    hudBossContenedor.className = 'plat-hud-boss';
+    hudBossContenedor.style.display = 'none';
+
+    hudBossNombre = document.createElement('span');
+    hudBossNombre.className = 'plat-boss-nombre';
+
+    const barraFondo = document.createElement('div');
+    barraFondo.className = 'plat-boss-barra-fondo';
+
+    hudBossVida = document.createElement('div');
+    hudBossVida.className = 'plat-boss-barra-vida';
+
+    barraFondo.appendChild(hudBossVida);
+    hudBossContenedor.appendChild(hudBossNombre);
+    hudBossContenedor.appendChild(barraFondo);
+
+    wrapper.appendChild(canvas);
+    wrapper.appendChild(hudObjetivo);
+    wrapper.appendChild(hudBossContenedor);
 
     // Hint de controles (solo desktop)
     let hint = null;
@@ -60,15 +98,48 @@ export function crearPantalla(esTouch, onHuir) {
     }
 
     pantalla.appendChild(cabecera);
-    pantalla.appendChild(canvas);
+    pantalla.appendChild(wrapper);
     if (hint) pantalla.appendChild(hint);
 
-    // Agregar al DOM antes de calcular escala (getBoundingClientRect necesita layout)
-    document.getElementById('juego').appendChild(pantalla);
+    // Modo inmersivo: quitar max-width del contenedor para usar todo el viewport
+    const juegoEl = document.getElementById('juego');
+    juegoEl.classList.add('juego-inmersivo');
+    juegoEl.appendChild(pantalla);
 
-    const escala = calcularEscala(pantalla);
-    canvas.style.width = anchoCanvas * escala + 'px';
-    canvas.style.height = altoCanvas * escala + 'px';
+    const escala = calcularEscala(canvas);
+    canvas.style.width = Math.round(anchoCanvas * escala) + 'px';
+    canvas.style.height = Math.round(altoCanvas * escala) + 'px';
 
     return { pantalla, canvas, ctx, escala };
+}
+
+// --- API para actualizar overlays del HUD ---
+
+export function actualizarHUDObjetivo(texto) {
+    if (hudObjetivo) hudObjetivo.textContent = texto;
+}
+
+export function actualizarHUDBoss(nombre, ratio) {
+    if (!hudBossContenedor) return;
+    hudBossContenedor.style.display = '';
+    hudBossNombre.textContent = nombre;
+    hudBossVida.style.width = Math.round(ratio * 100) + '%';
+
+    // Color cambia segun fase
+    if (ratio <= 0.33) {
+        hudBossVida.style.backgroundColor = '#e94560';
+    } else {
+        hudBossVida.style.backgroundColor = '#bb86fc';
+    }
+}
+
+export function ocultarHUDBoss() {
+    if (hudBossContenedor) hudBossContenedor.style.display = 'none';
+}
+
+export function limpiarDOM() {
+    hudObjetivo = null;
+    hudBossContenedor = null;
+    hudBossNombre = null;
+    hudBossVida = null;
 }

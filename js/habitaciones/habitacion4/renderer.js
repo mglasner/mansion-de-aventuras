@@ -138,61 +138,6 @@ export function renderizarFlash(ctx, anchoCanvas, altoCanvas, flashAlpha) {
     }
 }
 
-// HUD mejorado
-export function renderizarHUD(ctx, anchoCanvas, altoCanvas, bossVivo, bossInfo) {
-    // Barra semitransparente superior
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(0, 0, anchoCanvas, 16);
-
-    ctx.fillStyle = '#fff';
-    ctx.font = '10px monospace';
-    ctx.textAlign = 'left';
-
-    const texto = bossVivo
-        ? 'Derrota al boss y encuentra la salida'
-        : '¡Boss derrotado! Busca la salida';
-    ctx.fillText(texto, 4, 11);
-    ctx.textAlign = 'start';
-
-    // Barra de vida del boss centrada en la parte inferior
-    if (bossVivo && bossInfo) {
-        renderizarHUDBoss(ctx, anchoCanvas, altoCanvas, bossInfo);
-    }
-}
-
-function renderizarHUDBoss(ctx, anchoCanvas, altoCanvas, info) {
-    const barraAncho = 120;
-    const barraAlto = 6;
-    const barraX = (anchoCanvas - barraAncho) / 2;
-    const barraY = altoCanvas - 12;
-    const ratio = info.vidaActual / info.vidaMax;
-
-    // Fondo decorado
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(barraX - 2, barraY - 2, barraAncho + 4, barraAlto + 4);
-
-    // Borde
-    ctx.strokeStyle = 'rgba(187,134,252,0.5)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(barraX - 2.5, barraY - 2.5, barraAncho + 5, barraAlto + 5);
-
-    // Vida
-    const colorVida = ratio > 0.33 ? '#bb86fc' : '#e94560';
-    ctx.fillStyle = colorVida;
-    ctx.fillRect(barraX, barraY, Math.round(barraAncho * ratio), barraAlto);
-
-    // Brillo en la barra
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fillRect(barraX, barraY, Math.round(barraAncho * ratio), 2);
-
-    // Nombre del boss centrado arriba de la barra
-    ctx.fillStyle = '#fff';
-    ctx.font = '8px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(info.nombre, anchoCanvas / 2, barraY - 5);
-    ctx.textAlign = 'start';
-}
-
 // Indicador de direccion del boss fuera de pantalla
 export function renderizarIndicadorBoss(ctx, bossX, camaraX, anchoCanvas, tiempo) {
     const screenX = bossX - camaraX;
