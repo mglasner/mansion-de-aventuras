@@ -4,7 +4,7 @@
 import { CFG } from './config.js';
 import { resolverColisionX, resolverColisionY, esAbismo, esMeta } from './fisicas.js';
 import { obtenerSpawnJugador } from './nivel.js';
-import { obtenerSpriteJugador } from './spritesPlat.js';
+import { obtenerSpriteJugador, obtenerDimensionesSprite } from './spritesPlat.js';
 
 const FIS = CFG.fisicas;
 const TAM = CFG.tiles.tamano;
@@ -229,14 +229,17 @@ export function renderizarJugador(ctx, camaraX) {
     // Intentar usar sprite
     const sprite = obtenerSpriteJugador(estado, frameAnim);
     if (sprite) {
+        const dim = obtenerDimensionesSprite();
+        // Centrar sprite visualmente sobre el hitbox (pies alineados, centrado horizontal)
+        const offX = drawX - (dim.ancho - ANCHO) / 2;
+        const offY = drawY - (dim.alto - ALTO);
         ctx.save();
         if (direccion < 0) {
-            // Flip horizontal
-            ctx.translate(drawX + ANCHO, drawY);
+            ctx.translate(offX + dim.ancho, offY);
             ctx.scale(-1, 1);
             ctx.drawImage(sprite, 0, 0);
         } else {
-            ctx.drawImage(sprite, drawX, drawY);
+            ctx.drawImage(sprite, offX, offY);
         }
         ctx.restore();
         return;

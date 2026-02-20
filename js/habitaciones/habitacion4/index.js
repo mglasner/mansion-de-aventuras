@@ -428,7 +428,7 @@ export function iniciarHabitacion4(jugadorRef, callback, dpadRef) {
     iniciarParallax();
     iniciarTexturas();
     iniciarRenderer(anchoCanvas, altoCanvas);
-    iniciarSpritesJugador(jugadorRef.colorHud || '#bb86fc');
+    iniciarSpritesJugador(jugadorRef.nombre, jugadorRef.colorHud || '#bb86fc');
     iniciarSpritesEnemigos();
 
     // Iniciar sistemas de juego

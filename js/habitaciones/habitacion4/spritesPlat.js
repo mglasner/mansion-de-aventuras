@@ -1,16 +1,124 @@
-// Habitacion 4 — El Abismo: Sprites pixel art procedurales
-// Generados pixel a pixel en offscreen canvases
-// Jugador: 12x14 con 5 estados de animacion
-// Esbirros: 12x12, Boss: 18x18
+// Habitacion 4 — El Abismo: Sprites de personajes
+// Carga sprite sheets PNG (generados con IA) y los parte en frames.
+// Fallback: genera sprites procedurales si no hay sprite sheet disponible.
+//
+// Layout del strip: [idle0, idle1, run0, run1, run2, run3, jump, fall, hit]
+// Cada frame mide FRAME_W x FRAME_H pixeles.
 
-// --- Utilidad: pintar pixel ---
+// --- Constantes ---
+
+const FRAME_W = 32;
+const FRAME_H = 40;
+
+// Layouts de frames segun cantidad total en el strip
+// Layout 9:  idle(2) + run(4) + jump(1) + fall(1) + hit(1)
+// Layout 15: idle(2) + run(6) + jump(1) + fall(1) + hit(1) + atk1(2) + atk2(2)
+const LAYOUTS = {
+    9: {
+        idle: { inicio: 0, cantidad: 2 },
+        correr: { inicio: 2, cantidad: 4 },
+        saltar: { inicio: 6, cantidad: 1 },
+        caer: { inicio: 7, cantidad: 1 },
+        golpeado: { inicio: 8, cantidad: 1 },
+    },
+    15: {
+        idle: { inicio: 0, cantidad: 2 },
+        correr: { inicio: 2, cantidad: 6 },
+        saltar: { inicio: 8, cantidad: 1 },
+        caer: { inicio: 9, cantidad: 1 },
+        golpeado: { inicio: 10, cantidad: 1 },
+        ataque1: { inicio: 11, cantidad: 2 },
+        ataque2: { inicio: 13, cantidad: 2 },
+    },
+};
+
+// Personajes con sprite sheet disponible (nombre en minusculas → archivo y layout)
+const SPRITE_SHEETS = {
+    lina: { src: 'assets/img/sprites-plat/lina.png', frames: 9 },
+    pandajuro: { src: 'assets/img/sprites-plat/pandajuro.png', frames: 9 },
+    donbu: { src: 'assets/img/sprites-plat/donbu.png', frames: 15 },
+};
+
+// --- Estado ---
+
+let spritesJugador = null; // { idle: [canvas,..], correr: [...], saltar: [...], caer: [...], golpeado: [...] }
+let spriteSheetCargado = false;
+
+// --- Carga de sprite sheet ---
+
+function cargarImagen(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('No se pudo cargar: ' + src));
+        img.src = src;
+    });
+}
+
+function cortarFrames(img, layout) {
+    const frames = {};
+    for (const [estado, { inicio, cantidad }] of Object.entries(layout)) {
+        frames[estado] = [];
+        for (let i = 0; i < cantidad; i++) {
+            const c = document.createElement('canvas');
+            c.width = FRAME_W;
+            c.height = FRAME_H;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(img, (inicio + i) * FRAME_W, 0, FRAME_W, FRAME_H, 0, 0, FRAME_W, FRAME_H);
+            frames[estado].push(c);
+        }
+    }
+    return frames;
+}
+
+export function iniciarSpritesJugador(nombrePersonaje, colorBase) {
+    spriteSheetCargado = false;
+
+    // Generar procedurales inmediatamente como fallback
+    generarSpritesProceduralJugador(colorBase);
+
+    // Intentar cargar sprite sheet en background
+    const key = nombrePersonaje.toLowerCase();
+    const config = SPRITE_SHEETS[key];
+
+    if (config) {
+        const layout = LAYOUTS[config.frames];
+        cargarImagen(config.src)
+            .then((img) => {
+                spritesJugador = cortarFrames(img, layout);
+                spriteSheetCargado = true;
+            })
+            .catch(() => {
+                // Mantener procedurales
+            });
+    }
+}
+
+export function obtenerSpriteJugador(estado, frameIndex) {
+    if (!spritesJugador || !spritesJugador[estado]) return null;
+    const frames = spritesJugador[estado];
+    return frames[frameIndex % frames.length];
+}
+
+export function obtenerDimensionesSprite() {
+    if (spriteSheetCargado) return { ancho: FRAME_W, alto: FRAME_H };
+    return { ancho: 12, alto: 14 }; // dimensiones procedurales
+}
+
+export function usaSpriteSheet() {
+    return spriteSheetCargado;
+}
+
+// --- Sprites de enemigos (sin cambios, siguen procedurales) ---
+
+let spritesEsbirros = null;
+let spritesBoss = null;
 
 function px(ctx, x, y, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x, y, 1, 1);
 }
 
-// Aclarar/oscurecer color hex
 function mezclarColor(hex, factor) {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -21,200 +129,6 @@ function mezclarColor(hex, factor) {
     return '#' + ((1 << 24) | (nr << 16) | (ng << 8) | nb).toString(16).slice(1);
 }
 
-// --- Sprites del jugador ---
-
-let spritesJugador = null; // { idle: [canvas,canvas], correr: [4], saltar: [1], caer: [1], golpeado: [1] }
-
-function generarSpriteJugador(color, estado, frame) {
-    const c = document.createElement('canvas');
-    c.width = 12;
-    c.height = 14;
-    const ctx = c.getContext('2d');
-
-    const claro = mezclarColor(color, 1.3);
-    const oscuro = mezclarColor(color, 0.7);
-    const ojoBlanco = '#ffffff';
-    const pupila = '#111111';
-
-    // Offset vertical para animacion de respiracion (idle)
-    const offY = estado === 'idle' && frame === 1 ? -1 : 0;
-
-    // Cabeza (4x4, centrada en x=4..7, y=0..3)
-    const headY = 0 + offY;
-    for (let hy = 0; hy < 4; hy++) {
-        for (let hx = 4; hx < 8; hx++) {
-            px(ctx, hx, headY + hy, hy === 0 ? claro : color);
-        }
-    }
-    // Pelo encima
-    px(ctx, 4, headY, oscuro);
-    px(ctx, 5, headY, oscuro);
-    px(ctx, 6, headY, oscuro);
-    px(ctx, 7, headY, oscuro);
-
-    // Cara (ojos en fila 2): blanco - pupila - blanco
-    px(ctx, 5, headY + 2, ojoBlanco);
-    px(ctx, 6, headY + 2, pupila);
-    px(ctx, 7, headY + 2, ojoBlanco);
-
-    // Cuerpo (6x5, x=3..8, y=4..8)
-    const bodyY = 4 + offY;
-    for (let by = 0; by < 5; by++) {
-        for (let bx = 3; bx < 9; bx++) {
-            px(ctx, bx, bodyY + by, by === 0 ? claro : color);
-        }
-    }
-
-    // Brazos
-    if (estado === 'saltar') {
-        // Brazos arriba
-        px(ctx, 2, bodyY, color);
-        px(ctx, 2, bodyY - 1, color);
-        px(ctx, 9, bodyY, color);
-        px(ctx, 9, bodyY - 1, color);
-    } else if (estado === 'caer') {
-        // Brazos extendidos
-        px(ctx, 1, bodyY + 1, color);
-        px(ctx, 2, bodyY + 1, color);
-        px(ctx, 9, bodyY + 1, color);
-        px(ctx, 10, bodyY + 1, color);
-    } else if (estado === 'golpeado') {
-        // Brazos encogidos
-        px(ctx, 2, bodyY + 2, color);
-        px(ctx, 9, bodyY + 2, color);
-    } else {
-        // Brazos normales (idle/correr)
-        const brazoOff = estado === 'correr' ? (frame % 2 === 0 ? 0 : 1) : 0;
-        px(ctx, 2, bodyY + 1 + brazoOff, color);
-        px(ctx, 9, bodyY + 1 - brazoOff, color);
-    }
-
-    // Piernas (2x4 cada una, y=9..13)
-    const legY = 9 + offY;
-    if (estado === 'correr') {
-        // Walk cycle: 4 frames
-        const paso = frame % 4;
-        if (paso === 0) {
-            // Pierna izq adelante, derecha atras
-            px(ctx, 4, legY, oscuro);
-            px(ctx, 4, legY + 1, oscuro);
-            px(ctx, 4, legY + 2, oscuro);
-            px(ctx, 4, legY + 3, oscuro);
-            px(ctx, 5, legY, oscuro);
-            px(ctx, 7, legY, oscuro);
-            px(ctx, 7, legY + 1, oscuro);
-            px(ctx, 7, legY + 2, oscuro);
-        } else if (paso === 1) {
-            // Ambas centradas
-            px(ctx, 4, legY, oscuro);
-            px(ctx, 4, legY + 1, oscuro);
-            px(ctx, 4, legY + 2, oscuro);
-            px(ctx, 4, legY + 3, oscuro);
-            px(ctx, 5, legY, oscuro);
-            px(ctx, 5, legY + 1, oscuro);
-            px(ctx, 6, legY, oscuro);
-            px(ctx, 6, legY + 1, oscuro);
-            px(ctx, 6, legY + 2, oscuro);
-            px(ctx, 6, legY + 3, oscuro);
-            px(ctx, 7, legY, oscuro);
-            px(ctx, 7, legY + 1, oscuro);
-        } else if (paso === 2) {
-            // Pierna derecha adelante
-            px(ctx, 7, legY, oscuro);
-            px(ctx, 7, legY + 1, oscuro);
-            px(ctx, 7, legY + 2, oscuro);
-            px(ctx, 7, legY + 3, oscuro);
-            px(ctx, 6, legY, oscuro);
-            px(ctx, 4, legY, oscuro);
-            px(ctx, 4, legY + 1, oscuro);
-            px(ctx, 4, legY + 2, oscuro);
-        } else {
-            // Paso transicion
-            px(ctx, 4, legY, oscuro);
-            px(ctx, 4, legY + 1, oscuro);
-            px(ctx, 4, legY + 2, oscuro);
-            px(ctx, 4, legY + 3, oscuro);
-            px(ctx, 5, legY, oscuro);
-            px(ctx, 5, legY + 1, oscuro);
-            px(ctx, 6, legY, oscuro);
-            px(ctx, 6, legY + 1, oscuro);
-            px(ctx, 6, legY + 2, oscuro);
-            px(ctx, 6, legY + 3, oscuro);
-            px(ctx, 7, legY, oscuro);
-            px(ctx, 7, legY + 1, oscuro);
-        }
-    } else if (estado === 'saltar') {
-        // Piernas juntas
-        px(ctx, 5, legY, oscuro);
-        px(ctx, 5, legY + 1, oscuro);
-        px(ctx, 5, legY + 2, oscuro);
-        px(ctx, 6, legY, oscuro);
-        px(ctx, 6, legY + 1, oscuro);
-        px(ctx, 6, legY + 2, oscuro);
-    } else if (estado === 'caer') {
-        // Piernas abiertas
-        px(ctx, 3, legY, oscuro);
-        px(ctx, 3, legY + 1, oscuro);
-        px(ctx, 4, legY + 1, oscuro);
-        px(ctx, 4, legY + 2, oscuro);
-        px(ctx, 7, legY, oscuro);
-        px(ctx, 7, legY + 1, oscuro);
-        px(ctx, 8, legY + 1, oscuro);
-        px(ctx, 8, legY + 2, oscuro);
-    } else if (estado === 'golpeado') {
-        // Piernas encogidas
-        px(ctx, 4, legY, oscuro);
-        px(ctx, 5, legY, oscuro);
-        px(ctx, 6, legY, oscuro);
-        px(ctx, 7, legY, oscuro);
-        px(ctx, 4, legY + 1, oscuro);
-        px(ctx, 7, legY + 1, oscuro);
-    } else {
-        // Idle: piernas rectas
-        px(ctx, 4, legY, oscuro);
-        px(ctx, 4, legY + 1, oscuro);
-        px(ctx, 4, legY + 2, oscuro);
-        px(ctx, 4, legY + 3, oscuro);
-        px(ctx, 5, legY, oscuro);
-        px(ctx, 6, legY, oscuro);
-        px(ctx, 7, legY, oscuro);
-        px(ctx, 7, legY + 1, oscuro);
-        px(ctx, 7, legY + 2, oscuro);
-        px(ctx, 7, legY + 3, oscuro);
-    }
-
-    return c;
-}
-
-export function iniciarSpritesJugador(colorBase) {
-    spritesJugador = {
-        idle: [
-            generarSpriteJugador(colorBase, 'idle', 0),
-            generarSpriteJugador(colorBase, 'idle', 1),
-        ],
-        correr: [
-            generarSpriteJugador(colorBase, 'correr', 0),
-            generarSpriteJugador(colorBase, 'correr', 1),
-            generarSpriteJugador(colorBase, 'correr', 2),
-            generarSpriteJugador(colorBase, 'correr', 3),
-        ],
-        saltar: [generarSpriteJugador(colorBase, 'saltar', 0)],
-        caer: [generarSpriteJugador(colorBase, 'caer', 0)],
-        golpeado: [generarSpriteJugador(colorBase, 'golpeado', 0)],
-    };
-}
-
-export function obtenerSpriteJugador(estado, frameIndex) {
-    if (!spritesJugador || !spritesJugador[estado]) return null;
-    const frames = spritesJugador[estado];
-    return frames[frameIndex % frames.length];
-}
-
-// --- Sprites de enemigos ---
-
-let spritesEsbirros = null; // Map: colorKey → { idle: [2], patrulla: [2] }
-let spritesBoss = null; // Map: faseKey → { idle: [2] }
-
 function generarSpriteEnemigo(ancho, alto, color, estado, frame) {
     const c = document.createElement('canvas');
     c.width = ancho;
@@ -224,7 +138,6 @@ function generarSpriteEnemigo(ancho, alto, color, estado, frame) {
     const claro = mezclarColor(color, 1.3);
     const oscuro = mezclarColor(color, 0.7);
 
-    // Cuerpo principal
     const margenX = 1;
     const margenY = 1;
     for (let by = margenY; by < alto - margenY; by++) {
@@ -233,12 +146,10 @@ function generarSpriteEnemigo(ancho, alto, color, estado, frame) {
         }
     }
 
-    // Sombra inferior
     for (let bx = margenX; bx < ancho - margenX; bx++) {
         px(ctx, bx, alto - margenY - 1, oscuro);
     }
 
-    // Ojos (en el tercio superior)
     const ojoY = Math.floor(alto * 0.3);
     const ojoIzq = Math.floor(ancho * 0.3);
     const ojoDer = Math.floor(ancho * 0.65);
@@ -246,18 +157,14 @@ function generarSpriteEnemigo(ancho, alto, color, estado, frame) {
     px(ctx, ojoIzq + 1, ojoY, '#ffffff');
     px(ctx, ojoDer, ojoY, '#ffffff');
     px(ctx, ojoDer + 1, ojoY, '#ffffff');
-    // Pupilas
     px(ctx, ojoIzq + 1, ojoY, '#111111');
     px(ctx, ojoDer, ojoY, '#111111');
 
-    // Animacion idle: ligero movimiento
     if (estado === 'idle' && frame === 1) {
-        // Patitas visibles
         px(ctx, margenX + 1, alto - 1, oscuro);
         px(ctx, ancho - margenX - 2, alto - 1, oscuro);
     }
 
-    // Animacion patrulla
     if (estado === 'patrulla') {
         const legOff = frame % 2;
         px(ctx, margenX + legOff, alto - 1, oscuro);
@@ -273,7 +180,6 @@ export function obtenerSpriteEnemigo(color, ancho, alto, esBoss, estado, frameIn
     if (!cache) return null;
 
     if (!cache[key]) {
-        // Generar sprites bajo demanda
         cache[key] = [
             generarSpriteEnemigo(ancho, alto, color, estado, 0),
             generarSpriteEnemigo(ancho, alto, color, estado, 1),
@@ -288,15 +194,177 @@ export function iniciarSpritesEnemigos() {
     spritesBoss = {};
 }
 
-// Colores de boss por fase
 export function obtenerColorBossFase(ratio) {
-    if (ratio <= 0.33) return '#e94560'; // rojo
-    if (ratio <= 0.66) return '#f0a030'; // naranja
-    return '#bb86fc'; // violeta normal
+    if (ratio <= 0.33) return '#e94560';
+    if (ratio <= 0.66) return '#f0a030';
+    return '#bb86fc';
 }
 
 export function limpiarSprites() {
     spritesJugador = null;
     spritesEsbirros = null;
     spritesBoss = null;
+    spriteSheetCargado = false;
+}
+
+// --- Fallback: Sprites procedurales del jugador ---
+
+function generarSpriteJugador(color, estado, frame) {
+    const c = document.createElement('canvas');
+    c.width = 12;
+    c.height = 14;
+    const ctx = c.getContext('2d');
+
+    const claro = mezclarColor(color, 1.3);
+    const oscuro = mezclarColor(color, 0.7);
+
+    const offY = estado === 'idle' && frame === 1 ? -1 : 0;
+
+    // Cabeza
+    const headY = 0 + offY;
+    for (let hy = 0; hy < 4; hy++) {
+        for (let hx = 4; hx < 8; hx++) {
+            px(ctx, hx, headY + hy, hy === 0 ? claro : color);
+        }
+    }
+    px(ctx, 4, headY, oscuro);
+    px(ctx, 5, headY, oscuro);
+    px(ctx, 6, headY, oscuro);
+    px(ctx, 7, headY, oscuro);
+    px(ctx, 5, headY + 2, '#ffffff');
+    px(ctx, 6, headY + 2, '#111111');
+    px(ctx, 7, headY + 2, '#ffffff');
+
+    // Cuerpo
+    const bodyY = 4 + offY;
+    for (let by = 0; by < 5; by++) {
+        for (let bx = 3; bx < 9; bx++) {
+            px(ctx, bx, bodyY + by, by === 0 ? claro : color);
+        }
+    }
+
+    // Brazos
+    if (estado === 'saltar') {
+        px(ctx, 2, bodyY, color);
+        px(ctx, 2, bodyY - 1, color);
+        px(ctx, 9, bodyY, color);
+        px(ctx, 9, bodyY - 1, color);
+    } else if (estado === 'caer') {
+        px(ctx, 1, bodyY + 1, color);
+        px(ctx, 2, bodyY + 1, color);
+        px(ctx, 9, bodyY + 1, color);
+        px(ctx, 10, bodyY + 1, color);
+    } else if (estado === 'golpeado') {
+        px(ctx, 2, bodyY + 2, color);
+        px(ctx, 9, bodyY + 2, color);
+    } else {
+        const brazoOff = estado === 'correr' ? (frame % 2 === 0 ? 0 : 1) : 0;
+        px(ctx, 2, bodyY + 1 + brazoOff, color);
+        px(ctx, 9, bodyY + 1 - brazoOff, color);
+    }
+
+    // Piernas
+    const legY = 9 + offY;
+    if (estado === 'correr') {
+        const paso = frame % 4;
+        if (paso === 0) {
+            px(ctx, 4, legY, oscuro);
+            px(ctx, 4, legY + 1, oscuro);
+            px(ctx, 4, legY + 2, oscuro);
+            px(ctx, 4, legY + 3, oscuro);
+            px(ctx, 5, legY, oscuro);
+            px(ctx, 7, legY, oscuro);
+            px(ctx, 7, legY + 1, oscuro);
+            px(ctx, 7, legY + 2, oscuro);
+        } else if (paso === 1) {
+            px(ctx, 4, legY, oscuro);
+            px(ctx, 4, legY + 1, oscuro);
+            px(ctx, 4, legY + 2, oscuro);
+            px(ctx, 4, legY + 3, oscuro);
+            px(ctx, 5, legY, oscuro);
+            px(ctx, 5, legY + 1, oscuro);
+            px(ctx, 6, legY, oscuro);
+            px(ctx, 6, legY + 1, oscuro);
+            px(ctx, 6, legY + 2, oscuro);
+            px(ctx, 6, legY + 3, oscuro);
+            px(ctx, 7, legY, oscuro);
+            px(ctx, 7, legY + 1, oscuro);
+        } else if (paso === 2) {
+            px(ctx, 7, legY, oscuro);
+            px(ctx, 7, legY + 1, oscuro);
+            px(ctx, 7, legY + 2, oscuro);
+            px(ctx, 7, legY + 3, oscuro);
+            px(ctx, 6, legY, oscuro);
+            px(ctx, 4, legY, oscuro);
+            px(ctx, 4, legY + 1, oscuro);
+            px(ctx, 4, legY + 2, oscuro);
+        } else {
+            px(ctx, 4, legY, oscuro);
+            px(ctx, 4, legY + 1, oscuro);
+            px(ctx, 4, legY + 2, oscuro);
+            px(ctx, 4, legY + 3, oscuro);
+            px(ctx, 5, legY, oscuro);
+            px(ctx, 5, legY + 1, oscuro);
+            px(ctx, 6, legY, oscuro);
+            px(ctx, 6, legY + 1, oscuro);
+            px(ctx, 6, legY + 2, oscuro);
+            px(ctx, 6, legY + 3, oscuro);
+            px(ctx, 7, legY, oscuro);
+            px(ctx, 7, legY + 1, oscuro);
+        }
+    } else if (estado === 'saltar') {
+        px(ctx, 5, legY, oscuro);
+        px(ctx, 5, legY + 1, oscuro);
+        px(ctx, 5, legY + 2, oscuro);
+        px(ctx, 6, legY, oscuro);
+        px(ctx, 6, legY + 1, oscuro);
+        px(ctx, 6, legY + 2, oscuro);
+    } else if (estado === 'caer') {
+        px(ctx, 3, legY, oscuro);
+        px(ctx, 3, legY + 1, oscuro);
+        px(ctx, 4, legY + 1, oscuro);
+        px(ctx, 4, legY + 2, oscuro);
+        px(ctx, 7, legY, oscuro);
+        px(ctx, 7, legY + 1, oscuro);
+        px(ctx, 8, legY + 1, oscuro);
+        px(ctx, 8, legY + 2, oscuro);
+    } else if (estado === 'golpeado') {
+        px(ctx, 4, legY, oscuro);
+        px(ctx, 5, legY, oscuro);
+        px(ctx, 6, legY, oscuro);
+        px(ctx, 7, legY, oscuro);
+        px(ctx, 4, legY + 1, oscuro);
+        px(ctx, 7, legY + 1, oscuro);
+    } else {
+        px(ctx, 4, legY, oscuro);
+        px(ctx, 4, legY + 1, oscuro);
+        px(ctx, 4, legY + 2, oscuro);
+        px(ctx, 4, legY + 3, oscuro);
+        px(ctx, 5, legY, oscuro);
+        px(ctx, 6, legY, oscuro);
+        px(ctx, 7, legY, oscuro);
+        px(ctx, 7, legY + 1, oscuro);
+        px(ctx, 7, legY + 2, oscuro);
+        px(ctx, 7, legY + 3, oscuro);
+    }
+
+    return c;
+}
+
+function generarSpritesProceduralJugador(colorBase) {
+    spritesJugador = {
+        idle: [
+            generarSpriteJugador(colorBase, 'idle', 0),
+            generarSpriteJugador(colorBase, 'idle', 1),
+        ],
+        correr: [
+            generarSpriteJugador(colorBase, 'correr', 0),
+            generarSpriteJugador(colorBase, 'correr', 1),
+            generarSpriteJugador(colorBase, 'correr', 2),
+            generarSpriteJugador(colorBase, 'correr', 3),
+        ],
+        saltar: [generarSpriteJugador(colorBase, 'saltar', 0)],
+        caer: [generarSpriteJugador(colorBase, 'caer', 0)],
+        golpeado: [generarSpriteJugador(colorBase, 'golpeado', 0)],
+    };
 }
