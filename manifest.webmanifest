@@ -5,7 +5,7 @@
     "start_url": "/mansion-de-aventuras/",
     "scope": "/mansion-de-aventuras/",
     "display": "standalone",
-    "orientation": "portrait",
+    "orientation": "any",
     "background_color": "#1a0a2e",
     "theme_color": "#1a0a2e",
     "icons": [

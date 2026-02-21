@@ -176,6 +176,7 @@ function ejecutarCambioEstado(anterior, nuevo, datos) {
     } else if (anterior === ESTADOS.HABITACION) {
         const hab = habitaciones[estado.habitacionActual];
         if (hab) hab.limpiar();
+        dpad.ocultar();
         estado.habitacionActual = null;
     }
 

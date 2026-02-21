@@ -2431,6 +2431,65 @@ h1 {
     transition: width 0.2s ease;
 }
 
+/* HUD in-canvas: vida del jugador + botón huir (visible solo en landscape mobile) */
+.plat-hud-jugador {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    pointer-events: auto;
+    z-index: 5;
+}
+
+.plat-hud-huir {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1.5px solid rgb(240 165 0 / 40%);
+    border-radius: 50%;
+    background-color: rgb(0 0 0 / 50%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition:
+        border-color 0.2s,
+        background-color 0.2s;
+}
+
+.plat-hud-huir:active {
+    background-color: rgb(240 165 0 / 25%);
+    border-color: rgb(240 165 0 / 70%);
+}
+
+.plat-hud-huir-icono {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.plat-hud-vida-fondo {
+    width: 80px;
+    height: 8px;
+    background: rgb(0 0 0 / 60%);
+    border-radius: 4px;
+    border: 1px solid rgb(94 234 219 / 30%);
+    overflow: hidden;
+}
+
+.plat-hud-vida-relleno {
+    height: 100%;
+    width: 100%;
+    background: #5eeadb;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
 #pantalla-habitacion1 {
     position: relative;
     display: flex;
@@ -3427,16 +3486,138 @@ h1 {
     grid-area: abajo;
 }
 
+/* --- D-pad split (platformer: izq movimiento / der acciones) --- */
+
+.dpad-izq-contenedor {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 150;
+    display: flex;
+    gap: 8px;
+}
+
+.dpad-der-contenedor {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 150;
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+/* Boton A: accion principal (saltar) — grande, destacado */
+.dpad-btn-a {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border-color: rgb(94 234 219 / 50%);
+    background-color: rgb(94 234 219 / 15%);
+    color: rgb(94 234 219 / 90%);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.dpad-btn-a:active {
+    background-color: rgb(94 234 219 / 40%);
+    border-color: #5eeadb;
+    color: white;
+}
+
+/* Boton B: accion secundaria — mas chico, arriba-izquierda del A */
+.dpad-btn-b {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-bottom: 24px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.dpad-btn-b:disabled {
+    opacity: 0.25;
+    border-style: dashed;
+    pointer-events: none;
+}
+
 /* Ocultar D-pad en dispositivos sin touch */
 @media (hover: hover) and (pointer: fine) {
-    .dpad-contenedor {
+    .dpad-contenedor,
+    .dpad-izq-contenedor,
+    .dpad-der-contenedor {
         display: none !important;
     }
 }
 
 /* Ocultar D-pad cuando un libro (heroario/villanario) está abierto */
-body:has(.libro-modal:not(.oculto)) .dpad-contenedor {
+body:has(.libro-modal:not(.oculto)) .dpad-contenedor,
+body:has(.libro-modal:not(.oculto)) .dpad-izq-contenedor,
+body:has(.libro-modal:not(.oculto)) .dpad-der-contenedor {
     display: none !important;
+}
+
+/* --- Overlay "gira tu dispositivo" --- */
+
+.overlay-rotar {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: rgb(10 5 20 / 95%);
+}
+
+.overlay-rotar-icono {
+    font-size: 4rem;
+    animation: rotar-icono 2s ease-in-out infinite;
+}
+
+.overlay-rotar-mensaje {
+    color: rgb(255 255 255 / 85%);
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+}
+
+@keyframes rotar-icono {
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(90deg);
+    }
+}
+
+/* Ocultar overlay en desktop */
+@media (hover: hover) and (pointer: fine) {
+    .overlay-rotar {
+        display: none !important;
+    }
+}
+
+/* --- Ajustes landscape para modo inmersivo (mobile) --- */
+
+@media (orientation: landscape) and (pointer: coarse) {
+    #juego.juego-inmersivo {
+        padding: 2px 4px;
+    }
+
+    #juego.juego-inmersivo .barra-superior,
+    #juego.juego-inmersivo .cabecera-habitacion {
+        display: none;
+    }
+
+    /* Mostrar HUD in-canvas en landscape mobile */
+    .plat-hud-jugador {
+        display: flex;
+    }
 }
 
 /* --- Notificaciones toast --- */
