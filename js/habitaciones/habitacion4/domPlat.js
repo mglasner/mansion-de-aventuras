@@ -2,6 +2,7 @@
 
 import { CFG } from './config.js';
 import { crearBarraVida } from '../../componentes/barraVida.js';
+import { crearInventario } from '../../componentes/inventario.js';
 
 // Referencias a overlay del boss
 let hudBossContenedor = null;
@@ -9,10 +10,11 @@ let hudBossNombre = null;
 let hudBossVida = null;
 let canvasRef = null;
 
-// Referencias al HUD in-canvas (vida jugador + boton huir)
+// Referencias al HUD in-canvas (vida jugador + inventario + boton huir)
 let hudJugadorContenedor = null;
 let hudJugadorVida = null;
 let hudJugadorVidaAnterior = -1;
+let hudJugadorInventario = null;
 
 function calcularEscala(canvas) {
     const rect = canvas.getBoundingClientRect();
@@ -89,10 +91,14 @@ export function crearPantalla(esTouch, onHuir) {
     btnHuirCanvas.addEventListener('click', onHuir);
 
     // Barra de vida (componente reutilizable, variante compacta)
-    hudJugadorVida = crearBarraVida({ claseExtra: 'barra-vida-compacta' });
+    hudJugadorVida = crearBarraVida({ mostrarTexto: true, claseExtra: 'barra-vida-compacta' });
+
+    // Inventario (componente reutilizable, variante compacta)
+    hudJugadorInventario = crearInventario({ claseExtra: 'inventario-compacto' });
 
     hudJugadorContenedor.appendChild(btnHuirCanvas);
     hudJugadorContenedor.appendChild(hudJugadorVida.el);
+    hudJugadorContenedor.appendChild(hudJugadorInventario.el);
 
     // HUD overlay: barra de boss (abajo del canvas)
     hudBossContenedor = document.createElement('div');
@@ -151,6 +157,11 @@ export function actualizarHUDJugador(vidaActual, vidaMax) {
     hudJugadorVida.actualizar(vidaActual, vidaMax);
 }
 
+export function actualizarHUDInventario(inventario) {
+    if (!hudJugadorInventario) return;
+    hudJugadorInventario.actualizar(inventario);
+}
+
 // --- API para actualizar overlay del boss ---
 
 export function actualizarHUDBoss(nombre, ratio) {
@@ -184,5 +195,6 @@ export function limpiarDOM() {
     hudJugadorContenedor = null;
     hudJugadorVida = null;
     hudJugadorVidaAnterior = -1;
+    hudJugadorInventario = null;
     canvasRef = null;
 }

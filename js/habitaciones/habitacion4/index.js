@@ -7,6 +7,7 @@ import { obtenerSpawns, resetearMapa, obtenerFilas, obtenerColumnas } from './ni
 import {
     crearPantalla,
     actualizarHUDJugador,
+    actualizarHUDInventario,
     actualizarHUDBoss,
     ocultarHUDBoss,
     reescalarCanvas,
@@ -218,6 +219,7 @@ function verificarVictoria() {
         activo = false;
         jugador.inventario.push(CFG.meta.itemInventario);
         document.dispatchEvent(new Event('inventario-cambio'));
+        actualizarHUDInventario(jugador.inventario);
         lanzarToast('\u00a1Llave obtenida! Escapando...', '\ud83d\udd11', 'exito');
 
         timeoutIds.push(
@@ -447,6 +449,9 @@ export function iniciarHabitacion4(jugadorRef, callback, dpadArgumento) {
     // Crear pantalla
     esTouchRef = !!dpadArgumento;
     iniciarDOM(esTouchRef);
+
+    // Mostrar llaves ya recolectadas en el HUD
+    actualizarHUDInventario(jugador.inventario);
 
     // Iniciar sistemas visuales
     iniciarParallax();
