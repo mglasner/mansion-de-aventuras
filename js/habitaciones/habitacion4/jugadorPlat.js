@@ -5,6 +5,7 @@ import { CFG } from './config.js';
 import { resolverColisionX, resolverColisionY, esMeta } from './fisicas.js';
 import { obtenerSpawnJugador } from './nivel.js';
 import { obtenerSpriteJugador } from './spritesPlat.js';
+import { notificarVidaCambio, notificarJugadorMuerto } from '../../eventos.js';
 import {
     calcularEscala,
     calcularHitbox,
@@ -181,15 +182,15 @@ export function detectarMetaTile() {
 export function caerAlAbismo() {
     if (!jugadorRef) return;
     jugadorRef.recibirDano(9999);
-    document.dispatchEvent(new Event('vida-cambio'));
-    document.dispatchEvent(new Event('jugador-muerto'));
+    notificarVidaCambio();
+    notificarJugadorMuerto();
 }
 
 export function recibirDano(dano, desdeX) {
     if (!jugadorRef || invulFrames > 0) return false;
 
     jugadorRef.recibirDano(dano);
-    document.dispatchEvent(new Event('vida-cambio'));
+    notificarVidaCambio();
 
     // Knockback alejandose del origen del dano
     const dirKnock = desdeX < x ? 1 : -1;
@@ -198,7 +199,7 @@ export function recibirDano(dano, desdeX) {
     invulFrames = FIS.invulnerabilidad;
 
     if (!jugadorRef.estaVivo()) {
-        document.dispatchEvent(new Event('jugador-muerto'));
+        notificarJugadorMuerto();
         return true;
     }
     return false;

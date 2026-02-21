@@ -5,6 +5,13 @@ import { CFG } from './config.js';
 import { generarTablero } from './tablero.js';
 import { crearCarta } from './carta.js';
 import { lanzarToast } from '../../componentes/toast.js';
+import {
+    notificarVidaCambio,
+    notificarInventarioCambio,
+    notificarJugadorMuerto,
+} from '../../eventos.js';
+import { crearPantallaHabitacion } from '../../componentes/pantallaHabitacion.js';
+import { crearElemento } from '../../utils.js';
 
 // --- Estado del módulo ---
 
@@ -26,44 +33,22 @@ const totalPares = CFG.tablero.numHeroes + CFG.tablero.numVillanos;
 // --- Crear pantalla HTML ---
 
 function crearPantalla() {
-    pantalla = document.createElement('div');
-    pantalla.id = 'pantalla-habitacion3';
-    pantalla.className = 'habitacion-3';
-
-    // Cabecera: botón huir + título
-    const cabecera = document.createElement('div');
-    cabecera.className = 'cabecera-habitacion';
-
-    const btnHuir = document.createElement('button');
-    btnHuir.className = 'btn-huir';
-    btnHuir.title = 'Huir al pasillo (Esc)';
-    btnHuir.setAttribute('aria-label', 'Huir al pasillo');
-    const imgHuir = document.createElement('img');
-    imgHuir.src = 'assets/img/icons/btn-salir.webp';
-    imgHuir.alt = '';
-    imgHuir.className = 'btn-huir-icono';
-    btnHuir.appendChild(imgHuir);
-    btnHuir.addEventListener('click', huir);
-
-    const titulo = document.createElement('h2');
-    titulo.className = 'titulo-habitacion';
-    titulo.textContent = CFG.meta.titulo;
-
-    cabecera.appendChild(btnHuir);
-    cabecera.appendChild(titulo);
+    ({ pantalla } = crearPantallaHabitacion(
+        'pantalla-habitacion3',
+        'habitacion-3',
+        CFG.meta.titulo,
+        huir
+    ));
 
     // Indicador de intentos
     indicador = document.createElement('div');
     indicador.id = 'memorice-indicador';
 
-    indicadorTexto = document.createElement('span');
-    indicadorTexto.className = 'memorice-indicador-texto';
+    indicadorTexto = crearElemento('span', 'memorice-indicador-texto');
 
-    const barra = document.createElement('div');
-    barra.className = 'memorice-indicador-barra';
+    const barra = crearElemento('div', 'memorice-indicador-barra');
 
-    indicadorProgreso = document.createElement('div');
-    indicadorProgreso.className = 'memorice-indicador-progreso';
+    indicadorProgreso = crearElemento('div', 'memorice-indicador-progreso');
     barra.appendChild(indicadorProgreso);
 
     indicador.appendChild(indicadorTexto);
@@ -71,8 +56,7 @@ function crearPantalla() {
     actualizarIndicador();
 
     // Grilla de cartas
-    const grilla = document.createElement('div');
-    grilla.className = 'memorice-grilla';
+    const grilla = crearElemento('div', 'memorice-grilla');
 
     cartas.forEach(function (carta) {
         grilla.appendChild(carta.el);
@@ -81,7 +65,6 @@ function crearPantalla() {
     // Event delegation en la grilla
     grilla.addEventListener('click', onClickGrilla);
 
-    pantalla.appendChild(cabecera);
     pantalla.appendChild(indicador);
     pantalla.appendChild(grilla);
 
@@ -112,7 +95,7 @@ function actualizarIndicador() {
 function curar(min, max) {
     const cantidad = Math.floor(Math.random() * (max - min + 1)) + min;
     jugador.vidaActual = Math.min(jugador.vidaActual + cantidad, jugador.vidaMax);
-    document.dispatchEvent(new Event('vida-cambio'));
+    notificarVidaCambio();
     const texto = CFG.textos.toastCuracion.replace('{cantidad}', cantidad);
     lanzarToast(texto, '\uD83D\uDC9A', 'exito');
 }
@@ -191,7 +174,7 @@ function onClickGrilla(e) {
 
 function victoria() {
     jugador.inventario.push(CFG.meta.itemInventario);
-    document.dispatchEvent(new Event('inventario-cambio'));
+    notificarInventarioCambio();
 
     // Curación bonus por ganar la partida
     curar(CFG.curacion.victoriaMin, CFG.curacion.victoriaMax);
@@ -212,7 +195,7 @@ function derrota() {
     cartas.forEach(function (c) {
         c.desactivar();
     });
-    document.dispatchEvent(new Event('jugador-muerto'));
+    notificarJugadorMuerto();
 }
 
 function huir() {
@@ -230,6 +213,12 @@ function onKeyDown(e) {
 
 // --- API pública ---
 
+/**
+ * Inicia la Habitacion 3 (El Memorice).
+ * @param {Object} jugadorRef - Personaje seleccionado
+ * @param {Function} callback - Callback para volver al pasillo
+ * @param {Object} [dpadRef] - Controles touch D-pad (se oculta en este modo)
+ */
 export function iniciarHabitacion3(jugadorRef, callback, dpadRef) {
     jugador = jugadorRef;
     callbackSalir = callback;
@@ -257,11 +246,12 @@ export function iniciarHabitacion3(jugadorRef, callback, dpadRef) {
     document.addEventListener('keydown', onKeyDown);
 }
 
+/** Limpia y destruye la Habitacion 3 */
 export function limpiarHabitacion3() {
     document.removeEventListener('keydown', onKeyDown);
 
-    if (pantalla && pantalla.parentNode) {
-        pantalla.parentNode.removeChild(pantalla);
+    if (pantalla) {
+        pantalla.remove();
         pantalla = null;
     }
 

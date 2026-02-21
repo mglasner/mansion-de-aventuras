@@ -3,6 +3,8 @@
 import { CFG } from './config.js';
 import { crearBarraVida } from '../../componentes/barraVida.js';
 import { crearInventario } from '../../componentes/inventario.js';
+import { crearPantallaHabitacion } from '../../componentes/pantallaHabitacion.js';
+import { crearElemento } from '../../utils.js';
 
 // Referencias a overlay del boss
 let hudBossContenedor = null;
@@ -37,31 +39,12 @@ export function crearPantalla(esTouch, onHuir) {
     const anchoCanvas = CFG.canvas.anchoBase;
     const altoCanvas = CFG.canvas.altoBase;
 
-    const pantalla = document.createElement('div');
-    pantalla.id = 'pantalla-habitacion4';
-    pantalla.className = 'habitacion-4';
-
-    // Cabecera: boton huir + titulo (visible en portrait/desktop)
-    const cabecera = document.createElement('div');
-    cabecera.className = 'cabecera-habitacion';
-
-    const btnHuir = document.createElement('button');
-    btnHuir.className = 'btn-huir';
-    btnHuir.title = 'Huir al pasillo (Esc)';
-    btnHuir.setAttribute('aria-label', 'Huir al pasillo');
-    const imgHuir = document.createElement('img');
-    imgHuir.src = 'assets/img/icons/btn-salir.webp';
-    imgHuir.alt = '';
-    imgHuir.className = 'btn-huir-icono';
-    btnHuir.appendChild(imgHuir);
-    btnHuir.addEventListener('click', onHuir);
-
-    const titulo = document.createElement('h2');
-    titulo.className = 'titulo-habitacion';
-    titulo.textContent = CFG.meta.titulo;
-
-    cabecera.appendChild(btnHuir);
-    cabecera.appendChild(titulo);
+    const { pantalla } = crearPantallaHabitacion(
+        'pantalla-habitacion4',
+        'habitacion-4',
+        CFG.meta.titulo,
+        onHuir
+    );
 
     // Wrapper para canvas + HUD overlays
     const wrapper = document.createElement('div');
@@ -122,18 +105,18 @@ export function crearPantalla(esTouch, onHuir) {
     wrapper.appendChild(hudJugadorContenedor);
     wrapper.appendChild(hudBossContenedor);
 
-    // Hint de controles (solo desktop)
-    let hint = null;
-    if (!esTouch) {
-        hint = document.createElement('p');
-        hint.className = 'laberinto-hint';
-        hint.textContent =
-            'Flechas \u2190 \u2192 para mover \u00b7 \u2191 para saltar \u00b7 Esc para huir';
-    }
-
-    pantalla.appendChild(cabecera);
     pantalla.appendChild(wrapper);
-    if (hint) pantalla.appendChild(hint);
+
+    // Hint de controles (solo desktop)
+    if (!esTouch) {
+        pantalla.appendChild(
+            crearElemento(
+                'p',
+                'laberinto-hint',
+                'Flechas \u2190 \u2192 para mover \u00b7 \u2191 para saltar \u00b7 Esc para huir'
+            )
+        );
+    }
 
     // Modo inmersivo: quitar max-width del contenedor para usar todo el viewport
     const juegoEl = document.getElementById('juego');

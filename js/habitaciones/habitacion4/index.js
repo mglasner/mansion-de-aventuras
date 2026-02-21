@@ -3,6 +3,7 @@
 // stomper esbirros, derrotar al boss y conseguir la llave
 
 import { CFG } from './config.js';
+import { est, resetearEstado } from './estado.js';
 import { obtenerSpawns, resetearMapa, obtenerFilas, obtenerColumnas } from './nivel.js';
 import {
     crearPantalla,
@@ -77,42 +78,24 @@ import {
 } from './particulas.js';
 import { iniciarSpritesJugador, iniciarSpritesEnemigos, limpiarSprites } from './spritesPlat.js';
 import { lanzarToast } from '../../componentes/toast.js';
-
-// --- Estado del modulo ---
-
-let pantalla = null;
-let ctx = null;
-let animacionId = null;
-let activo = false;
-let callbackSalir = null;
-let jugador = null;
-let teclasRef = {};
-let anchoCanvas = CFG.canvas.anchoBase;
-let altoCanvas = CFG.canvas.altoBase;
-let muerto = false;
-let timeoutIds = [];
-let modoInmersivo = null;
-let dpadRef = null;
-
-// Filas del subsuelo para emision de particulas (desacoplado del tile ABISMO)
-let filaNiebla = -1;
-let filaOjos = -1;
+import { notificarInventarioCambio } from '../../eventos.js';
+import { crearGameLoop } from '../../utils.js';
 
 const TAM = CFG.tiles.tamano;
 
 // --- Crear DOM (delegado a domPlat.js) ---
 
 function iniciarDOM(esTouch) {
-    anchoCanvas = CFG.canvas.anchoBase;
-    altoCanvas = CFG.canvas.altoBase;
+    est.anchoCanvas = CFG.canvas.anchoBase;
+    est.altoCanvas = CFG.canvas.altoBase;
 
     const dom = crearPantalla(esTouch, function () {
         limpiarHabitacion4();
-        callbackSalir();
+        est.callbackSalir();
     });
 
-    pantalla = dom.pantalla;
-    ctx = dom.ctx;
+    est.pantalla = dom.pantalla;
+    est.ctx = dom.ctx;
 }
 
 // --- Colisiones jugador-enemigo ---
@@ -175,7 +158,7 @@ function verificarColisionesEnemigos() {
             jug.vy >= CFG.enemigos.stompVyMin &&
             pieJugador <= mitadEnemigo + CFG.enemigos.stompMargen
         ) {
-            const dano = jugador.ataques[0] ? jugador.ataques[0].dano : 10;
+            const dano = est.jugador.ataques[0] ? est.jugador.ataques[0].dano : 10;
             const resultado = stomperEnemigo(e, dano);
             aplicarStompRebote();
             procesarStomp(e, resultado);
@@ -188,7 +171,7 @@ function verificarColisionesEnemigos() {
             sacudir(4);
 
             if (murio) {
-                muerto = true;
+                est.muerto = true;
             } else {
                 lanzarToast('-' + dano + ' HP', '\ud83d\udc94', 'dano');
             }
@@ -205,7 +188,7 @@ function verificarAbismo() {
     if (jug.y + jug.alto >= limiteAbismo) {
         caerAlAbismo();
         sacudir(8);
-        muerto = true;
+        est.muerto = true;
     }
 }
 
@@ -215,20 +198,20 @@ function verificarVictoria() {
     if (esBossVivo()) return;
 
     if (detectarMetaTile()) {
-        activo = false;
-        jugador.inventario.push(CFG.meta.itemInventario);
-        document.dispatchEvent(new Event('inventario-cambio'));
-        actualizarHUDInventario(jugador.inventario);
+        est.activo = false;
+        est.jugador.inventario.push(CFG.meta.itemInventario);
+        notificarInventarioCambio();
+        actualizarHUDInventario(est.jugador.inventario);
         lanzarToast(
             '\u00a1Llave obtenida! Escapando...',
             '<img src="assets/img/llaves/llave-abismo.webp" alt="Llave" class="toast-llave-img">',
             'exito'
         );
 
-        timeoutIds.push(
+        est.timeoutIds.push(
             setTimeout(function () {
                 limpiarHabitacion4();
-                callbackSalir();
+                est.callbackSalir();
             }, CFG.meta.timeoutExito)
         );
     }
@@ -239,24 +222,21 @@ function verificarVictoria() {
 function emitirParticulasAmbientales(camaraX) {
     const frameNum = obtenerFrameCount();
     const cols = obtenerColumnas();
+    const colInicio = Math.max(1, Math.floor(camaraX / TAM));
+    const colFin = Math.min(cols - 1, Math.ceil((camaraX + est.anchoCanvas) / TAM));
 
     // Niebla del abismo: cada 5 frames, emitir a lo largo del subsuelo
-    if (frameNum % 5 === 0 && filaNiebla >= 0) {
-        const colInicio = Math.max(1, Math.floor(camaraX / TAM));
-        const colFin = Math.min(cols - 1, Math.ceil((camaraX + anchoCanvas) / TAM));
-
+    if (frameNum % 5 === 0 && est.filaNiebla >= 0) {
         for (let col = colInicio; col < colFin; col += 3) {
-            emitirNieblaAbismo(col * TAM, filaNiebla * TAM);
+            emitirNieblaAbismo(col * TAM, est.filaNiebla * TAM);
         }
     }
 
     // Ojos en la oscuridad: cada ~120 frames
-    if (frameNum % 120 === 0 && filaOjos >= 0) {
-        const colInicio = Math.max(1, Math.floor(camaraX / TAM));
-        const colFin = Math.min(cols - 1, Math.ceil((camaraX + anchoCanvas) / TAM));
+    if (frameNum % 120 === 0 && est.filaOjos >= 0) {
         for (let col = colInicio; col < colFin; col += 5) {
             if (Math.random() < 0.3) {
-                emitirOjosAbismo(col * TAM, filaOjos * TAM);
+                emitirOjosAbismo(col * TAM, est.filaOjos * TAM);
                 break;
             }
         }
@@ -294,14 +274,16 @@ function emitirParticulasJugador() {
 
 // --- Game loop ---
 
-function gameLoop() {
-    if (!activo) return;
+const gameLoop4 = crearGameLoop(function () {
+    if (!est.activo) {
+        gameLoop4.detener();
+        return;
+    }
 
     // Freeze frame: solo renderizar, no actualizar
     if (estaCongelada()) {
         actualizarCamara(obtenerPosicion().x);
         renderFrame();
-        animacionId = requestAnimationFrame(gameLoop);
         return;
     }
 
@@ -310,7 +292,7 @@ function gameLoop() {
     actualizarEnemigos();
 
     // Colisiones
-    if (!muerto) {
+    if (!est.muerto) {
         verificarColisionesEnemigos();
         verificarAbismo();
         verificarVictoria();
@@ -328,9 +310,7 @@ function gameLoop() {
 
     // Render
     renderFrame();
-
-    animacionId = requestAnimationFrame(gameLoop);
-}
+});
 
 function renderFrame() {
     const camX = obtenerCamaraX();
@@ -338,40 +318,40 @@ function renderFrame() {
     const tiempo = Date.now();
 
     // Aplicar shake vertical
-    ctx.save();
+    est.ctx.save();
     if (shakeY !== 0) {
-        ctx.translate(0, shakeY);
+        est.ctx.translate(0, shakeY);
     }
 
     // Fondo parallax (reemplaza fillRect solido)
-    renderizarParallax(ctx, camX, tiempo);
+    renderizarParallax(est.ctx, camX, tiempo);
 
     // Tiles con texturas
-    renderizarTiles(ctx, camX, anchoCanvas, altoCanvas, esBossVivo(), tiempo);
+    renderizarTiles(est.ctx, camX, est.anchoCanvas, est.altoCanvas, esBossVivo(), tiempo);
 
     // Particulas detras de personajes (niebla, aura)
-    renderizarParticulas(ctx, camX, anchoCanvas);
+    renderizarParticulas(est.ctx, camX, est.anchoCanvas);
 
     // Enemigos y jugador
-    renderizarEnemigos(ctx, camX);
-    renderizarJugador(ctx, camX);
+    renderizarEnemigos(est.ctx, camX);
+    renderizarJugador(est.ctx, camX);
 
     // Vineta
-    renderizarVineta(ctx);
+    renderizarVineta(est.ctx);
 
     // Flash blanco
-    renderizarFlash(ctx, anchoCanvas, altoCanvas, obtenerFlashAlpha());
+    renderizarFlash(est.ctx, est.anchoCanvas, est.altoCanvas, obtenerFlashAlpha());
 
-    ctx.restore();
+    est.ctx.restore();
 
     // HUD jugador via overlay HTML (vida del jugador)
-    actualizarHUDJugador(jugador.vidaActual, jugador.vidaMax);
+    actualizarHUDJugador(est.jugador.vidaActual, est.jugador.vidaMax);
 
     // HUD boss via overlay HTML (texto nitido a resolucion nativa)
     const bossInfo = obtenerInfoBoss();
     if (esBossVivo() && bossInfo) {
         actualizarHUDBoss(bossInfo.nombre, bossInfo.vidaActual / bossInfo.vidaMax);
-        renderizarIndicadorBoss(ctx, bossInfo.x, bossInfo.ancho, camX, anchoCanvas, tiempo);
+        renderizarIndicadorBoss(est.ctx, bossInfo.x, bossInfo.ancho, camX, est.anchoCanvas, tiempo);
     } else {
         ocultarHUDBoss();
     }
@@ -382,26 +362,31 @@ function renderFrame() {
 function onKeyDown(e) {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
-        teclasRef[e.key] = true;
+        est.teclasRef[e.key] = true;
     }
     if (e.key === 'Escape') {
         limpiarHabitacion4();
-        callbackSalir();
+        est.callbackSalir();
     }
 }
 
 function onKeyUp(e) {
-    delete teclasRef[e.key];
+    delete est.teclasRef[e.key];
 }
 
 // --- API publica ---
 
+/**
+ * Inicia la Habitacion 4 (El Abismo).
+ * @param {Object} jugadorRef - Personaje seleccionado
+ * @param {Function} callback - Callback para volver al pasillo
+ * @param {Object} [dpadArgumento] - Controles touch D-pad
+ */
 export function iniciarHabitacion4(jugadorRef, callback, dpadArgumento) {
-    jugador = jugadorRef;
-    callbackSalir = callback;
-    activo = true;
-    muerto = false;
-    teclasRef = {};
+    est.jugador = jugadorRef;
+    est.callbackSalir = callback;
+    est.activo = true;
+    est.muerto = false;
 
     // Resetear mapa (restaurar spawns)
     resetearMapa();
@@ -411,26 +396,26 @@ export function iniciarHabitacion4(jugadorRef, callback, dpadArgumento) {
 
     // Filas del subsuelo para particulas (las 2 ultimas filas interiores)
     const totalFilas = obtenerFilas();
-    filaNiebla = totalFilas - 2;
-    filaOjos = totalFilas - 1;
+    est.filaNiebla = totalFilas - 2;
+    est.filaOjos = totalFilas - 1;
 
     // Crear pantalla
-    modoInmersivo = crearModoInmersivo(reescalarCanvas);
-    iniciarDOM(modoInmersivo.esMobile);
+    est.modoInmersivo = crearModoInmersivo(reescalarCanvas);
+    iniciarDOM(est.modoInmersivo.esMobile);
 
     // Mostrar llaves ya recolectadas en el HUD
-    actualizarHUDInventario(jugador.inventario);
+    actualizarHUDInventario(est.jugador.inventario);
 
     // Iniciar sistemas visuales
     iniciarParallax();
     iniciarTexturas();
-    iniciarRenderer(anchoCanvas, altoCanvas);
+    iniciarRenderer(est.anchoCanvas, est.altoCanvas);
     iniciarSpritesJugador(jugadorRef.nombre, jugadorRef.colorHud || '#bb86fc');
     iniciarSpritesEnemigos();
 
     // Iniciar sistemas de juego
-    iniciarCamara(anchoCanvas);
-    iniciarJugador(jugadorRef, teclasRef);
+    iniciarCamara(est.anchoCanvas);
+    iniciarJugador(jugadorRef, est.teclasRef);
     iniciarEnemigos(spawns.enemigos, spawns.boss);
 
     // Toast de inicio
@@ -441,9 +426,9 @@ export function iniciarHabitacion4(jugadorRef, callback, dpadArgumento) {
         return e.esBoss;
     });
     if (bossActual) {
-        timeoutIds.push(
+        est.timeoutIds.push(
             setTimeout(function () {
-                if (activo) {
+                if (est.activo) {
                     lanzarToast(
                         '\u00a1' + bossActual.nombre + ' te espera!',
                         '\ud83d\udc79',
@@ -459,53 +444,42 @@ export function iniciarHabitacion4(jugadorRef, callback, dpadArgumento) {
     document.addEventListener('keyup', onKeyUp);
 
     // D-pad touch: modo dividido para platformer
-    dpadRef = dpadArgumento;
-    if (dpadRef) {
-        dpadRef.setTeclasRef(teclasRef);
-        dpadRef.setModoDividido();
-        dpadRef.mostrar();
+    est.dpadRef = dpadArgumento;
+    if (est.dpadRef) {
+        est.dpadRef.setTeclasRef(est.teclasRef);
+        est.dpadRef.setModoDividido();
+        est.dpadRef.mostrar();
     }
 
     // Overlay de rotación y pantalla completa (solo mobile)
-    modoInmersivo.activar();
+    est.modoInmersivo.activar();
 
     // Iniciar loop
-    animacionId = requestAnimationFrame(gameLoop);
+    gameLoop4.iniciar();
 }
 
+/** Limpia y destruye la Habitacion 4 */
 export function limpiarHabitacion4() {
-    activo = false;
-    muerto = false;
+    est.activo = false;
 
     // Cancelar timeouts pendientes (toast boss, victoria)
-    for (let i = 0; i < timeoutIds.length; i++) {
-        clearTimeout(timeoutIds[i]);
+    for (let i = 0; i < est.timeoutIds.length; i++) {
+        clearTimeout(est.timeoutIds[i]);
     }
-    timeoutIds = [];
 
-    if (animacionId) {
-        cancelAnimationFrame(animacionId);
-        animacionId = null;
-    }
+    gameLoop4.detener();
 
     document.removeEventListener('keydown', onKeyDown);
     document.removeEventListener('keyup', onKeyUp);
 
-    // Limpiar teclas sin reasignar referencia (compartida con jugadorPlat)
-    Object.keys(teclasRef).forEach(function (k) {
-        delete teclasRef[k];
-    });
-
     // Salir de pantalla completa y desactivar overlay
-    if (modoInmersivo) {
-        modoInmersivo.desactivar();
-        modoInmersivo = null;
+    if (est.modoInmersivo) {
+        est.modoInmersivo.desactivar();
     }
 
     // Restaurar D-pad a modo centrado para el pasillo
-    if (dpadRef) {
-        dpadRef.setModoCentrado();
-        dpadRef = null;
+    if (est.dpadRef) {
+        est.dpadRef.setModoCentrado();
     }
 
     limpiarEnemigos();
@@ -515,17 +489,14 @@ export function limpiarHabitacion4() {
     limpiarSprites();
     limpiarRenderer();
     limpiarDOM();
-    filaNiebla = -1;
-    filaOjos = -1;
 
-    if (pantalla && pantalla.parentNode) {
-        pantalla.parentNode.removeChild(pantalla);
-        pantalla = null;
+    if (est.pantalla) {
+        est.pantalla.remove();
     }
 
     // Restaurar modo normal del contenedor
     const juegoEl = document.getElementById('juego');
     if (juegoEl) juegoEl.classList.remove('juego-inmersivo');
 
-    ctx = null;
+    resetearEstado();
 }

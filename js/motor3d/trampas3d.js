@@ -5,7 +5,8 @@
 import { mezclar } from '../laberinto.js';
 import { lanzarToast } from '../componentes/toast.js';
 import { FOV, canvas } from './config.js';
-import { CFG } from '../habitaciones/config-habitacion2.js';
+import { CFG } from '../habitaciones/habitacion2/config.js';
+import { notificarVidaCambio, notificarJugadorMuerto } from '../eventos.js';
 
 // --- Estado del módulo ---
 
@@ -72,10 +73,10 @@ export function detectarTrampas3D(jugadorX, jugadorY, jugador) {
                     cfg.danoMin + Math.floor(Math.random() * (cfg.danoMax - cfg.danoMin + 1));
                 t.ultimoGolpe = ahora;
                 jugador.recibirDano(dano);
-                document.dispatchEvent(new Event('vida-cambio'));
+                notificarVidaCambio();
 
                 if (!jugador.estaVivo()) {
-                    document.dispatchEvent(new Event('jugador-muerto'));
+                    notificarJugadorMuerto();
                 }
 
                 lanzarToast('Trampa de fuego (-' + dano + ')', '\uD83D\uDD25', 'dano');

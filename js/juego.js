@@ -1,7 +1,7 @@
 // Código de La Mansión de Aventuras
 import { PERSONAJES } from './personajes.js';
 import { iniciarHabitacion1, limpiarHabitacion1 } from './habitaciones/habitacion1/index.js';
-import { iniciarHabitacion2, limpiarHabitacion2 } from './habitaciones/habitacion2.js';
+import { iniciarHabitacion2, limpiarHabitacion2 } from './habitaciones/habitacion2/index.js';
 import { iniciarHabitacion3, limpiarHabitacion3 } from './habitaciones/habitacion3/index.js';
 import { iniciarHabitacion4, limpiarHabitacion4 } from './habitaciones/habitacion4/index.js';
 import { crearBarraSuperior } from './componentes/barraSuperior.js';

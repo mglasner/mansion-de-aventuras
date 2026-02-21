@@ -285,8 +285,8 @@ async function main() {
         validarHabitacion(hab2Data, 'habitacion2.yaml', SCHEMA_HABITACION2);
         const hab2JS = generarConfigJS(hab2Data);
         const hab2Fmt = await prettier.format(hab2JS, configPrettier);
-        writeFileSync('js/habitaciones/config-habitacion2.js', hab2Fmt);
-        console.log('js/habitaciones/config-habitacion2.js generado');
+        writeFileSync('js/habitaciones/habitacion2/config.js', hab2Fmt);
+        console.log('js/habitaciones/habitacion2/config.js generado');
     }
 
     // Habitación 3
