@@ -2334,10 +2334,10 @@ h1 {
 /* --- Paletas por habitación --- */
 
 .habitacion-1 {
-    --hab-pared: #2a1a3e;
-    --hab-pared-medio: #1a102e;
-    --hab-pared-oscuro: #150d24;
-    --hab-borde: rgb(100 60 150 / 20%);
+    --hab-pared: #3d2560;
+    --hab-pared-medio: #2a1845;
+    --hab-pared-oscuro: #201035;
+    --hab-borde: rgb(100 60 150 / 25%);
     --hab-accent: #bb86fc;
 }
 
@@ -3536,6 +3536,11 @@ h1 {
 
 .dpad-abajo {
     grid-area: abajo;
+}
+
+.dpad-contenedor.dpad-cruz-split {
+    left: 20px;
+    transform: none;
 }
 
 /* --- D-pad split (platformer: izq movimiento / der acciones) --- */
