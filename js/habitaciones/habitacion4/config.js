@@ -1,7 +1,15 @@
-// Habitación 4 — El Abismo: Constantes de configuración
+// GENERADO desde datos/*.yaml — no editar directamente
 
 export const CFG = {
-    canvas: { anchoBase: 480, altoBase: 270 },
+    meta: {
+        titulo: 'Habitacion 4 — El Abismo',
+        itemInventario: 'llave-habitacion-5',
+        timeoutExito: 1500,
+    },
+    canvas: {
+        anchoBase: 480,
+        altoBase: 270,
+    },
     tiles: {
         tamano: 16,
         tipos: {
@@ -29,44 +37,37 @@ export const CFG = {
     },
     enemigos: {
         stompMargen: 4,
-        stompVyMin: 2, // vy minima para stomp (evita kills al caminar entre personajes de distinta estatura)
+        stompVyMin: 2,
         cooldownAtaque: 60,
     },
     boss: {
         fasesCambio: [0.66, 0.33],
-        velocidadFases: [1.0, 1.4],
+        velocidadFases: [1, 1.4],
     },
     render: {
-        colorSuelo: '#2a2a5e',
-        colorPlataforma: '#3a3a7e',
         colorEnemigo: '#e94560',
         colorBoss: '#bb86fc',
     },
     escalado: {
-        estaturaRef: 1.55, // Lina = escala 1.0
+        estaturaRef: 1.55,
         escalaMin: 0.55,
         escalaMax: 1.35,
         hitboxBaseW: 12,
         hitboxBaseH: 14,
         spriteBaseW: 48,
         spriteBaseH: 60,
-        velAttrMin: 3, // atributo velocidad minimo
-        velAttrMax: 9, // atributo velocidad maximo
-        velPlatMin: 1.5, // px/frame para vel=3
-        velPlatMax: 3.5, // px/frame para vel=9
+        velAttrMin: 3,
+        velAttrMax: 9,
+        velPlatMin: 1.5,
+        velPlatMax: 3.5,
         fuerzaSaltoBase: -7.5,
-        fuerzaSaltoFactor: 0.3, // cuanto se ajusta por escala
+        fuerzaSaltoFactor: 0.3,
     },
     camara: {
         shakeDecay: 0.9,
     },
     sprites: {
-        jugadorIdleVel: 30, // frames entre cada frame de idle
-        jugadorCorrerVel: 6, // frames entre cada frame de correr
-    },
-    meta: {
-        titulo: 'Habitacion 4 — El Abismo',
-        itemInventario: 'llave-habitacion-5',
-        timeoutExito: 1500,
+        jugadorIdleVel: 30,
+        jugadorCorrerVel: 6,
     },
 };

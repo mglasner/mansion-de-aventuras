@@ -218,6 +218,44 @@ const SCHEMA_HABITACION3 = {
     textos: ['indicador', 'toastMatch', 'toastVictoria', 'toastAdvertencia', 'toastCuracion'],
 };
 
+const SCHEMA_HABITACION4 = {
+    meta: ['titulo', 'itemInventario', 'timeoutExito'],
+    canvas: ['anchoBase', 'altoBase'],
+    tiles: ['tamano', 'tipos'],
+    fisicas: [
+        'gravedad',
+        'velocidadMaxCaida',
+        'velocidadJugador',
+        'fuerzaSalto',
+        'fuerzaStompRebote',
+        'coyoteTime',
+        'jumpBuffer',
+        'invulnerabilidad',
+        'knockbackX',
+        'knockbackY',
+    ],
+    enemigos: ['stompMargen', 'stompVyMin', 'cooldownAtaque'],
+    boss: ['fasesCambio', 'velocidadFases'],
+    render: ['colorEnemigo', 'colorBoss'],
+    escalado: [
+        'estaturaRef',
+        'escalaMin',
+        'escalaMax',
+        'hitboxBaseW',
+        'hitboxBaseH',
+        'spriteBaseW',
+        'spriteBaseH',
+        'velAttrMin',
+        'velAttrMax',
+        'velPlatMin',
+        'velPlatMax',
+        'fuerzaSaltoBase',
+        'fuerzaSaltoFactor',
+    ],
+    camara: ['shakeDecay'],
+    sprites: ['jugadorIdleVel', 'jugadorCorrerVel'],
+};
+
 // Valida una habitación contra su schema
 function validarHabitacion(datos, archivo, schema) {
     const errores = [];
@@ -299,6 +337,18 @@ async function main() {
         const hab3Fmt = await prettier.format(hab3JS, configPrettier);
         writeFileSync('js/habitaciones/habitacion3/config.js', hab3Fmt);
         console.log('js/habitaciones/habitacion3/config.js generado');
+    }
+
+    // Habitación 4
+    const hab4Archivo = 'datos/habitacion4.yaml';
+    if (existsSync(hab4Archivo)) {
+        const hab4Yaml = readFileSync(hab4Archivo, 'utf-8');
+        const hab4Data = yaml.load(hab4Yaml);
+        validarHabitacion(hab4Data, 'habitacion4.yaml', SCHEMA_HABITACION4);
+        const hab4JS = generarConfigJS(hab4Data);
+        const hab4Fmt = await prettier.format(hab4JS, configPrettier);
+        writeFileSync('js/habitaciones/habitacion4/config.js', hab4Fmt);
+        console.log('js/habitaciones/habitacion4/config.js generado');
     }
 }
 

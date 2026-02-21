@@ -1,0 +1,84 @@
+# ============================================
+# Configuración de la Habitación 4 — El Abismo
+# Platformer 2D en canvas: el jugador salta entre plataformas,
+# derrota enemigos con stomp y enfrenta al boss final
+# ============================================
+
+# --- Información general de la habitación ---
+meta:
+    titulo: "Habitacion 4 — El Abismo"
+    itemInventario: llave-habitacion-5   # ID del item que se agrega al inventario
+    timeoutExito: 1500                   # ms antes de volver al pasillo tras ganar
+
+# --- Dimensiones del canvas ---
+canvas:
+    anchoBase: 480               # ancho lógico del canvas (px)
+    altoBase: 270                # alto lógico del canvas (px)
+
+# --- Tiles del nivel ---
+tiles:
+    tamano: 16                   # px por tile
+    tipos:                       # enum de tipos de tile (valores usados en el mapa)
+        VACIO: 0
+        SUELO: 1
+        PLATAFORMA: 2
+        ABISMO: 3
+        SPAWN_JUGADOR: 4
+        SPAWN_ENEMIGO: 5
+        SPAWN_BOSS: 6
+        META: 7
+
+# --- Físicas del platformer ---
+fisicas:
+    gravedad: 0.5                # aceleración vertical por frame
+    velocidadMaxCaida: 8         # velocidad máxima de caída (px/frame)
+    velocidadJugador: 2.5        # velocidad horizontal base (px/frame)
+    fuerzaSalto: -7.5            # impulso vertical al saltar (negativo = arriba)
+    fuerzaStompRebote: -5        # rebote al hacer stomp sobre un enemigo
+    coyoteTime: 6                # frames de gracia para saltar tras dejar el suelo
+    jumpBuffer: 6                # frames de buffer para input de salto anticipado
+    invulnerabilidad: 60         # frames de invulnerabilidad tras recibir daño
+    knockbackX: 3                # retroceso horizontal al recibir daño
+    knockbackY: -4               # impulso vertical al recibir daño
+
+# --- Enemigos (esbirros) ---
+enemigos:
+    stompMargen: 4               # px de margen para detectar stomp (pisada desde arriba)
+    stompVyMin: 2                # vy mínima para stomp (evita kills al caminar entre personajes de distinta estatura)
+    cooldownAtaque: 60           # frames de cooldown entre ataques del enemigo
+
+# --- Boss ---
+boss:
+    fasesCambio: [0.66, 0.33]    # umbrales de vida (%) para cambio de fase
+    velocidadFases: [1.0, 1.4]   # multiplicador de velocidad por fase
+
+# --- Renderizado ---
+render:
+    colorEnemigo: "#e94560"      # color de sprite para enemigos sin sprite sheet
+    colorBoss: "#bb86fc"         # color de sprite para el boss sin sprite sheet
+
+# --- Escalado de personajes ---
+# Ajusta tamaño, velocidad y salto según la estatura del personaje
+escalado:
+    estaturaRef: 1.55            # estatura de referencia (Lina = escala 1.0)
+    escalaMin: 0.55              # escala mínima permitida
+    escalaMax: 1.35              # escala máxima permitida
+    hitboxBaseW: 12              # ancho base del hitbox (px)
+    hitboxBaseH: 14              # alto base del hitbox (px)
+    spriteBaseW: 48              # ancho base del sprite visual (px)
+    spriteBaseH: 60              # alto base del sprite visual (px)
+    velAttrMin: 3                # atributo velocidad mínimo
+    velAttrMax: 9                # atributo velocidad máximo
+    velPlatMin: 1.5              # px/frame para vel=3
+    velPlatMax: 3.5              # px/frame para vel=9
+    fuerzaSaltoBase: -7.5        # fuerza de salto base
+    fuerzaSaltoFactor: 0.3       # cuánto se ajusta por escala
+
+# --- Cámara ---
+camara:
+    shakeDecay: 0.9              # factor de decaimiento del screen shake
+
+# --- Sprites del jugador ---
+sprites:
+    jugadorIdleVel: 30           # frames entre cada frame de idle
+    jugadorCorrerVel: 6          # frames entre cada frame de correr
