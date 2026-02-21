@@ -3,7 +3,7 @@
 // El laberinto se genera aleatoriamente cada vez
 
 import { generarMapa, encontrarPuntoLejano } from '../../laberinto.js';
-import { CONFIG, CFG, est, calcularTamCelda } from './estado.js';
+import { CONFIG, CFG, est, calcularTamCelda, getCeldaJugador } from './estado.js';
 import {
     colocarTrampas,
     actualizarTrampas,
@@ -17,38 +17,23 @@ import {
 import { iniciarTrasgo, actualizarTrasgo, renderizarTrasgo } from './trasgo.js';
 import { iniciarCountdown, actualizarVillanoElite, limpiarVillanoElite } from './villanoElite.js';
 import { lanzarToast } from '../../componentes/toast.js';
+import { notificarInventarioCambio } from '../../eventos.js';
+import { crearPantallaHabitacion } from '../../componentes/pantallaHabitacion.js';
+import { crearElemento, crearGameLoop } from '../../utils.js';
 
 // --- Crear pantalla HTML ---
 
 function crearPantalla(esTouch) {
-    est.pantalla = document.createElement('div');
-    est.pantalla.id = 'pantalla-habitacion1';
-    est.pantalla.className = 'habitacion-1';
-
-    // Cabecera: botón huir + título
-    const cabecera = document.createElement('div');
-    cabecera.className = 'cabecera-habitacion';
-
-    const btnHuir = document.createElement('button');
-    btnHuir.className = 'btn-huir';
-    btnHuir.title = 'Huir al pasillo (Esc)';
-    btnHuir.setAttribute('aria-label', 'Huir al pasillo');
-    const imgHuir = document.createElement('img');
-    imgHuir.src = 'assets/img/icons/btn-salir.webp';
-    imgHuir.alt = '';
-    imgHuir.className = 'btn-huir-icono';
-    btnHuir.appendChild(imgHuir);
-    btnHuir.addEventListener('click', function () {
-        limpiarHabitacion1();
-        est.callbackSalir();
-    });
-
-    const titulo = document.createElement('h2');
-    titulo.className = 'titulo-habitacion';
-    titulo.textContent = CFG.meta.titulo;
-
-    cabecera.appendChild(btnHuir);
-    cabecera.appendChild(titulo);
+    const { pantalla } = crearPantallaHabitacion(
+        'pantalla-habitacion1',
+        'habitacion-1',
+        CFG.meta.titulo,
+        function () {
+            limpiarHabitacion1();
+            est.callbackSalir();
+        }
+    );
+    est.pantalla = pantalla;
 
     est.indicador = document.createElement('p');
     est.indicador.id = 'laberinto-indicador';
@@ -73,23 +58,30 @@ function crearPantalla(esTouch) {
     est.mensajeExito.id = 'laberinto-mensaje';
     est.mensajeExito.classList.add('oculto');
 
-    est.pantalla.appendChild(cabecera);
-    est.pantalla.appendChild(est.indicador);
-    est.pantalla.appendChild(est.contenedorLaberinto);
-    est.pantalla.appendChild(est.mensajeExito);
+    pantalla.appendChild(est.indicador);
+    pantalla.appendChild(est.contenedorLaberinto);
+    pantalla.appendChild(est.mensajeExito);
 
     if (!esTouch) {
-        const hint = document.createElement('p');
-        hint.className = 'laberinto-hint';
-        hint.textContent = 'Usa las flechas ← ↑ ↓ → para moverte · Esc para huir';
-        est.pantalla.appendChild(hint);
+        const hint = crearElemento(
+            'p',
+            'laberinto-hint',
+            'Usa las flechas ← ↑ ↓ → para moverte · Esc para huir'
+        );
+        pantalla.appendChild(hint);
     }
 
-    document.getElementById('juego').appendChild(est.pantalla);
+    document.getElementById('juego').appendChild(pantalla);
 }
 
 // --- Funciones principales ---
 
+/**
+ * Inicia la Habitacion 1 (El Laberinto).
+ * @param {Object} jugadorRef - Personaje seleccionado
+ * @param {Function} callback - Callback para volver al pasillo
+ * @param {Object} [dpadRef] - Controles touch D-pad
+ */
 export function iniciarHabitacion1(jugadorRef, callback, dpadRef) {
     est.jugador = jugadorRef;
     est.callbackSalir = callback;
@@ -134,13 +126,10 @@ export function iniciarHabitacion1(jugadorRef, callback, dpadRef) {
     est.escalaVisual =
         CFG.jugador.escalaVisualBase * (est.jugador.estatura / CFG.jugador.estaturaReferencia);
 
-    // Colocar al Trasgo
-    iniciarTrasgo();
-
     // Crear e insertar la pantalla
     crearPantalla(!!dpadRef);
 
-    // Renderizar el laberinto
+    // Renderizar el laberinto (sin enemigos aún)
     renderizarLaberinto();
 
     // Posicionar jugador en la entrada
@@ -169,11 +158,16 @@ export function iniciarHabitacion1(jugadorRef, callback, dpadRef) {
         dpadRef.mostrar();
     }
 
-    // Iniciar countdown para villano élite
-    iniciarCountdown();
+    // Exploración libre: enemigos aparecen tras el delay configurado
+    est.timerAparicion = setTimeout(function () {
+        if (!est.activo) return;
+        iniciarTrasgo();
+        renderizarTrasgo();
+        iniciarCountdown();
+    }, CFG.trasgo.delay * 1000);
 
     // Iniciar game loop
-    est.animacionId = requestAnimationFrame(loopLaberinto);
+    gameLoop.iniciar();
 }
 
 // --- Renderizado ---
@@ -196,11 +190,10 @@ function renderizarLaberinto() {
         }
     }
 
-    // Trampas y trasgo (delegados a submódulos, appenden al contenedor directamente)
+    // Trampas (delegadas a submódulos, appenden al contenedor directamente)
     est.contenedorLaberinto.appendChild(fragment);
     renderizarTrampas();
     renderizarTrampasLentas();
-    renderizarTrasgo();
 
     // Llave
     est.elementoLlave = document.createElement('div');
@@ -308,12 +301,7 @@ function actualizarPosicion() {
 function detectarLlave() {
     if (est.tieneLlave) return;
 
-    const centroX = est.posX + CONFIG.TAM_JUGADOR / 2;
-    const centroY = est.posY + CONFIG.TAM_JUGADOR / 2;
-    const celda = {
-        fila: Math.floor(centroY / CONFIG.TAM_CELDA),
-        col: Math.floor(centroX / CONFIG.TAM_CELDA),
-    };
+    const celda = getCeldaJugador();
 
     if (celda.fila === est.llaveFila && celda.col === est.llaveCol) {
         est.tieneLlave = true;
@@ -330,7 +318,7 @@ function detectarLlave() {
         est.indicador.classList.add('llave-obtenida');
 
         est.jugador.inventario.push(CFG.meta.itemInventario);
-        document.dispatchEvent(new Event('inventario-cambio'));
+        notificarInventarioCambio();
         lanzarToast(
             CFG.textos.toastLlave,
             '<img src="assets/img/llaves/llave-laberinto.webp" alt="Llave" class="toast-llave-img">',
@@ -342,12 +330,7 @@ function detectarLlave() {
 function detectarSalida() {
     if (!est.tieneLlave) return;
 
-    const centroX = est.posX + CONFIG.TAM_JUGADOR / 2;
-    const centroY = est.posY + CONFIG.TAM_JUGADOR / 2;
-    const celda = {
-        fila: Math.floor(centroY / CONFIG.TAM_CELDA),
-        col: Math.floor(centroX / CONFIG.TAM_CELDA),
-    };
+    const celda = getCeldaJugador();
 
     if (celda.fila === est.entradaFila && celda.col === est.entradaCol) {
         est.activo = false;
@@ -364,8 +347,11 @@ function detectarSalida() {
 
 // --- Game loop ---
 
-function loopLaberinto() {
-    if (!est.activo) return;
+const gameLoop = crearGameLoop(function () {
+    if (!est.activo) {
+        gameLoop.detener();
+        return;
+    }
 
     let dx = 0;
     let dy = 0;
@@ -387,9 +373,7 @@ function loopLaberinto() {
     actualizarVillanoElite();
     detectarLlave();
     detectarSalida();
-
-    est.animacionId = requestAnimationFrame(loopLaberinto);
-}
+});
 
 // --- Handlers de teclado ---
 
@@ -410,8 +394,13 @@ function onKeyUp(e) {
 
 // --- Limpieza ---
 
+/** Limpia y destruye la Habitacion 1 */
 export function limpiarHabitacion1() {
     est.activo = false;
+    if (est.timerAparicion) {
+        clearTimeout(est.timerAparicion);
+        est.timerAparicion = null;
+    }
     est.trampas = [];
     est.trampasLentas = [];
     est.trasgo = null;
@@ -422,10 +411,7 @@ export function limpiarHabitacion1() {
         est.timerLentitud = null;
     }
 
-    if (est.animacionId) {
-        cancelAnimationFrame(est.animacionId);
-        est.animacionId = null;
-    }
+    gameLoop.detener();
 
     document.removeEventListener('keydown', onKeyDown);
     document.removeEventListener('keyup', onKeyUp);
@@ -434,8 +420,8 @@ export function limpiarHabitacion1() {
         delete est.teclas[k];
     });
 
-    if (est.pantalla && est.pantalla.parentNode) {
-        est.pantalla.parentNode.removeChild(est.pantalla);
+    if (est.pantalla) {
+        est.pantalla.remove();
         est.pantalla = null;
     }
 }

@@ -38,8 +38,8 @@ jugador:
 # --- Trampas de fuego 🔥 ---
 # Casillas que parpadean entre activa/inactiva y hacen daño al pisar
 trampasFuego:
-    cantidadMin: 3           # mínimo de trampas generadas
-    cantidadMax: 5           # máximo de trampas generadas
+    cantidadMin: 2           # mínimo de trampas generadas
+    cantidadMax: 3           # máximo de trampas generadas
     distanciaMinEntrada: 3   # distancia Manhattan mínima desde la entrada (zona segura)
     periodoMin: 1500         # ms — ciclo más rápido activa↔inactiva
     periodoMax: 3500         # ms — ciclo más lento activa↔inactiva
@@ -51,8 +51,8 @@ trampasFuego:
 # --- Trampas de lentitud 🕸️ ---
 # Telarañas que reducen la velocidad del jugador temporalmente
 trampasLentitud:
-    cantidadMin: 2           # mínimo de trampas generadas
-    cantidadMax: 3           # máximo de trampas generadas
+    cantidadMin: 1           # mínimo de trampas generadas
+    cantidadMax: 2           # máximo de trampas generadas
     distanciaMinEntrada: 3   # distancia Manhattan mínima desde la entrada
     periodoMin: 2000         # ms — ciclo más rápido activa↔inactiva
     periodoMax: 4000         # ms — ciclo más lento activa↔inactiva
@@ -66,6 +66,7 @@ trampasLentitud:
 # --- Trasgo 👹 (enemigo esbirro) ---
 # Persigue al jugador con pathfinding BFS
 trasgo:
+    delay: 5                 # segundos de exploración libre antes de que aparezca
     tamBase: 20              # px base del sprite
     velocidadBase: 2         # px/frame base de movimiento
     cooldownBaseAtaque: 10500 # ms base de cooldown, dividido por velAtaque del enemigo
@@ -79,7 +80,7 @@ villanoElite:
     tamBase: 22              # px base del sprite
     velocidadBase: 2         # px/frame base de movimiento
     velocidadReferencia: 6   # atributo de velocidad que equivale a velocidadBase
-    countdown: 15            # segundos del countdown antes de aparecer
+    countdown: 10            # segundos del countdown antes de aparecer (empieza tras el delay del trasgo)
     intervaloPathfinding: 500 # ms entre recálculos de ruta BFS
     posicionDistMin: 0.5     # aparece a mínimo 50% de la distancia máxima desde el jugador
     posicionDistMax: 0.8     # aparece a máximo 80% de la distancia máxima

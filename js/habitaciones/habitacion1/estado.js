@@ -2,6 +2,7 @@
 // Todos los submódulos (trampas, trasgo) acceden a este estado
 
 import { CFG } from './config.js';
+import { notificarVidaCambio, notificarJugadorMuerto } from '../../eventos.js';
 
 // Re-exportar CFG para que los submódulos accedan a valores específicos
 export { CFG };
@@ -47,12 +48,12 @@ export const est = {
     velocidadActual: CONFIG.VELOCIDAD,
     escalaVisual: 1,
     timerLentitud: null,
+    timerAparicion: null,
     jugador: null,
     callbackSalir: null,
     posX: 0,
     posY: 0,
     tieneLlave: false,
-    animacionId: null,
     activo: false,
     teclas: {},
     // Referencias DOM (se crean dinámicamente)
@@ -121,7 +122,7 @@ export function getCeldaJugador() {
 // Aplica daño al jugador con feedback visual y verifica muerte
 export function aplicarDanoJugador(dano) {
     est.jugador.recibirDano(dano);
-    document.dispatchEvent(new Event('vida-cambio'));
+    notificarVidaCambio();
 
     // Número de daño flotante
     const elem = document.createElement('div');
@@ -131,7 +132,7 @@ export function aplicarDanoJugador(dano) {
     elem.style.top = est.posY - 5 + 'px';
     est.contenedorLaberinto.appendChild(elem);
     setTimeout(function () {
-        if (elem.parentNode) elem.parentNode.removeChild(elem);
+        elem.remove();
     }, 1000);
 
     // Flash en el sprite del jugador
@@ -158,6 +159,6 @@ export function aplicarDanoJugador(dano) {
 
     if (!est.jugador.estaVivo()) {
         est.activo = false;
-        document.dispatchEvent(new Event('jugador-muerto'));
+        notificarJugadorMuerto();
     }
 }

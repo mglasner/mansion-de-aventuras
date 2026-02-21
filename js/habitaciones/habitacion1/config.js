@@ -28,8 +28,8 @@ export const CFG = {
         estaturaReferencia: 1.55,
     },
     trampasFuego: {
-        cantidadMin: 3,
-        cantidadMax: 5,
+        cantidadMin: 2,
+        cantidadMax: 3,
         distanciaMinEntrada: 3,
         periodoMin: 1500,
         periodoMax: 3500,
@@ -39,8 +39,8 @@ export const CFG = {
         danoMax: 10,
     },
     trampasLentitud: {
-        cantidadMin: 2,
-        cantidadMax: 3,
+        cantidadMin: 1,
+        cantidadMax: 2,
         distanciaMinEntrada: 3,
         periodoMin: 2000,
         periodoMax: 4000,
@@ -52,6 +52,7 @@ export const CFG = {
         duracionMax: 4000,
     },
     trasgo: {
+        delay: 5,
         tamBase: 20,
         velocidadBase: 2,
         cooldownBaseAtaque: 10500,
@@ -63,7 +64,7 @@ export const CFG = {
         tamBase: 22,
         velocidadBase: 2,
         velocidadReferencia: 6,
-        countdown: 15,
+        countdown: 10,
         intervaloPathfinding: 500,
         posicionDistMin: 0.5,
         posicionDistMax: 0.8,
