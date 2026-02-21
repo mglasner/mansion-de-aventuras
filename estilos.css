@@ -3468,10 +3468,11 @@ h1 {
         'izq   .       der    ' 56px
         '.     abajo   .      ' 56px
         / 56px 56px 56px;
-    gap: 4px;
+    gap: 0;
 }
 
 .dpad-btn {
+    position: relative;
     width: 56px;
     height: 56px;
     border: 2px solid rgb(255 255 255 / 15%);
@@ -3488,6 +3489,12 @@ h1 {
     transition:
         background-color 0.1s,
         border-color 0.1s;
+}
+
+.dpad-btn::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
 }
 
 .dpad-btn:active {
@@ -4335,6 +4342,17 @@ body:has(.libro-modal:not(.oculto)) .dpad-der-contenedor {
 .libro-fade-in {
     transform-origin: right center;
     animation: libro-flip-in 0.35s ease-out;
+}
+
+/* Volteo inverso (página hacia atrás) */
+.libro-fade-out-rev {
+    transform-origin: right center;
+    animation: libro-flip-in 0.3s ease-in reverse forwards;
+}
+
+.libro-fade-in-rev {
+    transform-origin: left center;
+    animation: libro-flip-out 0.35s ease-out reverse;
 }
 
 /* Navegación */

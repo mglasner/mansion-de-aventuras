@@ -426,17 +426,20 @@ export function crearLibro(opciones) {
         filtrarSeccion(seccionActiva);
     }
 
-    // --- Navegación con crossfade ---
+    // --- Navegación con crossfade direccional ---
     function navegarA(nuevoIndice) {
         if (transicionEnCurso) return;
         if (nuevoIndice < 0 || nuevoIndice >= totalPaginas) return;
         if (nuevoIndice === indiceActual) return;
 
         transicionEnCurso = true;
+        const haciaAtras = nuevoIndice < indiceActual;
+        const clsSalida = haciaAtras ? 'libro-fade-out-rev' : 'libro-fade-out';
+        const clsEntrada = haciaAtras ? 'libro-fade-in-rev' : 'libro-fade-in';
         const contenidoActual = detalleWrap.querySelector('.libro-detalle-contenido');
 
         if (contenidoActual) {
-            contenidoActual.classList.add('libro-fade-out');
+            contenidoActual.classList.add(clsSalida);
         }
 
         setTimeout(function () {
@@ -444,7 +447,7 @@ export function crearLibro(opciones) {
             detalleWrap.replaceChildren();
             detalleWrap.scrollTop = 0;
             const nuevoContenido = getDetallePorIndice(nuevoIndice, tabAnterior);
-            nuevoContenido.classList.add('libro-fade-in');
+            nuevoContenido.classList.add(clsEntrada);
             detalleWrap.appendChild(nuevoContenido);
 
             // Propagar clase de la entidad al libro
@@ -456,7 +459,7 @@ export function crearLibro(opciones) {
             actualizarIndice();
 
             setTimeout(function () {
-                nuevoContenido.classList.remove('libro-fade-in');
+                nuevoContenido.classList.remove(clsEntrada);
                 transicionEnCurso = false;
             }, 350);
         }, 300);
@@ -489,6 +492,37 @@ export function crearLibro(opciones) {
         btnSiguiente.disabled = indiceActual === totalPaginas - 1;
         contador.textContent = indiceActual + 1 + ' / ' + totalPaginas;
     }
+
+    // Swipe táctil para cambiar de página
+    let touchInicioX = 0;
+    let touchInicioY = 0;
+
+    paginaDer.addEventListener(
+        'touchstart',
+        function (e) {
+            touchInicioX = e.changedTouches[0].clientX;
+            touchInicioY = e.changedTouches[0].clientY;
+        },
+        { passive: true }
+    );
+
+    paginaDer.addEventListener(
+        'touchend',
+        function (e) {
+            const dx = e.changedTouches[0].clientX - touchInicioX;
+            const dy = e.changedTouches[0].clientY - touchInicioY;
+
+            // Solo navegar si el swipe horizontal es mayor que el vertical (no interferir con scroll)
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0) {
+                    navegarA(indiceActual - 1); // swipe derecha → página anterior
+                } else {
+                    navegarA(indiceActual + 1); // swipe izquierda → página siguiente
+                }
+            }
+        },
+        { passive: true }
+    );
 
     // Navegación por teclado (flechas dentro del libro)
     function manejarTecladoLibro(e) {
