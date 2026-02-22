@@ -83,7 +83,7 @@ export function generarDetalleHeroe(nombre, tabInicial) {
     return contenido;
 }
 
-// Genera la página de bienvenida del Heroario
+// Genera la página de prólogo del Heroario
 export function generarIntro() {
     const contenido = crearElemento('div', 'libro-detalle-contenido libro-intro');
 
@@ -118,107 +118,6 @@ export function generarIntro() {
 
     return contenido;
 }
-
-// Genera una página de habitación para el Heroario
-function generarPaginaHabitacion(hab) {
-    const contenido = crearElemento('div', 'libro-detalle-contenido libro-habitacion');
-
-    if (hab.img) {
-        const img = document.createElement('img');
-        img.src = hab.img;
-        img.alt = hab.nombre;
-        img.className = 'libro-habitacion-img';
-        contenido.appendChild(img);
-    } else {
-        const icono = crearElemento('div', 'libro-habitacion-icono', hab.icono);
-        contenido.appendChild(icono);
-    }
-
-    contenido.appendChild(crearElemento('h3', 'libro-habitacion-nombre', hab.nombre));
-    contenido.appendChild(crearElemento('span', 'libro-habitacion-nivel', 'Nivel ' + hab.nivel));
-    contenido.appendChild(crearElemento('div', 'libro-ornamento'));
-
-    const desc = crearElemento('div', 'libro-habitacion-desc');
-    hab.parrafos.forEach(function (texto) {
-        desc.appendChild(crearElemento('p', null, texto));
-    });
-    contenido.appendChild(desc);
-
-    const tip = crearElemento('div', 'libro-habitacion-tip');
-    tip.appendChild(crearElemento('span', 'libro-habitacion-tip-icono', '\uD83D\uDCA1'));
-    tip.appendChild(document.createTextNode(hab.tip));
-    contenido.appendChild(tip);
-
-    return contenido;
-}
-
-// Páginas de habitaciones para el Heroario
-export const HABITACIONES_HEROARIO = [
-    {
-        textoIndice: '\uD83D\uDDDD\uFE0F El Laberinto',
-        generarContenido: function () {
-            return generarPaginaHabitacion({
-                nombre: 'El Laberinto',
-                nivel: 1,
-                img: 'assets/img/habitaciones/habitacion1.webp',
-                parrafos: [
-                    '\u00A1Bienvenido al laberinto m\u00E1s enredado de todos! Sus pasillos oscuros esconden una llave m\u00E1gica que necesitas para escapar.',
-                    'Camina con cuidado entre las paredes sombr\u00EDas. Dicen que algunos aventureros se perdieron durante horas buscando la salida...',
-                    '\u00A1Cuidado! Si te cruzas con enemigos podr\u00EDas perder vida.',
-                ],
-                tip: 'Explora cada rinc\u00F3n. La llave podr\u00EDa estar donde menos lo esperas.',
-            });
-        },
-    },
-    {
-        textoIndice: '\uD83C\uDF00 Laberinto 3D',
-        generarContenido: function () {
-            return generarPaginaHabitacion({
-                nombre: 'El Laberinto 3D',
-                nivel: 2,
-                img: 'assets/img/habitaciones/habitacion2.webp',
-                parrafos: [
-                    '\u00A1El laberinto ha cobrado vida en tres dimensiones! Las paredes se alzan a tu alrededor y el camino se vuelve a\u00FAn m\u00E1s confuso.',
-                    'Esta vez no ves el mapa completo. Solo puedes ver lo que hay frente a ti. \u00BFPodr\u00E1s encontrar la salida sin perderte?',
-                    'Ten cuidado con los enemigos que acechan en los pasillos, \u00A1pueden hacerte da\u00F1o!',
-                ],
-                tip: 'Mant\u00E9n la calma y recuerda por d\u00F3nde viniste.',
-            });
-        },
-    },
-    {
-        textoIndice: '\uD83C\uDCCF El Memorice',
-        generarContenido: function () {
-            return generarPaginaHabitacion({
-                nombre: 'El Memorice',
-                nivel: 3,
-                img: 'assets/img/habitaciones/habitacion3.webp',
-                parrafos: [
-                    'En esta habitaci\u00F3n encontrar\u00E1s un tablero con cartas misteriosas boca abajo. Cada par de cartas esconde un secreto.',
-                    'Encuentra todos los pares para desbloquear el pasaje. \u00A1Pero cuidado! Cada intento fallido despierta la curiosidad de los villanos.',
-                    '\u00A1Buenas noticias! Cada par que descubras te devuelve un poco de vida. \u00A1Es el momento perfecto para recuperarte!',
-                ],
-                tip: 'Tu mejor arma aqu\u00ED es la memoria. Conc\u00E9ntrate y recuerda cada carta.',
-            });
-        },
-    },
-    {
-        textoIndice: '\uD83C\uDF0A El Abismo',
-        generarContenido: function () {
-            return generarPaginaHabitacion({
-                nombre: 'El Abismo',
-                nivel: 4,
-                icono: '\uD83C\uDF0A',
-                parrafos: [
-                    'Un abismo sin fondo se extiende ante ti. Plataformas flotantes son tu \u00FAnico camino. \u00A1Un paso en falso y caer\u00E1s al vac\u00EDo!',
-                    'Esbirros patrullan las plataformas y un temible boss te espera al final. Salta sobre los enemigos para derrotarlos, pero cuidado con tocarlos de lado.',
-                    'Derrota al boss para abrir la salida y conseguir la llave.',
-                ],
-                tip: 'Salta sobre los enemigos para hacerles da\u00F1o. Usa las plataformas y no mires abajo.',
-            });
-        },
-    },
-];
 
 // Entidades adaptadas para el libro: clase debe ser personaje-X (no jugador-X)
 export function adaptarEntidades() {

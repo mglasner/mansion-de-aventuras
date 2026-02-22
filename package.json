@@ -15,7 +15,7 @@
         "build:datos": "node scripts/build-datos.js",
         "build": "npm run build:datos && npm run build:js && npm run build:css && npm run build:html",
         "build:js": "esbuild js/juego.js --bundle --minify --outfile=dist/juego.min.js --format=esm",
-        "build:css": "esbuild estilos.css --minify --outfile=dist/estilos.min.css",
+        "build:css": "esbuild estilos.css --bundle --minify --external:*.woff2 --outfile=dist/estilos.min.css",
         "build:html": "node scripts/build-html.js",
         "img:optimize": "node scripts/optimizar-imagenes.js"
     },

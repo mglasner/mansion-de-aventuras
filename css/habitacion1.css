@@ -1,0 +1,732 @@
+/* --- Habitación 1: El Laberinto --- */
+
+#pantalla-habitacion1 {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#laberinto-indicador {
+    font-size: 0.95rem;
+    color: #aaa;
+    margin: 2px 0 6px;
+    transition:
+        color 0.3s,
+        text-shadow 0.3s;
+}
+
+#laberinto-indicador.llave-obtenida {
+    color: var(--color-dorado);
+    text-shadow: 0 0 10px rgb(255 215 0 / 60%);
+    animation: brillo-llave 1.5s ease-in-out infinite;
+}
+
+@keyframes brillo-llave {
+    0%,
+    100% {
+        text-shadow: 0 0 10px rgb(255 215 0 / 40%);
+    }
+
+    50% {
+        text-shadow:
+            0 0 20px rgb(255 215 0 / 80%),
+            0 0 30px rgb(255 215 0 / 30%);
+    }
+}
+
+/* Contenedor del laberinto (dimensiones se setean desde JS) */
+#laberinto {
+    position: relative;
+    background-color: var(--color-oscuro);
+    touch-action: none;
+    contain: layout paint;
+    border: 3px solid var(--color-borde);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 40px rgb(0 0 0 / 60%),
+        0 0 15px rgb(0 0 0 / 50%);
+}
+
+/* Paredes del laberinto */
+.laberinto-pared {
+    position: absolute;
+    background: linear-gradient(
+        135deg,
+        var(--hab-pared) 0%,
+        var(--hab-pared-medio) 50%,
+        var(--hab-pared-oscuro) 100%
+    );
+    border: 1px solid var(--hab-borde);
+    box-shadow: inset 0 0 6px rgb(0 0 0 / 40%);
+}
+
+/* Trampas del laberinto */
+.laberinto-trampa {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    border-radius: 3px;
+    background-color: rgb(80 30 30 / 25%);
+    transition:
+        background-color 0.2s,
+        box-shadow 0.2s;
+}
+
+.laberinto-trampa::after {
+    content: '🔥';
+    font-size: 0.9rem;
+    opacity: 0.15;
+    transition: opacity 0.2s;
+}
+
+.laberinto-trampa.trampa-activa {
+    background-color: rgb(200 50 30 / 45%);
+    box-shadow: inset 0 0 10px rgb(255 50 30 / 50%);
+}
+
+.laberinto-trampa.trampa-activa::after {
+    opacity: 1;
+    animation: trampa-fuego 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes trampa-fuego {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.3);
+    }
+}
+
+/* Trampas de lentitud */
+.laberinto-trampa-lenta {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    border-radius: 3px;
+    background-color: rgb(30 50 80 / 25%);
+    transition:
+        background-color 0.3s,
+        box-shadow 0.3s;
+}
+
+.laberinto-trampa-lenta::after {
+    content: '🕸️';
+    font-size: 0.9rem;
+    opacity: 0.15;
+    transition: opacity 0.3s;
+}
+
+.laberinto-trampa-lenta.trampa-lenta-activa {
+    background-color: rgb(80 140 220 / 35%);
+    box-shadow: inset 0 0 10px rgb(100 180 255 / 40%);
+}
+
+.laberinto-trampa-lenta.trampa-lenta-activa::after {
+    opacity: 1;
+    animation: trampa-lenta-pulso 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes trampa-lenta-pulso {
+    from {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    to {
+        transform: scale(1.2);
+        filter: brightness(1.4);
+    }
+}
+
+/* Efecto de lentitud en el jugador */
+.jugador-lento img {
+    filter: brightness(0.7) saturate(0.5) hue-rotate(200deg) !important;
+    animation: jugador-lento-pulso 0.8s ease-in-out infinite !important;
+}
+
+@keyframes jugador-lento-pulso {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* Texto flotante de efecto */
+.efecto-flotante {
+    position: absolute;
+    font-weight: bold;
+    font-size: 0.85rem;
+    z-index: 10;
+    pointer-events: none;
+    animation: dano-subir 1s ease-out forwards;
+}
+
+.efecto-lentitud {
+    color: #7cb8ff;
+    text-shadow: 0 0 6px rgb(100 180 255 / 70%);
+}
+
+/* Flash al recibir daño de trampa */
+.jugador-golpeado img {
+    animation: golpe-flash 0.3s ease !important;
+}
+
+@keyframes golpe-flash {
+    0% {
+        filter: brightness(1);
+    }
+
+    25% {
+        filter: brightness(3) saturate(0);
+    }
+
+    50% {
+        filter: brightness(1) sepia(1) saturate(5) hue-rotate(-30deg);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
+}
+
+/* Número de daño flotante */
+.dano-flotante {
+    position: absolute;
+    font-family: var(--font-display);
+    color: #f44;
+    font-weight: bold;
+    font-size: 1.4rem;
+    z-index: 10;
+    pointer-events: none;
+    text-shadow:
+        0 0 8px rgb(255 0 0 / 80%),
+        0 2px 4px rgb(0 0 0 / 50%);
+    animation: dano-subir 1s ease-out forwards;
+}
+
+@keyframes dano-subir {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1.5);
+    }
+
+    30% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-35px) scale(0.8);
+    }
+}
+
+/* Screen shake al recibir daño */
+.screen-shake {
+    animation: screen-shake 0.3s ease;
+}
+
+@keyframes screen-shake {
+    0%,
+    100% {
+        transform: translate(0);
+    }
+
+    15% {
+        transform: translate(-4px, 2px);
+    }
+
+    30% {
+        transform: translate(4px, -2px);
+    }
+
+    45% {
+        transform: translate(-3px, -1px);
+    }
+
+    60% {
+        transform: translate(3px, 1px);
+    }
+
+    75% {
+        transform: translate(-1px, 2px);
+    }
+}
+
+/* Viñeta roja al recibir daño */
+.vineta-dano::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 40px rgb(233 69 96 / 60%);
+    pointer-events: none;
+    z-index: 20;
+    animation: vineta-flash 0.4s ease-out forwards;
+}
+
+@keyframes vineta-flash {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Trasgo (enemigo) en el laberinto */
+.trasgo-laberinto {
+    position: absolute;
+    z-index: 4;
+    transform: scale(1.6);
+}
+
+.trasgo-laberinto img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #666;
+    box-shadow: 0 0 8px rgb(150 150 150 / 40%);
+}
+
+/* Glow animado GPU-composited (opacity en vez de box-shadow) */
+.trasgo-laberinto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 14px rgb(200 80 80 / 60%);
+    animation: pulso-opacity 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Villano élite en el laberinto */
+.elite-laberinto {
+    position: absolute;
+    z-index: 4;
+}
+
+.elite-laberinto img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #a855f7;
+    box-shadow: 0 0 8px rgb(168 85 247 / 40%);
+}
+
+/* Glow púrpura pulsante */
+.elite-laberinto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 14px rgb(168 85 247 / 60%);
+    animation: pulso-opacity 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Animación de aparición */
+.elite-aparicion {
+    animation: elite-spawn 0.5s ease-out;
+}
+
+@keyframes elite-spawn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* --- Countdown de amenaza: ring en esquina + borde pulsante --- */
+
+/* Ring pequeño en esquina superior derecha */
+.countdown-elite {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    animation: countdown-aparecer 0.6s ease-out;
+}
+
+@keyframes countdown-aparecer {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.countdown-anillo-wrap {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    filter: drop-shadow(0 0 6px rgb(168 85 247 / 50%));
+}
+
+.countdown-anillo {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.countdown-pista {
+    fill: none;
+    stroke: rgb(168 85 247 / 15%);
+    stroke-width: 6;
+}
+
+.countdown-progreso {
+    fill: none;
+    stroke: #a855f7;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition:
+        stroke-dashoffset 0.8s ease-in-out,
+        stroke 0.5s ease;
+}
+
+.countdown-numero {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: #c084fc;
+    text-shadow: 0 0 8px rgb(168 85 247 / 70%);
+    transition:
+        color 0.5s ease,
+        text-shadow 0.5s ease;
+}
+
+.countdown-tick {
+    animation: countdown-tick 0.3s ease-out;
+}
+
+@keyframes countdown-tick {
+    0% {
+        transform: scale(1.3);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.countdown-texto {
+    font-family: var(--font-body);
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: rgb(192 132 252 / 70%);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 2px;
+    text-shadow: 0 0 6px rgb(168 85 247 / 40%);
+    transition: color 0.5s ease;
+}
+
+/* --- Borde del laberinto pulsante durante countdown --- */
+
+.laberinto-amenaza {
+    border-color: rgb(168 85 247 / 40%) !important;
+    box-shadow:
+        inset 0 0 40px rgb(0 0 0 / 60%),
+        0 0 15px rgb(0 0 0 / 50%),
+        0 0 12px rgb(168 85 247 / 25%),
+        inset 0 0 12px rgb(168 85 247 / 10%) !important;
+    animation: borde-amenaza 2s ease-in-out infinite !important;
+}
+
+@keyframes borde-amenaza {
+    0%,
+    100% {
+        border-color: rgb(168 85 247 / 25%);
+    }
+
+    50% {
+        border-color: rgb(168 85 247 / 50%);
+    }
+}
+
+/* --- Estado urgente (últimos 3 segundos) --- */
+
+.countdown-urgente .countdown-progreso {
+    stroke: #ef4444;
+}
+
+.countdown-urgente .countdown-anillo-wrap {
+    filter: drop-shadow(0 0 8px rgb(239 68 68 / 60%));
+    animation: countdown-sacudir 0.4s ease-in-out infinite;
+}
+
+.countdown-urgente .countdown-numero {
+    color: #f87171;
+    text-shadow: 0 0 10px rgb(239 68 68 / 90%);
+    animation: countdown-pulso-num 0.5s ease-in-out infinite;
+}
+
+.countdown-urgente .countdown-texto {
+    color: rgb(248 113 113 / 90%);
+}
+
+.laberinto-amenaza-urgente {
+    border-color: rgb(239 68 68 / 50%) !important;
+    box-shadow:
+        inset 0 0 40px rgb(0 0 0 / 60%),
+        0 0 15px rgb(0 0 0 / 50%),
+        0 0 15px rgb(239 68 68 / 35%),
+        inset 0 0 15px rgb(239 68 68 / 15%) !important;
+    animation: borde-amenaza-urgente 0.6s ease-in-out infinite !important;
+}
+
+@keyframes borde-amenaza-urgente {
+    0%,
+    100% {
+        border-color: rgb(239 68 68 / 30%);
+    }
+
+    50% {
+        border-color: rgb(239 68 68 / 60%);
+    }
+}
+
+@keyframes countdown-sacudir {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-2px) rotate(-1deg);
+    }
+
+    75% {
+        transform: translateX(2px) rotate(1deg);
+    }
+}
+
+@keyframes countdown-pulso-num {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+/* Animación de salida al llegar a 0 */
+.countdown-salida {
+    animation: countdown-salida 0.4s ease-in forwards;
+}
+
+@keyframes countdown-salida {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+}
+
+/* Llave */
+.laberinto-llave {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: flotar-llave 2s ease-in-out infinite;
+    z-index: 2;
+}
+
+.laberinto-llave img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgb(255 215 0 / 60%));
+}
+
+/* Icono de llave en el indicador de búsqueda */
+.indicador-llave-img {
+    height: 1.1em;
+    vertical-align: middle;
+    filter: drop-shadow(0 0 3px rgb(255 215 0 / 50%));
+}
+
+/* Icono de llave en el toast */
+.toast-llave-img {
+    height: 1.2em;
+    vertical-align: middle;
+}
+
+@keyframes flotar-llave {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+/* Animación al recoger la llave */
+.laberinto-llave.llave-recogida {
+    animation: absorber-llave 0.5s ease-in forwards;
+    pointer-events: none;
+}
+
+@keyframes absorber-llave {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+/* Salida */
+.laberinto-salida {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    z-index: 1;
+    opacity: 0.6;
+}
+
+/* Jugador dentro del laberinto (escala visual se aplica desde JS según estatura) */
+.jugador-laberinto {
+    position: absolute;
+    z-index: 5;
+}
+
+.jugador-laberinto img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #888;
+    box-shadow: 0 0 8px rgb(0 0 0 / 60%);
+}
+
+/* Colores del jugador en el laberinto */
+.jugador-laberinto.jugador-lina img {
+    border-color: #9b59b6;
+    box-shadow: 0 0 10px rgb(155 89 182 / 50%);
+}
+
+.jugador-laberinto.jugador-rose img {
+    border-color: #2ecc71;
+    box-shadow: 0 0 10px rgb(46 204 113 / 50%);
+}
+
+.jugador-laberinto.jugador-pandajuro img {
+    border-color: #c0392b;
+    box-shadow: 0 0 10px rgb(192 57 43 / 50%);
+}
+
+.jugador-laberinto.jugador-hana img {
+    border-color: #e91e90;
+    box-shadow: 0 0 10px rgb(233 30 144 / 50%);
+}
+
+.jugador-laberinto.jugador-kira img {
+    border-color: #2ec4b6;
+    box-shadow: 0 0 10px rgb(46 196 182 / 50%);
+}
+
+.jugador-laberinto.jugador-donbu img {
+    border-color: #d4a052;
+    box-shadow: 0 0 10px rgb(212 160 82 / 50%);
+}
+
+.jugador-laberinto.jugador-pompom img {
+    border-color: #f8a5c2;
+    box-shadow: 0 0 10px rgb(248 165 194 / 50%);
+}
+
+.jugador-laberinto.jugador-orejas img {
+    border-color: #e67e22;
+    box-shadow: 0 0 10px rgb(230 126 34 / 50%);
+}
+
+/* Mensaje de éxito */
+#laberinto-mensaje {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: #4cff4c;
+    margin: 4px 0;
+    text-shadow: 0 0 15px rgb(76 255 76 / 50%);
+    animation: aparecer-mensaje 0.4s ease;
+}
+
+@keyframes aparecer-mensaje {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Hint del laberinto */
+.laberinto-hint {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: var(--color-texto-muy-apagado);
+    animation: parpadeo-hint 2s ease-in-out infinite;
+}
+
+/* Ocultar hints de teclado en dispositivos touch */
+@media (hover: none), (pointer: coarse) {
+    .laberinto-hint {
+        display: none;
+    }
+}

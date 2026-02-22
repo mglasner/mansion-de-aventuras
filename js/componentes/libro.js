@@ -21,7 +21,7 @@ export function crearCabecera(nombre, datos, claseAvatar) {
 }
 
 // Construye un libro completo (índice + detalle + navegación)
-// opciones: { entidades, generarDetalle, claseRaiz, ordenar, crearItemIndice, crearSeparador, titulo, subtitulo, pieContenido, paginaInicio, gruposEntidades, getGrupoEntidad }
+// opciones: { entidades, generarDetalle, claseRaiz, ordenar, crearItemIndice, crearSeparador, titulo, subtitulo, pieContenido, paginaInicio, paginasExtras, tituloExtras, tituloEntidades, gruposEntidades, getGrupoEntidad }
 export function crearLibro(opciones) {
     const entidades = opciones.entidades;
     const generarDetalle = opciones.generarDetalle;

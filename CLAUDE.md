@@ -13,6 +13,11 @@ mansion-de-aventuras/
 │       ├── sprites-plat/     # Sprite sheets PNG para el platformer
 │       ├── habitaciones/     # Ilustraciones de juegos para el Heroario
 │       └── icons/            # Favicon e iconos PWA
+├── css/                      # Estilos por habitación (@import desde estilos.css)
+│   ├── habitacion1.css       # El Laberinto (laberinto 2D)
+│   ├── habitacion2.css       # El Laberinto 3D (raycasting)
+│   ├── habitacion3.css       # El Memorice (memoria)
+│   └── habitacion4.css       # El Abismo (platformer)
 ├── datos/                    # Fuente de verdad en YAML (genera JS via build-datos)
 │   ├── personajes.yaml       # Personajes jugables: stats, colores, descripciones
 │   ├── enemigos.yaml         # Enemigos organizados en tiers
@@ -193,5 +198,5 @@ El Abismo es un platformer 2D en canvas 480×270. Personajes y enemigos usan spr
 - Código simple y comentado para fines educativos
 - **Componentes**: Módulos JS que crean su propio HTML con DOM API, exportan una función `crear*(contenedor)` que retorna un objeto con métodos (mostrar, ocultar, actualizar, etc.)
 - **Juegos**: Módulos autocontenidos que crean/destruyen su pantalla al entrar/salir. Se comunican con juego.js mediante callbacks y eventos custom (`document.dispatchEvent`)
-- **Heroario ↔ Juegos**: El Heroario (`js/componentes/libroHeroes.js`) contiene descripciones de cada juego en `HABITACIONES_HEROARIO`. Al modificar la mecánica o contenido de un juego, verificar que las descripciones del Heroario sigan siendo consistentes
+- **Libro de Juegos ↔ Juegos**: El Libro de Juegos (`js/componentes/libroJuegos.js`) contiene descripciones de cada juego en `JUEGOS`. Al modificar la mecánica o contenido de un juego, verificar que las descripciones del Libro de Juegos sigan siendo consistentes
 - **Revisión pre-commit**: Después de escribir o refactorizar código, ejecutar primero los linters (`npm run lint:fix && npm run lint:css:fix && npm run format`) y luego la skill `/review-code` antes de hacer commit

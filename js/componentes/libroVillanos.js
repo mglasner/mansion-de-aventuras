@@ -48,6 +48,18 @@ export function generarDetalleVillano(nombre, tabInicial) {
         'libro-panel' + (mostrarStats ? '' : ' libro-panel-activo')
     );
     panelPerfil.appendChild(crearCabecera(nombre, datos));
+
+    // Insignia de rango debajo del nombre
+    if (datos.tier && TIERS[datos.tier]) {
+        const tier = TIERS[datos.tier];
+        const insignia = crearElemento(
+            'span',
+            'villano-rango-insignia villano-rango-' + datos.tier,
+            tier.emoji + ' ' + tier.label
+        );
+        panelPerfil.appendChild(insignia);
+    }
+
     panelPerfil.appendChild(crearElemento('div', 'libro-ornamento'));
     panelPerfil.appendChild(
         crearElemento('p', 'descripcion libro-descripcion-grande', datos.descripcion)
@@ -106,19 +118,6 @@ export function generarDetalleVillano(nombre, tabInicial) {
     {
         const statAtrib = crearElemento('div', 'stat-atributos');
         statAtrib.appendChild(crearElemento('span', 'stat-label', 'Atributos'));
-        if (datos.tier && TIERS[datos.tier]) {
-            const tier = TIERS[datos.tier];
-            const fila = crearElemento('div', 'ataque');
-            fila.appendChild(crearElemento('span', 'ataque-nombre', 'Rango'));
-            fila.appendChild(
-                crearElemento(
-                    'span',
-                    'tier-badge tier-' + datos.tier,
-                    tier.emoji + ' ' + tier.label
-                )
-            );
-            statAtrib.appendChild(fila);
-        }
         if (datos.edad !== undefined) {
             const fila = crearElemento('div', 'ataque');
             fila.appendChild(crearElemento('span', 'ataque-nombre', 'Edad'));
@@ -174,10 +173,73 @@ export function necesitaSeparador(nombres, i) {
     return tierActual && tierActual !== tierAnterior;
 }
 
-// Texto del item del índice con emoji de tier
-export function textoItemIndice(nombre, datos) {
-    if (datos.tier && TIERS[datos.tier]) {
-        return TIERS[datos.tier].emoji + ' ' + nombre;
-    }
-    return nombre;
+// Genera la página de prólogo del Villanario
+export function generarPrologoVillanos() {
+    const contenido = crearElemento('div', 'libro-detalle-contenido libro-intro');
+
+    contenido.appendChild(crearElemento('h2', 'libro-intro-game-titulo', 'Villanario'));
+    contenido.appendChild(crearElemento('div', 'libro-ornamento'));
+
+    const texto = crearElemento('div', 'libro-intro-texto');
+    texto.appendChild(
+        crearElemento(
+            'p',
+            null,
+            'Aquí se reúnen las criaturas más astutas, traviesas y misteriosas de la Biblioteca de Aventuras. Desde pequeños esbirros hasta temibles pesadillas, cada villano tiene su propia historia.'
+        )
+    );
+    texto.appendChild(
+        crearElemento(
+            'p',
+            null,
+            'Conocer a tus rivales es la mejor estrategia. Estudia sus habilidades, descubre sus debilidades y prepárate para enfrentarlos en los desafíos.'
+        )
+    );
+    texto.appendChild(
+        crearElemento('p', 'libro-intro-cta', '¡Explora el índice y descubre a cada villano!')
+    );
+    contenido.appendChild(texto);
+
+    return contenido;
+}
+
+// Descripciones breves de cada rango
+const RANGOS_DESC = {
+    esbirro: 'Criaturas comunes. No son muy fuertes, pero en grupo pueden ser un problema.',
+    elite: 'Guerreros temibles con habilidades especiales. ¡Prepárate bien antes de enfrentarlos!',
+    pesadilla: 'Seres de las sombras que provocan escalofríos. Solo los valientes se atreven.',
+    leyenda: 'Los más poderosos de todos. Muy pocos aventureros han logrado vencerlos.',
+};
+
+// Genera la página de Rangos del Villanario
+export function generarPaginaRangos() {
+    const contenido = crearElemento('div', 'libro-detalle-contenido libro-intro');
+
+    contenido.appendChild(crearElemento('h2', 'libro-intro-game-titulo', 'Rangos de Villanos'));
+    contenido.appendChild(crearElemento('div', 'libro-ornamento'));
+
+    const texto = crearElemento('div', 'libro-intro-texto');
+    texto.appendChild(
+        crearElemento(
+            'p',
+            null,
+            'Cada villano tiene un rango que indica su poder. Conócelos antes de aventurarte:'
+        )
+    );
+    contenido.appendChild(texto);
+
+    const lista = crearElemento('div', 'libro-rangos-lista');
+    ORDEN_TIER.forEach(function (tier) {
+        const info = TIERS[tier];
+        const fila = crearElemento('div', 'libro-rango-fila');
+        fila.appendChild(crearElemento('span', 'libro-rango-emoji', info.emoji));
+        const textoRango = crearElemento('div', 'libro-rango-texto');
+        textoRango.appendChild(crearElemento('strong', 'libro-rango-nombre', info.label));
+        textoRango.appendChild(crearElemento('p', 'libro-rango-desc', RANGOS_DESC[tier]));
+        fila.appendChild(textoRango);
+        lista.appendChild(fila);
+    });
+    contenido.appendChild(lista);
+
+    return contenido;
 }

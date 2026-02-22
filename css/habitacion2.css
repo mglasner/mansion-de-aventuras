@@ -1,0 +1,95 @@
+/* --- Habitación 2: El Laberinto 3D --- */
+
+#pantalla-habitacion2 {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#contenedor-3d {
+    position: relative;
+    contain: layout paint;
+    border: 3px solid var(--color-borde);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 40px rgb(0 0 0 / 60%),
+        0 0 15px rgb(0 0 0 / 50%);
+}
+
+#canvas-3d {
+    display: block;
+}
+
+#canvas-minimapa {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: 2px solid rgb(150 100 200 / 40%);
+    border-radius: 4px;
+    opacity: 0.85;
+}
+
+#laberinto3d-indicador {
+    font-size: 0.95rem;
+    color: #aaa;
+    margin: 2px 0 6px;
+    transition:
+        color 0.3s,
+        text-shadow 0.3s;
+}
+
+#laberinto3d-indicador.llave-obtenida {
+    color: var(--color-dorado);
+    text-shadow: 0 0 10px rgb(255 215 0 / 60%);
+    animation: brillo-llave-3d 1.5s ease-in-out infinite;
+}
+
+@keyframes brillo-llave-3d {
+    0%,
+    100% {
+        text-shadow: 0 0 10px rgb(255 215 0 / 40%);
+    }
+
+    50% {
+        text-shadow:
+            0 0 20px rgb(255 215 0 / 80%),
+            0 0 30px rgb(255 215 0 / 30%);
+    }
+}
+
+/* Mensaje de éxito */
+#laberinto3d-mensaje {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: #4cff4c;
+    margin: 4px 0;
+    text-shadow: 0 0 15px rgb(76 255 76 / 50%);
+    animation: aparecer-mensaje-3d 0.4s ease;
+}
+
+@keyframes aparecer-mensaje-3d {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* --- Ajustes landscape para modo inmersivo (mobile) --- */
+
+@media (orientation: landscape) and (pointer: coarse) {
+    #juego.juego-inmersivo #laberinto3d-indicador {
+        display: none;
+    }
+
+    #juego.juego-inmersivo #contenedor-3d {
+        border-width: 1px;
+        border-radius: 4px;
+    }
+}
