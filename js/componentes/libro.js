@@ -133,7 +133,7 @@ export function crearLibro(opciones) {
     // --- Section tabs (navegación en dos niveles para mobile) ---
     const secciones = [];
     if (paginaInicio) {
-        secciones.push({ id: 'inicio', texto: paginaInicio.textoSeccion || '\u2726' });
+        secciones.push({ id: 'inicio', texto: paginaInicio.textoSeccion || 'Inicio' });
     }
     if (paginasExtras.length) {
         secciones.push({ id: 'extras', texto: tituloExtras || 'Extras' });

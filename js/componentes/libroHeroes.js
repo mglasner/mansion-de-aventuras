@@ -87,9 +87,7 @@ export function generarDetalleHeroe(nombre, tabInicial) {
 export function generarIntro() {
     const contenido = crearElemento('div', 'libro-detalle-contenido libro-intro');
 
-    contenido.appendChild(
-        crearElemento('h2', 'libro-intro-game-titulo', 'Biblioteca de Aventuras')
-    );
+    contenido.appendChild(crearElemento('h2', 'libro-intro-game-titulo', 'Heroario'));
     contenido.appendChild(crearElemento('div', 'libro-ornamento'));
 
     const texto = crearElemento('div', 'libro-intro-texto');
@@ -97,21 +95,21 @@ export function generarIntro() {
         crearElemento(
             'p',
             null,
-            'Bienvenido a la Biblioteca de Aventuras, donde encontrar\u00e1s h\u00e9roes, villanos y desaf\u00edos llenos de misterio y magia.'
+            'Aqu\u00ed se re\u00fanen los h\u00e9roes m\u00e1s valientes de la Biblioteca de Aventuras. Cada uno tiene una historia \u00fanica y habilidades especiales que lo hacen diferente.'
         )
     );
     texto.appendChild(
         crearElemento(
             'p',
             null,
-            'En el Heroario encontrar\u00e1s a todos los h\u00e9roes disponibles. Cada uno tiene habilidades \u00fanicas para superar los desaf\u00edos que te esperan.'
+            'Conoce a cada h\u00e9roe, estudia sus fortalezas y elige al mejor compa\u00f1ero para enfrentar los desaf\u00edos que te esperan.'
         )
     );
     texto.appendChild(
         crearElemento(
             'p',
             'libro-intro-cta',
-            '\u00a1Explora los h\u00e9roes del \u00edndice y descubre sus habilidades!'
+            '\u00a1Explora el \u00edndice y descubre a cada h\u00e9roe!'
         )
     );
     contenido.appendChild(texto);

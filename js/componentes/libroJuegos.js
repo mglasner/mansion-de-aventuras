@@ -266,10 +266,10 @@ export function crearLibroJuegos(contenedor, onJugar) {
         },
         claseRaiz: 'libro-juegos',
         titulo: 'Libro de Juegos',
-        subtitulo: 'Los desafíos te esperan',
-        tituloEntidades: 'Desafíos',
+        subtitulo: 'La enciclopedia de juegos',
+        tituloEntidades: 'Juegos',
         paginaInicio: {
-            textoIndice: '\u2726 Portada',
+            textoIndice: 'Portada',
             textoSeccion: 'Portada',
             generarContenido: function () {
                 return generarPortada(
@@ -280,7 +280,7 @@ export function crearLibroJuegos(contenedor, onJugar) {
         },
         paginasExtras: [
             {
-                textoIndice: '\u2726 Prólogo',
+                textoIndice: 'Prólogo',
                 generarContenido: generarPrologoJuegos,
             },
         ],

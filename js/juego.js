@@ -115,7 +115,7 @@ function crearHeroarioModal() {
         subtitulo: 'La enciclopedia de los héroes',
         tituloEntidades: 'Héroes',
         paginaInicio: {
-            textoIndice: '\u2726 Portada',
+            textoIndice: 'Portada',
             textoSeccion: 'Portada',
             generarContenido: function () {
                 return generarPortada('Heroario', 'assets/img/biblioteca/portada-heroario.webp');
@@ -123,7 +123,7 @@ function crearHeroarioModal() {
         },
         paginasExtras: [
             {
-                textoIndice: '\u2726 Prólogo',
+                textoIndice: 'Prólogo',
                 generarContenido: generarIntro,
             },
         ],
@@ -144,7 +144,7 @@ function crearVillanarioModal() {
         subtitulo: 'La enciclopedia de villanos',
         tituloEntidades: 'Villanos',
         paginaInicio: {
-            textoIndice: '\u2726 Portada',
+            textoIndice: 'Portada',
             textoSeccion: 'Portada',
             generarContenido: function () {
                 return generarPortada(
@@ -155,11 +155,11 @@ function crearVillanarioModal() {
         },
         paginasExtras: [
             {
-                textoIndice: '\u2726 Prólogo',
+                textoIndice: 'Prólogo',
                 generarContenido: generarPrologoVillanos,
             },
             {
-                textoIndice: '\u2726 Rangos',
+                textoIndice: 'Rangos',
                 generarContenido: generarPaginaRangos,
             },
         ],
