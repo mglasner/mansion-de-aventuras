@@ -2,30 +2,6 @@
 
 import { crearElemento } from '../utils.js';
 
-// Crea un botón flotante de libro con imagen, texto y chispas
-export function crearBotonLibro(imgSrc, texto) {
-    const boton = crearElemento('button', 'libro-boton libros-pasillo-boton');
-    boton.type = 'button';
-
-    const img = document.createElement('img');
-    img.src = imgSrc;
-    img.alt = texto;
-    boton.appendChild(img);
-
-    boton.appendChild(crearElemento('span', 'libro-boton-texto', texto));
-
-    // Chispas mágicas
-    const chispas = crearElemento('div', 'libro-chispas');
-    for (let i = 0; i < 6; i++) {
-        const chispa = document.createElement('span');
-        chispa.className = 'libro-chispa';
-        chispas.appendChild(chispa);
-    }
-    boton.appendChild(chispas);
-
-    return boton;
-}
-
 // Crea un modal con overlay, fondo click-to-close, botón cerrar y libro dentro
 export function crearModalLibro(libro, manejarTecladoLibro) {
     const overlay = crearElemento('div', 'libro-modal oculto');

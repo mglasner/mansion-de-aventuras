@@ -3,7 +3,7 @@
 import { crearElemento } from '../utils.js';
 import { TIERS } from './stats.js';
 import { ENEMIGOS } from '../enemigos.js';
-import { crearLibro, crearCabecera } from './libro.js';
+import { crearCabecera } from './libro.js';
 
 // Orden fijo por tier (esbirro → élite → pesadilla → leyenda)
 export const ORDEN_TIER = ['esbirro', 'elite', 'pesadilla', 'leyenda'];
@@ -180,102 +180,4 @@ export function textoItemIndice(nombre, datos) {
         return TIERS[datos.tier].emoji + ' ' + nombre;
     }
     return nombre;
-}
-
-export function crearLibroVillanos(contenedor) {
-    // --- Botón flotante ---
-    const boton = crearElemento('button', 'libro-boton');
-    boton.type = 'button';
-
-    const imgBoton = document.createElement('img');
-    imgBoton.src = 'assets/img/libro-villanos.webp';
-    imgBoton.alt = 'Villanario';
-    boton.appendChild(imgBoton);
-
-    const textoBoton = crearElemento('span', 'libro-boton-texto', 'Villanario');
-    boton.appendChild(textoBoton);
-
-    // Chispas mágicas
-    const chispas = crearElemento('div', 'libro-chispas');
-    for (let i = 0; i < 6; i++) {
-        const chispa = document.createElement('span');
-        chispa.className = 'libro-chispa';
-        chispas.appendChild(chispa);
-    }
-    boton.appendChild(chispas);
-
-    contenedor.appendChild(boton);
-
-    // --- Modal ---
-    const overlay = crearElemento('div', 'libro-modal oculto');
-
-    const fondo = crearElemento('div', 'libro-modal-fondo');
-    overlay.appendChild(fondo);
-
-    const cuerpo = crearElemento('div', 'libro-modal-cuerpo');
-
-    // Botón cerrar
-    const btnCerrar = crearElemento('button', 'libro-modal-cerrar', '\u00D7');
-    btnCerrar.type = 'button';
-    cuerpo.appendChild(btnCerrar);
-
-    // Construir el libro e insertarlo
-    const { libro, manejarTecladoLibro } = crearLibro({
-        entidades: ENEMIGOS,
-        generarDetalle: generarDetalleVillano,
-        claseRaiz: 'libro-villanos',
-        ordenar: ordenarPorTier,
-        crearItemIndice: textoItemIndice,
-        crearSeparador: necesitaSeparador,
-        titulo: 'Villanario',
-        subtitulo: 'La enciclopedia de villanos',
-        gruposEntidades: ORDEN_TIER.map(function (tier) {
-            return { id: tier, texto: TIERS[tier].emoji + ' ' + TIERS[tier].label };
-        }),
-        getGrupoEntidad: function (nombre, datos) {
-            return datos.tier || 'esbirro';
-        },
-    });
-    cuerpo.appendChild(libro);
-    overlay.appendChild(cuerpo);
-
-    document.getElementById('juego').appendChild(overlay);
-
-    // --- Abrir / cerrar ---
-    let tecladoActivo = false;
-
-    function abrir() {
-        overlay.classList.remove('oculto');
-        document.addEventListener('keydown', manejarTeclado);
-        document.addEventListener('keydown', manejarTecladoLibro);
-        tecladoActivo = true;
-    }
-
-    function cerrar() {
-        overlay.classList.add('oculto');
-        if (tecladoActivo) {
-            document.removeEventListener('keydown', manejarTeclado);
-            document.removeEventListener('keydown', manejarTecladoLibro);
-            tecladoActivo = false;
-        }
-    }
-
-    function manejarTeclado(e) {
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            cerrar();
-        }
-    }
-
-    boton.addEventListener('click', abrir);
-    fondo.addEventListener('click', cerrar);
-    btnCerrar.addEventListener('click', cerrar);
-
-    return {
-        destruir: function () {
-            cerrar();
-            overlay.remove();
-            boton.remove();
-        },
-    };
 }

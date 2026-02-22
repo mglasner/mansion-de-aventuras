@@ -192,8 +192,8 @@ function crearPantalla(esTouch) {
 
     const btnHuirCanvas = document.createElement('button');
     btnHuirCanvas.className = 'plat-hud-huir';
-    btnHuirCanvas.title = 'Huir al pasillo';
-    btnHuirCanvas.setAttribute('aria-label', 'Huir al pasillo');
+    btnHuirCanvas.title = 'Volver al libro';
+    btnHuirCanvas.setAttribute('aria-label', 'Volver al libro');
     const imgHuirCanvas = document.createElement('img');
     imgHuirCanvas.src = 'assets/img/icons/btn-salir.webp';
     imgHuirCanvas.alt = '';
@@ -405,7 +405,7 @@ function onKeyUp(e) {
 /**
  * Inicia la Habitacion 2 (El Laberinto 3D).
  * @param {Object} jugadorRef - Personaje seleccionado
- * @param {Function} callback - Callback para volver al pasillo
+ * @param {Function} callback - Callback para volver al Libro de Juegos
  * @param {Object} [dpadArgumento] - Controles touch D-pad
  */
 export function iniciarHabitacion2(jugadorRef, callback, dpadArgumento) {

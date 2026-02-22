@@ -79,7 +79,7 @@ function crearPantalla(esTouch) {
 /**
  * Inicia la Habitacion 1 (El Laberinto).
  * @param {Object} jugadorRef - Personaje seleccionado
- * @param {Function} callback - Callback para volver al pasillo
+ * @param {Function} callback - Callback para volver al Libro de Juegos
  * @param {Object} [dpadRef] - Controles touch D-pad
  */
 export function iniciarHabitacion1(jugadorRef, callback, dpadRef) {

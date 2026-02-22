@@ -57,7 +57,7 @@ export function crearControlesTouch() {
         return btn;
     }
 
-    // --- Contenedor cruz (pasillo/laberinto: ▲◀▶▼ con diagonales invisibles) ---
+    // --- Contenedor cruz (laberinto: ▲◀▶▼ con diagonales invisibles) ---
     const contenedor = document.createElement('div');
     contenedor.className = 'dpad-contenedor';
 

@@ -2735,12 +2735,7 @@ body:has(.libro-modal:not(.oculto)) .dpad-der-contenedor {
 .libro-pagina-izq {
     flex: 0 0 200px;
     background:
-        repeating-linear-gradient(
-            135deg,
-            rgb(120 100 70 / 2%) 0,
-            transparent 2px,
-            transparent 8px
-        ),
+        repeating-linear-gradient(135deg, rgb(120 100 70 / 2%) 0, transparent 2px, transparent 8px),
         radial-gradient(ellipse at 20% 80%, rgb(80 60 30 / 8%) 0%, transparent 60%),
         radial-gradient(ellipse at 80% 20%, rgb(60 50 25 / 6%) 0%, transparent 50%),
         linear-gradient(to right, transparent 70%, rgb(0 0 0 / 15%)),
@@ -2755,12 +2750,7 @@ body:has(.libro-modal:not(.oculto)) .dpad-der-contenedor {
     position: relative;
     padding: 28px 32px 0;
     background:
-        repeating-linear-gradient(
-            135deg,
-            rgb(120 100 70 / 2%) 0,
-            transparent 2px,
-            transparent 8px
-        ),
+        repeating-linear-gradient(135deg, rgb(120 100 70 / 2%) 0, transparent 2px, transparent 8px),
         radial-gradient(ellipse at 70% 30%, rgb(80 60 30 / 8%) 0%, transparent 60%),
         radial-gradient(ellipse at 30% 70%, rgb(60 50 25 / 6%) 0%, transparent 50%),
         linear-gradient(to left, transparent 70%, rgb(0 0 0 / 12%)),
@@ -3711,22 +3701,6 @@ body:has(.libro-modal:not(.oculto)) .dpad-der-contenedor {
     background-color: rgb(233 69 96 / 15%);
 }
 
-.libros-pasillo-boton {
-    margin-left: 0;
-    margin-top: 0;
-    padding: 4px;
-}
-
-.libros-pasillo-boton img {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
-}
-
-.libros-pasillo-boton .libro-boton-texto {
-    font-size: 0.6rem;
-}
-
 /* --- Biblioteca (estante) --- */
 
 #biblioteca {
@@ -4507,20 +4481,6 @@ body:has(.libro-modal:not(.oculto)) .dpad-der-contenedor {
 
     .libro-boton-texto {
         font-size: 0.6rem;
-    }
-
-    .libros-pasillo-boton {
-        padding: 2px;
-    }
-
-    .libros-pasillo-boton img {
-        width: 36px;
-        height: 36px;
-        border-radius: 6px;
-    }
-
-    .libros-pasillo-boton .libro-boton-texto {
-        font-size: 0.5rem;
     }
 
     .libro-modal-cuerpo {

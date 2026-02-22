@@ -64,8 +64,8 @@ export function crearPantalla(esTouch, onHuir) {
     // Boton huir dentro del canvas
     const btnHuirCanvas = document.createElement('button');
     btnHuirCanvas.className = 'plat-hud-huir';
-    btnHuirCanvas.title = 'Huir al pasillo';
-    btnHuirCanvas.setAttribute('aria-label', 'Huir al pasillo');
+    btnHuirCanvas.title = 'Volver al libro';
+    btnHuirCanvas.setAttribute('aria-label', 'Volver al libro');
     const imgHuirCanvas = document.createElement('img');
     imgHuirCanvas.src = 'assets/img/icons/btn-salir.webp';
     imgHuirCanvas.alt = '';

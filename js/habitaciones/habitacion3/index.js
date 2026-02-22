@@ -205,7 +205,7 @@ function onKeyDown(e) {
 /**
  * Inicia la Habitacion 3 (El Memorice).
  * @param {Object} jugadorRef - Personaje seleccionado
- * @param {Function} callback - Callback para volver al pasillo
+ * @param {Function} callback - Callback para volver al Libro de Juegos
  * @param {Object} [dpadRef] - Controles touch D-pad (se oculta en este modo)
  */
 export function iniciarHabitacion3(jugadorRef, callback, dpadRef) {

@@ -1,9 +1,9 @@
-// Heroario — libro de héroes como vista principal (inline, no modal)
+// Heroario — datos y generadores de contenido para el libro de héroes
 
 import { crearElemento } from '../utils.js';
 import { PERSONAJES } from '../personajes.js';
 import { llenarStats } from './stats.js';
-import { crearLibro, crearCabecera } from './libro.js';
+import { crearCabecera } from './libro.js';
 
 // Genera el contenido de detalle para un héroe (2 paneles + tabs)
 export function generarDetalleHeroe(nombre, tabInicial) {
@@ -229,37 +229,4 @@ export function adaptarEntidades() {
         adaptado[nombre].clase = datos.clase.replace('jugador-', 'personaje-');
     });
     return adaptado;
-}
-
-export function crearLibroHeroes(contenedor) {
-    const entidades = adaptarEntidades();
-
-    const { libro, manejarTecladoLibro, getNombreActual } = crearLibro({
-        entidades: entidades,
-        generarDetalle: generarDetalleHeroe,
-        claseRaiz: 'libro-heroes',
-        titulo: 'Heroario',
-        subtitulo: 'La enciclopedia de los h\u00e9roes',
-        paginasExtras: HABITACIONES_HEROARIO,
-        tituloExtras: 'Desafíos',
-        tituloEntidades: 'Héroes',
-        paginaInicio: {
-            textoIndice: '\u2726 Bienvenida',
-            textoSeccion: 'Bienvenida',
-            generarContenido: generarIntro,
-        },
-    });
-
-    contenedor.appendChild(libro);
-
-    // Activar teclado
-    document.addEventListener('keydown', manejarTecladoLibro);
-
-    return {
-        getNombreActual: getNombreActual,
-        destruir: function () {
-            document.removeEventListener('keydown', manejarTecladoLibro);
-            libro.remove();
-        },
-    };
 }

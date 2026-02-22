@@ -180,9 +180,12 @@ function crearVillanarioModal() {
 
 function crearJuegosModal() {
     const juegos = crearLibroJuegos(contenedorJuego, function (numeroJuego, nombrePersonaje) {
-        // Cerrar el modal del libro y luego iniciar el juego
+        // Desactivar onCerrar antes de cerrar para que no corrompa el estado
         const modalJuegos = librosCache['juegos'];
-        if (modalJuegos) modalJuegos.cerrar();
+        if (modalJuegos) {
+            modalJuegos.onCerrar(null);
+            modalJuegos.cerrar();
+        }
         iniciarJuego(numeroJuego, nombrePersonaje);
     });
     const modal = crearModalLibro(juegos.libro, juegos.manejarTecladoLibro);
@@ -257,15 +260,19 @@ function ejecutarCambioEstado(anterior, nuevo, datos) {
         estado.libroActivo = libroId;
 
         const modal = obtenerModalLibro(libroId);
-        if (modal) {
-            modal.onCerrar(function () {
-                if (estado.estadoActual === ESTADOS.LIBRO) {
-                    estado.estadoActual = ESTADOS.BIBLIOTECA;
-                    estado.libroActivo = null;
-                }
-            });
-            modal.abrir();
+        if (!modal) {
+            // libroId desconocido: volver a BIBLIOTECA
+            estado.estadoActual = ESTADOS.BIBLIOTECA;
+            estado.libroActivo = null;
+            return;
         }
+        modal.onCerrar(function () {
+            if (estado.estadoActual === ESTADOS.LIBRO) {
+                estado.estadoActual = ESTADOS.BIBLIOTECA;
+                estado.libroActivo = null;
+            }
+        });
+        modal.abrir();
     } else if (nuevo === ESTADOS.JUEGO) {
         estante.ocultar();
 
@@ -273,8 +280,8 @@ function ejecutarCambioEstado(anterior, nuevo, datos) {
         if (!hab) return;
 
         estado.habitacionActual = datos.numero;
-        estado.jugadorActual = PERSONAJES[datos.personaje];
-        // Resetear vida para el juego
+        // Copia superficial para no mutar el singleton de PERSONAJES
+        estado.jugadorActual = Object.assign({}, PERSONAJES[datos.personaje]);
         estado.jugadorActual.vidaActual = estado.jugadorActual.vidaMax;
         estado.jugadorActual.inventario = [];
 
@@ -316,12 +323,12 @@ function iniciarJuego(numeroJuego, nombrePersonaje) {
 // --- Modal de salir (desde dentro de un juego) ---
 
 modalSalir.onConfirmar(function () {
-    cambiarEstado(ESTADOS.BIBLIOTECA);
+    cambiarEstado(ESTADOS.LIBRO, { libroId: 'juegos' });
 });
 
 // Callback del modal de derrota
 modalDerrota.onAceptar(function () {
-    cambiarEstado(ESTADOS.BIBLIOTECA);
+    cambiarEstado(ESTADOS.LIBRO, { libroId: 'juegos' });
 });
 
 // --- Controles del teclado ---

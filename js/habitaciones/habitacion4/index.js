@@ -376,7 +376,7 @@ function onKeyUp(e) {
 /**
  * Inicia la Habitacion 4 (El Abismo).
  * @param {Object} jugadorRef - Personaje seleccionado
- * @param {Function} callback - Callback para volver al pasillo
+ * @param {Function} callback - Callback para volver al Libro de Juegos
  * @param {Object} [dpadArgumento] - Controles touch D-pad
  */
 export function iniciarHabitacion4(jugadorRef, callback, dpadArgumento) {
@@ -474,7 +474,7 @@ export function limpiarHabitacion4() {
         est.modoInmersivo.desactivar();
     }
 
-    // Restaurar D-pad a modo centrado para el pasillo
+    // Restaurar D-pad a modo centrado (default para otros juegos)
     if (est.dpadRef) {
         est.dpadRef.setModoCentrado();
     }
