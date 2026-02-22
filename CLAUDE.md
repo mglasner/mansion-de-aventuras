@@ -13,11 +13,11 @@ mansion-de-aventuras/
 │       ├── sprites-plat/     # Sprite sheets PNG para el platformer
 │       ├── habitaciones/     # Ilustraciones de juegos para el Heroario
 │       └── icons/            # Favicon e iconos PWA
-├── css/                      # Estilos por habitación (@import desde estilos.css)
-│   ├── habitacion1.css       # El Laberinto (laberinto 2D)
-│   ├── habitacion2.css       # El Laberinto 3D (raycasting)
-│   ├── habitacion3.css       # El Memorice (memoria)
-│   └── habitacion4.css       # El Abismo (platformer)
+├── css/                      # Estilos por juego (@import desde estilos.css)
+│   ├── laberinto.css         # El Laberinto (laberinto 2D)
+│   ├── laberinto3d.css       # El Laberinto 3D (raycasting)
+│   ├── memorice.css          # El Memorice (memoria)
+│   └── abismo.css            # El Abismo (platformer)
 ├── datos/                    # Fuente de verdad en YAML (genera JS via build-datos)
 │   ├── personajes.yaml       # Personajes jugables: stats, colores, descripciones
 │   ├── enemigos.yaml         # Enemigos organizados en tiers
