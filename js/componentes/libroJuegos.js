@@ -3,7 +3,7 @@
 
 import { crearElemento } from '../utils.js';
 import { PERSONAJES } from '../personajes.js';
-import { crearLibro } from './libro.js';
+import { crearLibro, generarPortada } from './libro.js';
 
 // Datos de los 4 juegos con descripciones completas
 const JUEGOS = {
@@ -258,10 +258,21 @@ export function crearLibroJuegos(contenedor, onJugar) {
         subtitulo: 'Los desafíos te esperan',
         tituloEntidades: 'Desafíos',
         paginaInicio: {
-            textoIndice: '\u2726 Prólogo',
-            textoSeccion: 'Prólogo',
-            generarContenido: generarPrologoJuegos,
+            textoIndice: '\u2726 Portada',
+            textoSeccion: 'Portada',
+            generarContenido: function () {
+                return generarPortada(
+                    'Libro de Juegos',
+                    'assets/img/biblioteca/portada-juegos.webp'
+                );
+            },
         },
+        paginasExtras: [
+            {
+                textoIndice: '\u2726 Prólogo',
+                generarContenido: generarPrologoJuegos,
+            },
+        ],
         ordenar: function (nombres) {
             // Mantener orden por id de juego
             const orden = Object.keys(JUEGOS);

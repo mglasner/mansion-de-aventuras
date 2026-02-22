@@ -20,6 +20,25 @@ export function crearCabecera(nombre, datos, claseAvatar) {
     return frag;
 }
 
+// Genera una portada visual con emblema, título y pista para pasar página
+export function generarPortada(titulo, imgSrc) {
+    const contenido = crearElemento('div', 'libro-detalle-contenido libro-portada');
+
+    const img = document.createElement('img');
+    img.src = imgSrc;
+    img.alt = titulo;
+    img.className = 'libro-portada-emblema';
+    contenido.appendChild(img);
+
+    contenido.appendChild(crearElemento('div', 'libro-ornamento'));
+    contenido.appendChild(crearElemento('h2', 'libro-portada-titulo', titulo));
+    contenido.appendChild(
+        crearElemento('p', 'libro-portada-pista', 'Pasa la p\u00e1gina para explorar \u2192')
+    );
+
+    return contenido;
+}
+
 // Construye un libro completo (índice + detalle + navegación)
 // opciones: { entidades, generarDetalle, claseRaiz, ordenar, crearItemIndice, crearSeparador, titulo, subtitulo, pieContenido, paginaInicio, paginasExtras, tituloExtras, tituloEntidades, gruposEntidades, getGrupoEntidad }
 export function crearLibro(opciones) {

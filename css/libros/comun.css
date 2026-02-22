@@ -714,6 +714,99 @@
     margin-top: 4px;
 }
 
+/* --- Portada ilustrada (imagen full-page + título superpuesto) --- */
+.libro-portada {
+    position: relative;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.libro-portada-emblema {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Degradado oscuro en la parte inferior para legibilidad del texto */
+.libro-portada::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(0 0 0 / 70%) 0%, rgb(0 0 0 / 20%) 35%, transparent 60%);
+    pointer-events: none;
+}
+
+.libro-portada-titulo {
+    position: absolute;
+    bottom: 36px;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-variant: small-caps;
+    letter-spacing: 0.12em;
+    color: rgb(230 200 140);
+    text-shadow:
+        0 0 12px rgb(0 0 0 / 80%),
+        0 0 24px rgb(230 200 140 / 25%);
+    margin: 0;
+    text-align: center;
+}
+
+.libro-portada .libro-ornamento {
+    position: absolute;
+    bottom: 68px;
+    left: 20%;
+    right: 20%;
+    z-index: 1;
+}
+
+.libro-portada-pista {
+    position: absolute;
+    bottom: 14px;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    font-style: italic;
+    font-size: 0.75rem;
+    text-align: center;
+    opacity: 0;
+    animation: pulsar-pista 3s ease-in-out infinite;
+    text-shadow: 0 1px 4px rgb(0 0 0 / 80%);
+}
+
+@keyframes pulsar-pista {
+    0%,
+    100% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0.55;
+    }
+}
+
+/* Page curl amplificado en la portada */
+.libro-en-inicio .libro-page-curl {
+    animation: curl-hint 2.5s ease-in-out infinite;
+}
+
+@keyframes curl-hint {
+    0%,
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    50% {
+        transform: scale(1.4) rotate(-4deg) translate(-4px, -4px);
+    }
+}
+
 /* --- Modal del libro --- */
 
 .libro-modal {
@@ -854,6 +947,20 @@
 
     .libro-modal-cuerpo {
         height: calc(100dvh - 50px);
+    }
+
+    .libro-portada-titulo {
+        font-size: 1.15rem;
+        bottom: 30px;
+    }
+
+    .libro-portada .libro-ornamento {
+        bottom: 58px;
+    }
+
+    .libro-portada-pista {
+        bottom: 10px;
+        font-size: 0.7rem;
     }
 }
 
@@ -1081,6 +1188,21 @@
         font-size: 1.1rem;
         top: 6px;
         right: 6px;
+    }
+
+    .libro-portada-titulo {
+        font-size: 1rem;
+        bottom: 26px;
+    }
+
+    .libro-portada .libro-ornamento {
+        display: block;
+        bottom: 52px;
+    }
+
+    .libro-portada-pista {
+        bottom: 8px;
+        font-size: 0.65rem;
     }
 }
 

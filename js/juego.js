@@ -14,7 +14,7 @@ import { crearToast } from './componentes/toast.js';
 import { crearEstante } from './componentes/estante.js';
 import { crearLibroJuegos } from './componentes/libroJuegos.js';
 import { crearModalLibro } from './componentes/modalLibro.js';
-import { crearLibro } from './componentes/libro.js';
+import { crearLibro, generarPortada } from './componentes/libro.js';
 import { generarDetalleHeroe, generarIntro, adaptarEntidades } from './componentes/libroHeroes.js';
 import {
     generarDetalleVillano,
@@ -113,10 +113,18 @@ function crearHeroarioModal() {
         subtitulo: 'La enciclopedia de los héroes',
         tituloEntidades: 'Héroes',
         paginaInicio: {
-            textoIndice: '\u2726 Prólogo',
-            textoSeccion: 'Prólogo',
-            generarContenido: generarIntro,
+            textoIndice: '\u2726 Portada',
+            textoSeccion: 'Portada',
+            generarContenido: function () {
+                return generarPortada('Heroario', 'assets/img/biblioteca/portada-heroario.webp');
+            },
         },
+        paginasExtras: [
+            {
+                textoIndice: '\u2726 Prólogo',
+                generarContenido: generarIntro,
+            },
+        ],
     });
     const modal = crearModalLibro(heroario.libro, heroario.manejarTecladoLibro);
     contenedorJuego.appendChild(modal.overlay);
@@ -134,17 +142,25 @@ function crearVillanarioModal() {
         subtitulo: 'La enciclopedia de villanos',
         tituloEntidades: 'Villanos',
         paginaInicio: {
-            textoIndice: '\u2726 Prólogo',
-            textoSeccion: 'Prólogo',
-            generarContenido: generarPrologoVillanos,
+            textoIndice: '\u2726 Portada',
+            textoSeccion: 'Portada',
+            generarContenido: function () {
+                return generarPortada(
+                    'Villanario',
+                    'assets/img/biblioteca/portada-villanario.webp'
+                );
+            },
         },
         paginasExtras: [
+            {
+                textoIndice: '\u2726 Prólogo',
+                generarContenido: generarPrologoVillanos,
+            },
             {
                 textoIndice: '\u2726 Rangos',
                 generarContenido: generarPaginaRangos,
             },
         ],
-        tituloExtras: 'Rangos',
     });
     const modal = crearModalLibro(villanario.libro, villanario.manejarTecladoLibro);
     contenedorJuego.appendChild(modal.overlay);
