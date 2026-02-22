@@ -1,6 +1,6 @@
 // Componente: D-pad virtual para dispositivos touch
 // Soporta tres modos:
-// - Centrado (pasillo): 4 botones ▲◀▶▼ centrados abajo
+// - Centrado (laberinto 2D): 4 botones ▲◀▶▼ centrados abajo
 // - Dividido (platformer): izq ◀▶ movimiento / der botones A (saltar) y B (accion)
 // - CruzSplit (laberinto 3D): cruz ▲◀▶▼ a la izquierda + der A/B
 //

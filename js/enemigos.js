@@ -55,7 +55,7 @@ const ENEMIGOS = {
             img: 'assets/img/enemigos/errante.webp',
             clase: 'villano-errante',
             descripcion:
-                'El Errante lleva mil años caminando sin descanso por los rincones más oscuros de La Mansión de Aventuras. Dicen que busca algo que perdió hace siglos, pero nadie sabe qué es.\n\nLo único seguro es que no le gusta que lo interrumpan: cada intruso que se cruza en su camino recibe una mordida tóxica como advertencia. Lento pero implacable, siempre te encuentra.',
+                'El Errante lleva mil años caminando sin descanso por los rincones más oscuros de la Biblioteca de Aventuras. Dicen que busca algo que perdió hace siglos, pero nadie sabe qué es.\n\nLo único seguro es que no le gusta que lo interrumpan: cada intruso que se cruza en su camino recibe una mordida tóxica como advertencia. Lento pero implacable, siempre te encuentra.',
             edad: 1000,
             velocidad: 3,
             velAtaque: 3,
@@ -127,7 +127,7 @@ const ENEMIGOS = {
             img: 'assets/img/enemigos/pototo.webp',
             clase: 'villano-pototo',
             descripcion:
-                'Pototo es la mayor de las hermanas del caos y la mente maestra detrás de cada travesura en La Mansión de Aventuras. Con 10 años ya tiene un historial de bromas que haría llorar a cualquier villano adulto. Su pelo largo y oscuro esconde una mirada calculadora detrás del antifaz: cuando cruza los brazos y sonríe de lado, DonBu sabe que algo terrible está por pasar.\n\nSu especialidad es el plan a largo plazo: puede pasar días fingiendo ser una niña buena hasta que llega el momento perfecto para soltar su risa burlesca y desatar el caos. Cuando DonBu logra atraparla y encadenarla, ella lo mira fijo y dice "¿en serio, papá?" con una calma que da escalofríos. A los cinco minutos ya está libre y planeando la siguiente travesura.',
+                'Pototo es la mayor de las hermanas del caos y la mente maestra detrás de cada travesura en la Biblioteca de Aventuras. Con 10 años ya tiene un historial de bromas que haría llorar a cualquier villano adulto. Su pelo largo y oscuro esconde una mirada calculadora detrás del antifaz: cuando cruza los brazos y sonríe de lado, DonBu sabe que algo terrible está por pasar.\n\nSu especialidad es el plan a largo plazo: puede pasar días fingiendo ser una niña buena hasta que llega el momento perfecto para soltar su risa burlesca y desatar el caos. Cuando DonBu logra atraparla y encadenarla, ella lo mira fijo y dice "¿en serio, papá?" con una calma que da escalofríos. A los cinco minutos ya está libre y planeando la siguiente travesura.',
             edad: 10,
             velocidad: 8,
             velAtaque: 6,
@@ -183,7 +183,7 @@ const ENEMIGOS = {
             img: 'assets/img/enemigos/disonante.webp',
             clase: 'villano-disonante',
             descripcion:
-                'Hubo un tiempo en que El Disonante fue el violinista más talentoso del mundo de las sombras. Su mejor amigo, un joven cantante llamado Luminox, le prometió que triunfarían juntos: "Tú compones, yo canto, seremos leyenda". Pero Luminox robó sus melodías, se convirtió en el idol más famoso del reino y jamás lo mencionó. La traición le retorció el alma... y la cara. Hoy su rostro es tan desagradable como las notas que arranca de su violín roto.\n\nAhora arrastra su violín agrietado por los pasillos, dejando un rastro de notas amargas que hacen llorar a las paredes. Odia el K-pop con cada fibra de su ser: si escucha un ritmo pegajoso, entra en un frenesí de cuerdas chirriantes. Por eso cuando supo que Lina, una idol que llena estadios, había entrado a La Mansión de Aventuras, afinó su arco por primera vez en décadas. Esta vez, dice, el público escuchará su versión de la historia.',
+                'Hubo un tiempo en que El Disonante fue el violinista más talentoso del mundo de las sombras. Su mejor amigo, un joven cantante llamado Luminox, le prometió que triunfarían juntos: "Tú compones, yo canto, seremos leyenda". Pero Luminox robó sus melodías, se convirtió en el idol más famoso del reino y jamás lo mencionó. La traición le retorció el alma... y la cara. Hoy su rostro es tan desagradable como las notas que arranca de su violín roto.\n\nAhora arrastra su violín agrietado por los pasillos, dejando un rastro de notas amargas que hacen llorar a las paredes. Odia el K-pop con cada fibra de su ser: si escucha un ritmo pegajoso, entra en un frenesí de cuerdas chirriantes. Por eso cuando supo que Lina, una idol que llena estadios, había entrado a la Biblioteca de Aventuras, afinó su arco por primera vez en décadas. Esta vez, dice, el público escuchará su versión de la historia.',
             edad: 200,
             velocidad: 4,
             velAtaque: 5,

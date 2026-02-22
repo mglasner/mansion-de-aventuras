@@ -1,26 +1,42 @@
-// Código de La Mansión de Aventuras
+// Código principal — Biblioteca de aventuras
 import { PERSONAJES } from './personajes.js';
+import { ENEMIGOS } from './enemigos.js';
 import { iniciarHabitacion1, limpiarHabitacion1 } from './habitaciones/habitacion1/index.js';
 import { iniciarHabitacion2, limpiarHabitacion2 } from './habitaciones/habitacion2/index.js';
 import { iniciarHabitacion3, limpiarHabitacion3 } from './habitaciones/habitacion3/index.js';
 import { iniciarHabitacion4, limpiarHabitacion4 } from './habitaciones/habitacion4/index.js';
 import { crearBarraSuperior } from './componentes/barraSuperior.js';
-import { crearModalPuerta } from './componentes/modalPuerta.js';
 import { crearModalDerrota } from './componentes/modalDerrota.js';
 import { crearModalSalir } from './componentes/modalSalir.js';
 import { crearTransicion } from './componentes/transicion.js';
 import { crearControlesTouch } from './componentes/controlesTouch.js';
 import { crearToast } from './componentes/toast.js';
-import { crearLibroVillanos } from './componentes/libroVillanos.js';
-import { crearLibroHeroes } from './componentes/libroHeroes.js';
-import { crearLibrosPasillo } from './componentes/librosPasillo.js';
+import { crearEstante } from './componentes/estante.js';
+import { crearModalPrevia } from './componentes/modalPrevia.js';
+import { crearLibroJuegos } from './componentes/libroJuegos.js';
+import { crearModalLibro } from './componentes/modalLibro.js';
+import { crearLibro } from './componentes/libro.js';
+import {
+    generarDetalleHeroe,
+    generarIntro,
+    adaptarEntidades,
+    HABITACIONES_HEROARIO,
+} from './componentes/libroHeroes.js';
+import {
+    generarDetalleVillano,
+    ordenarPorTier,
+    textoItemIndice,
+    necesitaSeparador,
+    ORDEN_TIER,
+} from './componentes/libroVillanos.js';
+import { TIERS } from './componentes/stats.js';
 
 // --- Estados del juego (máquina de estados) ---
 
 const ESTADOS = {
-    SELECCION: 'SELECCION',
-    PASILLO: 'PASILLO',
-    HABITACION: 'HABITACION',
+    BIBLIOTECA: 'BIBLIOTECA',
+    LIBRO: 'LIBRO',
+    JUEGO: 'JUEGO',
 };
 
 // Registro dinámico de habitaciones: { "1": { iniciar, limpiar }, ... }
@@ -35,108 +51,163 @@ registrarHabitacion('2', { iniciar: iniciarHabitacion2, limpiar: limpiarHabitaci
 registrarHabitacion('3', { iniciar: iniciarHabitacion3, limpiar: limpiarHabitacion3 });
 registrarHabitacion('4', { iniciar: iniciarHabitacion4, limpiar: limpiarHabitacion4 });
 
-// --- Heroario y Villanario ---
-
-const pantallaSeleccion = document.getElementById('seleccion-personaje');
-crearLibroHeroes(pantallaSeleccion);
-crearLibroVillanos(pantallaSeleccion);
-
 // --- Estado del juego ---
 
 const estado = {
-    estadoActual: ESTADOS.SELECCION, // estado de la máquina de estados
-    personajeElegido: null, // nombre del personaje (string)
+    estadoActual: ESTADOS.BIBLIOTECA,
     jugadorActual: null, // instancia de Personaje
-    habitacionActual: null, // nombre de la habitación activa
-    loopActivo: false, // si el game loop está corriendo
-    esperandoSalirDePuerta: false, // flag de espera post-modal puerta
+    habitacionActual: null, // número de la habitación activa
+    libroActivo: null, // id del libro abierto ('heroario', 'villanario', 'juegos')
 };
 
-const movimiento = {
-    x: 0, // posición X del jugador en píxeles
-    y: 0, // posición Y del jugador en píxeles
-    limiteDerecho: 0, // límite derecho del pasillo
-    limiteInferior: 0, // límite inferior del pasillo
-    teclas: {}, // teclas presionadas actualmente
-};
-
-// --- Pantalla del pasillo ---
-
-// Elementos del pasillo
-const pasillo = document.getElementById('pasillo');
-const personajeJugador = document.getElementById('personaje-jugador');
-const imgJugador = document.getElementById('img-jugador');
-const jugadorSombra = document.querySelector('.jugador-sombra');
-
-// Distancia (en unidades de tamaño del personaje) para activar proximidad
-const DISTANCIA_PROXIMIDAD = 1.5;
-
-// Cache de dimensiones (se recalculan solo en resize)
-let velocidadCache = 0;
-let tamPersonajeCache = 0;
-let puertasCache = [];
-
-function recalcularDimensiones() {
-    velocidadCache = pasillo.clientWidth * 0.01;
-    tamPersonajeCache = personajeJugador.offsetWidth;
-    puertasCache = Array.from(document.querySelectorAll('.puerta')).map(function (puerta) {
-        const rect = puerta.getBoundingClientRect();
-        const pasilloRect = pasillo.getBoundingClientRect();
-        return {
-            elemento: puerta,
-            px: rect.left - pasilloRect.left,
-            py: rect.top - pasilloRect.top,
-            pw: rect.width,
-            ph: rect.height,
-        };
-    });
-}
-
-window.addEventListener('resize', function () {
-    if (estado.estadoActual === ESTADOS.PASILLO) {
-        recalcularDimensiones();
-        movimiento.limiteDerecho = pasillo.clientWidth - tamPersonajeCache;
-        movimiento.limiteInferior = pasillo.clientHeight - tamPersonajeCache;
-    }
-});
-
-function getVelocidad() {
-    return velocidadCache;
-}
-
-// --- Crear componentes ---
+// --- Crear componentes base ---
 
 const contenedorJuego = document.getElementById('juego');
+const contenedorBiblioteca = document.getElementById('biblioteca');
 const barra = crearBarraSuperior(contenedorJuego);
-const modal = crearModalPuerta(contenedorJuego);
 const modalDerrota = crearModalDerrota();
 const modalSalir = crearModalSalir(contenedorJuego);
 const transicion = crearTransicion();
 const dpad = crearControlesTouch();
 const toast = crearToast();
-const librosPasillo = crearLibrosPasillo(contenedorJuego);
 
-// Ocultar hint de teclado en dispositivos touch
-const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-if (esTouch) {
-    const hint = document.getElementById('controles-hint');
-    if (hint) hint.style.display = 'none';
+// --- Configuración de libros del estante ---
+
+const LIBROS_ESTANTE = [
+    {
+        id: 'heroario',
+        titulo: 'Heroario',
+        color: '#c8a050',
+        icono: '\u2694\uFE0F',
+        portada: 'assets/img/portada-heroario.webp',
+        subtitulo: 'La enciclopedia de los héroes',
+    },
+    {
+        id: 'villanario',
+        titulo: 'Villanario',
+        color: '#8b3a62',
+        icono: '\uD83D\uDC7E',
+        portada: 'assets/img/portada-villanario.webp',
+        subtitulo: 'La enciclopedia de villanos',
+    },
+    {
+        id: 'juegos',
+        titulo: 'Libro de Juegos',
+        color: '#4a7c59',
+        icono: '\uD83C\uDFAE',
+        portada: 'assets/img/portada-juegos.webp',
+        subtitulo: 'Los desafíos te esperan',
+    },
+];
+
+// --- Modal de preview ---
+
+const modalPrevia = crearModalPrevia(contenedorJuego);
+
+modalPrevia.onAbrir(function (libroId) {
+    cambiarEstado(ESTADOS.LIBRO, { libroId: libroId });
+});
+
+// --- Estante (homepage) ---
+
+const estante = crearEstante(
+    contenedorBiblioteca,
+    LIBROS_ESTANTE.map(function (cfg) {
+        return {
+            id: cfg.id,
+            titulo: cfg.titulo,
+            color: cfg.color,
+            icono: cfg.icono,
+            onClick: function () {
+                modalPrevia.mostrar({
+                    id: cfg.id,
+                    portada: cfg.portada,
+                    titulo: cfg.titulo,
+                    subtitulo: cfg.subtitulo,
+                });
+            },
+        };
+    })
+);
+
+// --- Cache de modales de libros (se crean on-demand, una vez) ---
+
+const librosCache = {};
+
+function crearHeroarioModal() {
+    const entidades = adaptarEntidades();
+    const heroario = crearLibro({
+        entidades: entidades,
+        generarDetalle: generarDetalleHeroe,
+        claseRaiz: 'libro-heroes',
+        titulo: 'Heroario',
+        subtitulo: 'La enciclopedia de los héroes',
+        paginasExtras: HABITACIONES_HEROARIO,
+        tituloExtras: 'Desafíos',
+        tituloEntidades: 'Héroes',
+        paginaInicio: {
+            textoIndice: '\u2726 Bienvenida',
+            textoSeccion: 'Bienvenida',
+            generarContenido: generarIntro,
+        },
+    });
+    const modal = crearModalLibro(heroario.libro, heroario.manejarTecladoLibro);
+    contenedorJuego.appendChild(modal.overlay);
+    return modal;
 }
 
-// Escuchar selección de héroe desde el Heroario
-document.addEventListener('heroe-seleccionado', function (e) {
-    estado.personajeElegido = e.detail.nombre;
-    iniciarJuego();
-});
+function crearVillanarioModal() {
+    const villanario = crearLibro({
+        entidades: ENEMIGOS,
+        generarDetalle: generarDetalleVillano,
+        claseRaiz: 'libro-villanos',
+        ordenar: ordenarPorTier,
+        crearItemIndice: textoItemIndice,
+        crearSeparador: necesitaSeparador,
+        titulo: 'Villanario',
+        subtitulo: 'La enciclopedia de villanos',
+        gruposEntidades: ORDEN_TIER.map(function (tier) {
+            return { id: tier, texto: TIERS[tier].emoji + ' ' + TIERS[tier].label };
+        }),
+        getGrupoEntidad: function (nombre, datos) {
+            return datos.tier || 'esbirro';
+        },
+    });
+    const modal = crearModalLibro(villanario.libro, villanario.manejarTecladoLibro);
+    contenedorJuego.appendChild(modal.overlay);
+    return modal;
+}
 
-// Escuchar cambios de inventario desde las habitaciones
-document.addEventListener('inventario-cambio', function () {
-    if (estado.jugadorActual) {
-        barra.actualizarInventario(estado.jugadorActual);
+function crearJuegosModal() {
+    const juegos = crearLibroJuegos(contenedorJuego, function (numeroJuego, nombrePersonaje) {
+        // Cerrar el modal del libro y luego iniciar el juego
+        const modalJuegos = librosCache['juegos'];
+        if (modalJuegos) modalJuegos.cerrar();
+        iniciarJuego(numeroJuego, nombrePersonaje);
+    });
+    const modal = crearModalLibro(juegos.libro, juegos.manejarTecladoLibro);
+    contenedorJuego.appendChild(modal.overlay);
+    return modal;
+}
+
+function obtenerModalLibro(libroId) {
+    if (librosCache[libroId]) return librosCache[libroId];
+
+    let modal;
+    if (libroId === 'heroario') {
+        modal = crearHeroarioModal();
+    } else if (libroId === 'villanario') {
+        modal = crearVillanarioModal();
+    } else if (libroId === 'juegos') {
+        modal = crearJuegosModal();
     }
-});
 
-// Escuchar cambios de vida (trampas, combate, etc.)
+    if (modal) librosCache[libroId] = modal;
+    return modal;
+}
+
+// --- Escuchar cambios de vida (trampas, combate, etc.) ---
+
 document.addEventListener('vida-cambio', function () {
     if (estado.jugadorActual) {
         barra.actualizarVida(estado.jugadorActual);
@@ -147,7 +218,6 @@ document.addEventListener('vida-cambio', function () {
 document.addEventListener('jugador-muerto', function () {
     if (!estado.jugadorActual) return;
 
-    // Buscar la pantalla de habitación activa como contenedor del modal
     const pantallaHabitacion = estado.habitacionActual
         ? document.getElementById('pantalla-habitacion' + estado.habitacionActual)
         : null;
@@ -157,102 +227,64 @@ document.addEventListener('jugador-muerto', function () {
 
 // --- Máquina de estados: transiciones centralizadas ---
 
-// Elegir estilo de transición según el cambio de pantalla
 function elegirTransicion(anterior, nuevo) {
-    if (nuevo === ESTADOS.HABITACION) return 'iris';
-    if (anterior === ESTADOS.HABITACION) return 'iris';
-    if (anterior === ESTADOS.SELECCION && nuevo === ESTADOS.PASILLO) return 'wipe';
+    if (nuevo === ESTADOS.JUEGO) return 'iris';
+    if (anterior === ESTADOS.JUEGO) return 'iris';
     return 'fade';
 }
 
-// Lógica interna del cambio de estado (se ejecuta con pantalla cubierta)
 function ejecutarCambioEstado(anterior, nuevo, datos) {
     // Salir del estado anterior
-    if (anterior === ESTADOS.PASILLO) {
-        estado.loopActivo = false;
-        limpiarProximidadPuertas();
-        dpad.ocultar();
-        librosPasillo.ocultar();
-    } else if (anterior === ESTADOS.HABITACION) {
+    if (anterior === ESTADOS.JUEGO) {
         const hab = habitaciones[estado.habitacionActual];
         if (hab) hab.limpiar();
         dpad.ocultar();
         estado.habitacionActual = null;
+        estado.jugadorActual = null;
+        barra.ocultar();
     }
 
     estado.estadoActual = nuevo;
 
     // Entrar al nuevo estado
-    if (nuevo === ESTADOS.SELECCION) {
-        document.getElementById('pantalla-juego').classList.add('oculto');
-        document.getElementById('seleccion-personaje').classList.remove('oculto');
-        barra.ocultar();
+    if (nuevo === ESTADOS.BIBLIOTECA) {
+        estante.mostrar();
+        estado.libroActivo = null;
+    } else if (nuevo === ESTADOS.LIBRO) {
+        estante.mostrar(); // El estante permanece visible detrás del modal
 
-        if (estado.jugadorActual) {
-            estado.jugadorActual.vidaActual = estado.jugadorActual.vidaMax;
-            estado.jugadorActual.inventario = [];
+        const libroId = datos.libroId;
+        estado.libroActivo = libroId;
+
+        const modal = obtenerModalLibro(libroId);
+        if (modal) {
+            modal.onCerrar(function () {
+                if (estado.estadoActual === ESTADOS.LIBRO) {
+                    estado.estadoActual = ESTADOS.BIBLIOTECA;
+                    estado.libroActivo = null;
+                }
+            });
+            modal.abrir();
         }
+    } else if (nuevo === ESTADOS.JUEGO) {
+        estante.ocultar();
 
-        estado.personajeElegido = null;
-        estado.jugadorActual = null;
-        Object.keys(movimiento.teclas).forEach(function (k) {
-            delete movimiento.teclas[k];
-        });
-    } else if (nuevo === ESTADOS.PASILLO) {
-        if (anterior === ESTADOS.SELECCION) {
-            // Primera entrada: configurar personaje
-            document.getElementById('seleccion-personaje').classList.add('oculto');
-
-            estado.jugadorActual = PERSONAJES[estado.personajeElegido];
-            imgJugador.src = estado.jugadorActual.img;
-            imgJugador.alt = estado.personajeElegido;
-
-            personajeJugador.classList.remove(
-                'jugador-lina',
-                'jugador-rose',
-                'jugador-pandajuro',
-                'jugador-hana',
-                'jugador-kira',
-                'jugador-donbu'
-            );
-            personajeJugador.classList.add(estado.jugadorActual.clase);
-        }
-
-        // Hacer visible ANTES de calcular dimensiones (clientWidth es 0 si está oculto)
-        document.getElementById('pantalla-juego').classList.remove('oculto');
-
-        // Recalcular dimensiones cacheadas (el pasillo ya es visible)
-        recalcularDimensiones();
-
-        if (anterior === ESTADOS.SELECCION) {
-            movimiento.limiteDerecho = pasillo.clientWidth - tamPersonajeCache;
-            movimiento.limiteInferior = pasillo.clientHeight - tamPersonajeCache;
-            movimiento.x = (pasillo.clientWidth - tamPersonajeCache) / 2;
-            movimiento.y = pasillo.clientHeight - tamPersonajeCache - 15;
-            actualizarPosicion();
-
-            barra.mostrar(estado.jugadorActual);
-        }
-
-        // Activar D-pad touch apuntando a las teclas del pasillo
-        dpad.setTeclasRef(movimiento.teclas);
-        dpad.mostrar();
-
-        librosPasillo.mostrar();
-
-        estado.loopActivo = true;
-        requestAnimationFrame(gameLoop);
-    } else if (nuevo === ESTADOS.HABITACION) {
         const hab = habitaciones[datos.numero];
         if (!hab) return;
 
-        document.getElementById('pantalla-juego').classList.add('oculto');
         estado.habitacionActual = datos.numero;
+        estado.jugadorActual = PERSONAJES[datos.personaje];
+        // Resetear vida para el juego
+        estado.jugadorActual.vidaActual = estado.jugadorActual.vidaMax;
+        estado.jugadorActual.inventario = [];
+
+        barra.mostrar(estado.jugadorActual);
 
         hab.iniciar(
             estado.jugadorActual,
             function () {
-                cambiarEstado(ESTADOS.PASILLO);
+                // Al salir del juego, volver al Libro de Juegos
+                cambiarEstado(ESTADOS.LIBRO, { libroId: 'juegos' });
             },
             dpad
         );
@@ -261,47 +293,40 @@ function ejecutarCambioEstado(anterior, nuevo, datos) {
 
 function cambiarEstado(nuevo, datos) {
     const anterior = estado.estadoActual;
-    const estilo = elegirTransicion(anterior, nuevo);
 
-    toast.limpiar();
-    transicion.ejecutar(estilo, function () {
+    // Transiciones solo entre juego y otros estados
+    if (nuevo === ESTADOS.JUEGO || anterior === ESTADOS.JUEGO) {
+        const estilo = elegirTransicion(anterior, nuevo);
+        toast.limpiar();
+        transicion.ejecutar(estilo, function () {
+            ejecutarCambioEstado(anterior, nuevo, datos);
+        });
+    } else {
+        // Cambios entre BIBLIOTECA y LIBRO son instantáneos (modal)
         ejecutarCambioEstado(anterior, nuevo, datos);
-    });
-}
-
-// --- Iniciar el juego ---
-
-function iniciarJuego() {
-    if (!estado.personajeElegido) return;
-    cambiarEstado(ESTADOS.PASILLO);
-}
-
-// --- Volver a selección ---
-
-function volverASeleccion() {
-    cambiarEstado(ESTADOS.SELECCION);
-}
-
-document.getElementById('btn-volver').addEventListener('click', function () {
-    if (!modalSalir.estaAbierto()) {
-        modalSalir.mostrar();
     }
-});
+}
 
-// Callbacks del modal de salir
+// --- Iniciar un juego ---
+
+function iniciarJuego(numeroJuego, nombrePersonaje) {
+    cambiarEstado(ESTADOS.JUEGO, { numero: numeroJuego, personaje: nombrePersonaje });
+}
+
+// --- Modal de salir (desde dentro de un juego) ---
+
 modalSalir.onConfirmar(function () {
-    volverASeleccion();
+    cambiarEstado(ESTADOS.BIBLIOTECA);
 });
 
-// Callback del modal de derrota: limpiar habitación y volver a selección
+// Callback del modal de derrota
 modalDerrota.onAceptar(function () {
-    cambiarEstado(ESTADOS.SELECCION);
+    cambiarEstado(ESTADOS.BIBLIOTECA);
 });
 
 // --- Controles del teclado ---
 
 document.addEventListener('keydown', function (e) {
-    // Si algún modal está abierto, delegar al componente
     if (modalDerrota.estaAbierto()) {
         modalDerrota.manejarTecla(e);
         return;
@@ -310,172 +335,8 @@ document.addEventListener('keydown', function (e) {
         modalSalir.manejarTecla(e);
         return;
     }
-    if (modal.estaAbierto()) {
-        modal.manejarTecla(e);
-        return;
-    }
-
-    // En pantalla de selección, el Heroario y Villanario manejan sus propias teclas
-    if (estado.estadoActual === ESTADOS.SELECCION) return;
-
-    if (e.key === 'Escape' && estado.estadoActual === ESTADOS.PASILLO) {
-        // Si hay un libro abierto, dejar que el libro lo maneje
-        if (librosPasillo.estaAbierto()) return;
-        modalSalir.mostrar();
-        return;
-    }
-
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-        movimiento.teclas[e.key] = true;
-    }
 });
 
-document.addEventListener('keyup', function (e) {
-    delete movimiento.teclas[e.key];
-});
+// --- Inicializar: mostrar biblioteca ---
 
-// --- Game loop ---
-
-function gameLoop() {
-    if (!estado.loopActivo) return;
-
-    let dx = 0;
-    let dy = 0;
-
-    const vel = getVelocidad();
-
-    if (movimiento.teclas['ArrowUp']) dy -= vel;
-    if (movimiento.teclas['ArrowDown']) dy += vel;
-    if (movimiento.teclas['ArrowLeft']) dx -= vel;
-    if (movimiento.teclas['ArrowRight']) dx += vel;
-
-    const seMueve = dx !== 0 || dy !== 0;
-
-    if (seMueve) {
-        moverPersonaje(dx, dy);
-    }
-
-    // Clase de movimiento para animación de caminar
-    personajeJugador.classList.toggle('moviendo', seMueve);
-
-    // Detectar colisión y proximidad con puertas
-    detectarColisionPuertas();
-    actualizarProximidadPuertas();
-
-    requestAnimationFrame(gameLoop);
-}
-
-// --- Movimiento con colisiones ---
-
-function moverPersonaje(dx, dy) {
-    let nuevaX = movimiento.x + dx;
-    let nuevaY = movimiento.y + dy;
-
-    // Limitar a los bordes del pasillo
-    if (nuevaX < 0) nuevaX = 0;
-    if (nuevaX > movimiento.limiteDerecho) nuevaX = movimiento.limiteDerecho;
-    if (nuevaY < 0) nuevaY = 0;
-    if (nuevaY > movimiento.limiteInferior) nuevaY = movimiento.limiteInferior;
-
-    movimiento.x = nuevaX;
-    movimiento.y = nuevaY;
-    actualizarPosicion();
-}
-
-function actualizarPosicion() {
-    personajeJugador.style.transform = `translate(${movimiento.x}px, ${movimiento.y}px)`;
-
-    // Escalar sombra según posición Y (más grande abajo, más chica arriba)
-    if (jugadorSombra && movimiento.limiteInferior > 0) {
-        const progreso = movimiento.y / movimiento.limiteInferior;
-        const escala = 0.6 + progreso * 0.5;
-        jugadorSombra.style.transform = `scaleX(${escala}) scaleY(${escala * 0.6})`;
-    }
-}
-
-// --- Proximidad de puertas ---
-
-function actualizarProximidadPuertas() {
-    const tam = tamPersonajeCache;
-    const centroX = movimiento.x + tam / 2;
-    const centroY = movimiento.y + tam / 2;
-
-    for (let i = 0; i < puertasCache.length; i++) {
-        const p = puertasCache[i];
-        const puertaCX = p.px + p.pw / 2;
-        const puertaCY = p.py + p.ph / 2;
-        const distX = (centroX - puertaCX) / tam;
-        const distY = (centroY - puertaCY) / tam;
-        const dist = Math.sqrt(distX * distX + distY * distY);
-
-        p.elemento.classList.toggle('puerta-cerca', dist < DISTANCIA_PROXIMIDAD);
-    }
-}
-
-function limpiarProximidadPuertas() {
-    document.querySelectorAll('.puerta-cerca').forEach(function (p) {
-        p.classList.remove('puerta-cerca');
-    });
-    personajeJugador.classList.remove('moviendo');
-}
-
-// --- Detección de colisión con puertas ---
-
-function detectarColisionPuertas() {
-    let tocandoAlguna = false;
-    const tam = tamPersonajeCache;
-
-    for (let i = 0; i < puertasCache.length; i++) {
-        const p = puertasCache[i];
-
-        const colisiona =
-            movimiento.x < p.px + p.pw &&
-            movimiento.x + tam > p.px &&
-            movimiento.y < p.py + p.ph &&
-            movimiento.y + tam > p.py;
-
-        if (colisiona) {
-            tocandoAlguna = true;
-            if (!estado.esperandoSalirDePuerta && !modal.estaAbierto()) {
-                estado.loopActivo = false;
-                modal.mostrar(p.elemento.dataset.puerta);
-            }
-        }
-    }
-
-    if (!tocandoAlguna) {
-        estado.esperandoSalirDePuerta = false;
-    }
-}
-
-// --- Clic en las puertas ---
-
-document.querySelectorAll('.puerta').forEach(function (puerta) {
-    puerta.addEventListener('click', function () {
-        if (!modal.estaAbierto()) {
-            estado.loopActivo = false;
-            modal.mostrar(puerta.dataset.puerta);
-        }
-    });
-});
-
-// --- Callbacks del modal ---
-
-modal.onCancelar(function () {
-    estado.esperandoSalirDePuerta = true;
-    estado.loopActivo = true;
-    requestAnimationFrame(gameLoop);
-});
-
-modal.onEntrar(function (numeroPuerta) {
-    estado.esperandoSalirDePuerta = true;
-
-    if (habitaciones[numeroPuerta]) {
-        cambiarEstado(ESTADOS.HABITACION, { numero: numeroPuerta });
-    } else {
-        // Habitación no implementada
-        estado.loopActivo = true;
-        requestAnimationFrame(gameLoop);
-    }
-});
+estante.mostrar();

@@ -78,7 +78,7 @@ import {
 } from './particulas.js';
 import { iniciarSpritesJugador, iniciarSpritesEnemigos, limpiarSprites } from './spritesPlat.js';
 import { lanzarToast } from '../../componentes/toast.js';
-import { notificarInventarioCambio } from '../../eventos.js';
+
 import { crearGameLoop } from '../../utils.js';
 
 const TAM = CFG.tiles.tamano;
@@ -200,16 +200,8 @@ function verificarVictoria() {
 
     if (detectarMetaTile()) {
         est.activo = false;
-        if (!est.jugador.inventario.includes(CFG.meta.itemInventario)) {
-            est.jugador.inventario.push(CFG.meta.itemInventario);
-            notificarInventarioCambio();
-        }
         actualizarHUDInventario(est.jugador.inventario);
-        lanzarToast(
-            '\u00a1Llave obtenida! Escapando...',
-            '<img src="assets/img/llaves/llave-abismo.webp" alt="Llave" class="toast-llave-img">',
-            'exito'
-        );
+        lanzarToast('\u00a1Desafío superado! Escapando...', '\u2728', 'exito');
 
         const salir = est.callbackSalir;
         est.timeoutIds.push(

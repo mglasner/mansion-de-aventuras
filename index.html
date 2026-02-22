@@ -5,21 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta
             name="description"
-            content="La Mansión de Aventuras - Un juego web de aventura y misterio para toda la familia"
+            content="Biblioteca de aventuras - Explora libros, elige héroes y supera desafíos"
         />
-        <meta name="theme-color" content="#1a0a2e" />
+        <meta name="theme-color" content="#5a3a1a" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta property="og:title" content="La Mansión de Aventuras" />
-        <meta
-            property="og:description"
-            content="Juego web de aventura y misterio para toda la familia"
-        />
+        <meta property="og:title" content="Biblioteca de Aventuras" />
+        <meta property="og:description" content="Explora libros, elige héroes y supera desafíos" />
         <meta property="og:url" content="https://mglasner.github.io/mansion-de-aventuras/" />
-        <title>La Mansión de Aventuras</title>
+        <title>Biblioteca de Aventuras</title>
         <link
             rel="preload"
-            href="assets/fonts/medievalsharp-400-latin.woff2"
+            href="assets/fonts/lora-variable-latin.woff2"
             as="font"
             type="font/woff2"
             crossorigin
@@ -38,147 +35,7 @@
     </head>
     <body>
         <div id="juego">
-            <!-- Pantalla de selección de personaje -->
-            <div id="seleccion-personaje"></div>
-
-            <!-- Pantalla del pasillo (oculta al inicio) -->
-            <div id="pantalla-juego" class="oculto">
-                <div class="cabecera-habitacion">
-                    <button
-                        id="btn-volver"
-                        class="btn-huir"
-                        title="Volver a elegir personaje (Esc)"
-                        aria-label="Volver al menú"
-                    >
-                        <img src="assets/img/icons/btn-salir.webp" alt="" class="btn-huir-icono" />
-                    </button>
-                    <h2 class="titulo-habitacion">El Pasillo</h2>
-                </div>
-
-                <div id="pasillo">
-                    <!-- Ventana gótica al fondo -->
-                    <div class="pasillo-ventana">
-                        <div class="ventana-cielo">
-                            <div class="ventana-luna"></div>
-                            <div class="ventana-estrella ventana-estrella-1"></div>
-                            <div class="ventana-estrella ventana-estrella-2"></div>
-                            <div class="ventana-estrella ventana-estrella-3"></div>
-                        </div>
-                    </div>
-
-                    <!-- Enredaderas decorativas -->
-                    <div class="enredadera enredadera-izq"></div>
-                    <div class="enredadera enredadera-der"></div>
-
-                    <!-- Alfombra central -->
-                    <div class="pasillo-alfombra"></div>
-
-                    <!-- Cuadros misteriosos -->
-                    <div class="deco-cuadro deco-cuadro-izq">
-                        <div class="cuadro-marco">
-                            <img
-                                src="assets/img/pasillo/cuadro-retrato.webp"
-                                alt="Retrato misterioso"
-                            />
-                        </div>
-                    </div>
-                    <div class="deco-cuadro deco-cuadro-der">
-                        <div class="cuadro-marco">
-                            <img
-                                src="assets/img/pasillo/cuadro-castillo.webp"
-                                alt="Castillo encantado"
-                            />
-                        </div>
-                    </div>
-
-                    <!-- Antorchas superiores -->
-                    <div class="antorcha antorcha-izq antorcha-1">
-                        <div class="antorcha-soporte"></div>
-                        <div class="antorcha-llama"></div>
-                        <div class="antorcha-luz"></div>
-                    </div>
-                    <div class="antorcha antorcha-der antorcha-2">
-                        <div class="antorcha-soporte"></div>
-                        <div class="antorcha-llama"></div>
-                        <div class="antorcha-luz"></div>
-                    </div>
-
-                    <!-- Puertas del lado izquierdo -->
-                    <div class="puerta puerta-izquierda puerta-1" data-puerta="1">
-                        <div class="puerta-marco">
-                            <div class="puerta-hoja">
-                                <div class="puerta-detalle"></div>
-                                <div class="puerta-tirador"></div>
-                            </div>
-                        </div>
-                        <div class="puerta-brillo"></div>
-                        <span class="puerta-numero">1</span>
-                    </div>
-                    <div class="puerta puerta-izquierda puerta-3" data-puerta="3">
-                        <div class="puerta-marco">
-                            <div class="puerta-hoja">
-                                <div class="puerta-detalle"></div>
-                                <div class="puerta-tirador"></div>
-                            </div>
-                        </div>
-                        <div class="puerta-brillo"></div>
-                        <span class="puerta-numero">3</span>
-                    </div>
-
-                    <!-- Puertas del lado derecho -->
-                    <div class="puerta puerta-derecha puerta-2" data-puerta="2">
-                        <div class="puerta-marco">
-                            <div class="puerta-hoja">
-                                <div class="puerta-detalle"></div>
-                                <div class="puerta-tirador"></div>
-                            </div>
-                        </div>
-                        <div class="puerta-brillo"></div>
-                        <span class="puerta-numero">2</span>
-                    </div>
-                    <div class="puerta puerta-derecha puerta-4" data-puerta="4">
-                        <div class="puerta-marco">
-                            <div class="puerta-hoja">
-                                <div class="puerta-detalle"></div>
-                                <div class="puerta-tirador"></div>
-                            </div>
-                        </div>
-                        <div class="puerta-brillo"></div>
-                        <span class="puerta-numero">4</span>
-                    </div>
-
-                    <!-- Partículas de polvo flotante -->
-                    <div class="polvo polvo-1"></div>
-                    <div class="polvo polvo-2"></div>
-                    <div class="polvo polvo-3"></div>
-                    <div class="polvo polvo-4"></div>
-                    <div class="polvo polvo-5"></div>
-                    <div class="polvo polvo-6"></div>
-                    <div class="polvo polvo-7"></div>
-                    <div class="polvo polvo-8"></div>
-                    <div class="polvo polvo-9"></div>
-                    <div class="polvo polvo-10"></div>
-                    <div class="polvo polvo-11"></div>
-                    <div class="polvo polvo-12"></div>
-                    <div class="polvo polvo-13"></div>
-                    <div class="polvo polvo-14"></div>
-
-                    <!-- Capas de niebla -->
-                    <div class="niebla-capa niebla-capa-1"></div>
-                    <div class="niebla-capa niebla-capa-2"></div>
-
-                    <!-- Personaje del jugador -->
-                    <div id="personaje-jugador">
-                        <div class="jugador-luz"></div>
-                        <div class="jugador-sombra"></div>
-                        <img id="img-jugador" src="" alt="Jugador" />
-                    </div>
-                </div>
-
-                <p id="controles-hint">Usa las flechas ← ↑ ↓ → para moverte · Esc para volver</p>
-            </div>
-
-            <!-- Barra superior, modal y habitaciones se crean desde JS (componentes) -->
+            <div id="biblioteca"></div>
         </div>
 
         <script type="module" src="js/juego.js"></script>

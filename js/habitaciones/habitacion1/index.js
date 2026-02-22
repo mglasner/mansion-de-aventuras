@@ -17,7 +17,7 @@ import {
 import { iniciarTrasgo, actualizarTrasgo, renderizarTrasgo } from './trasgo.js';
 import { iniciarCountdown, actualizarVillanoElite, limpiarVillanoElite } from './villanoElite.js';
 import { lanzarToast } from '../../componentes/toast.js';
-import { notificarInventarioCambio } from '../../eventos.js';
+
 import { crearPantallaHabitacion } from '../../componentes/pantallaHabitacion.js';
 import { crearElemento, crearGameLoop } from '../../utils.js';
 
@@ -317,15 +317,7 @@ function detectarLlave() {
         est.indicador.appendChild(document.createTextNode(' ' + CFG.textos.indicadorLlaveObtenida));
         est.indicador.classList.add('llave-obtenida');
 
-        if (!est.jugador.inventario.includes(CFG.meta.itemInventario)) {
-            est.jugador.inventario.push(CFG.meta.itemInventario);
-            notificarInventarioCambio();
-        }
-        lanzarToast(
-            CFG.textos.toastLlave,
-            '<img src="assets/img/llaves/llave-laberinto.webp" alt="Llave" class="toast-llave-img">',
-            'item'
-        );
+        lanzarToast(CFG.textos.toastLlave, '\uD83D\uDD11', 'item');
     }
 }
 

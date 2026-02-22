@@ -21,8 +21,8 @@ export function crearPantallaHabitacion(id, clase, titulo, onHuir) {
 
     const btnHuir = document.createElement('button');
     btnHuir.className = 'btn-huir';
-    btnHuir.title = 'Huir al pasillo (Esc)';
-    btnHuir.setAttribute('aria-label', 'Huir al pasillo');
+    btnHuir.title = 'Volver al libro (Esc)';
+    btnHuir.setAttribute('aria-label', 'Volver al libro');
     const imgHuir = document.createElement('img');
     imgHuir.src = 'assets/img/icons/btn-salir.webp';
     imgHuir.alt = '';

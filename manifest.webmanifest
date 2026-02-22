@@ -1,13 +1,13 @@
 {
-    "name": "La Mansión de Aventuras",
-    "short_name": "Mansión Aventuras",
-    "description": "Juego web de aventura y misterio para toda la familia",
+    "name": "Biblioteca de Aventuras",
+    "short_name": "Biblioteca",
+    "description": "Explora libros, elige héroes y supera desafíos",
     "start_url": "/mansion-de-aventuras/",
     "scope": "/mansion-de-aventuras/",
     "display": "standalone",
     "orientation": "any",
-    "background_color": "#1a0a2e",
-    "theme_color": "#1a0a2e",
+    "background_color": "#f5ead6",
+    "theme_color": "#5a3a1a",
     "icons": [
         {
             "src": "assets/img/icons/icon-192.png",

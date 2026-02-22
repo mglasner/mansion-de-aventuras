@@ -1,6 +1,6 @@
-# La Mansión de Aventuras
+# Biblioteca de Aventuras
 
-Videojuego web creado como proyecto familiar para aprender HTML, CSS y JavaScript.
+Plataforma narrativa interactiva con metáfora de biblioteca personal, creada como proyecto familiar para aprender HTML, CSS y JavaScript.
 
 ## Estructura del proyecto
 
@@ -10,10 +10,8 @@ mansion-de-aventuras/
 │   └── img/
 │       ├── personajes/       # Avatares (.webp) de los personajes jugables
 │       ├── enemigos/         # Avatares (.webp) de los enemigos
-│       ├── sprites-plat/     # Sprite sheets PNG para el platformer (hab4)
-│       ├── habitaciones/     # Ilustraciones de habitaciones para el Heroario
-│       ├── llaves/           # Imágenes de llaves por habitación
-│       ├── pasillo/          # Decoraciones del pasillo (cuadros, enredaderas)
+│       ├── sprites-plat/     # Sprite sheets PNG para el platformer
+│       ├── habitaciones/     # Ilustraciones de juegos para el Heroario
 │       └── icons/            # Favicon e iconos PWA
 ├── datos/                    # Fuente de verdad en YAML (genera JS via build-datos)
 │   ├── personajes.yaml       # Personajes jugables: stats, colores, descripciones
@@ -26,17 +24,25 @@ mansion-de-aventuras/
 │   ├── entidades.js          # Clases base: Entidad, Personaje, Enemigo
 │   ├── personajes.js         # ⚙️ Generado desde datos/personajes.yaml
 │   ├── enemigos.js           # ⚙️ Generado desde datos/enemigos.yaml
-│   ├── juego.js              # Lógica principal, coordina componentes y game loop
-│   ├── laberinto.js          # Generador procedural de laberintos (hab1 y hab2)
+│   ├── juego.js              # State machine central: BIBLIOTECA → LIBRO → JUEGO
+│   ├── laberinto.js          # Generador procedural de laberintos
 │   ├── eventos.js            # Nombres de eventos custom centralizados
 │   ├── utils.js              # Utilidades compartidas
-│   ├── componentes/          # ~17 componentes UI (crean su propio HTML desde JS)
-│   ├── habitaciones/         # 4 subdirectorios, uno por habitación
-│   │   ├── habitacion1/      # El Laberinto (6 módulos)
-│   │   ├── habitacion2/      # El Laberinto 3D (4 módulos)
-│   │   ├── habitacion3/      # El Memorice (4 módulos)
-│   │   └── habitacion4/      # El Abismo — platformer (15 módulos)
-│   └── motor3d/              # Motor raycasting estilo Doom para hab2 (11 módulos)
+│   ├── componentes/          # Componentes UI (crean su propio HTML desde JS)
+│   │   ├── estante.js        # Homepage: mueble con lomos de libros
+│   │   ├── modalPrevia.js    # Preview de portada antes de abrir libro
+│   │   ├── libroJuegos.js    # Libro de Juegos con selector de héroe
+│   │   ├── modalLibro.js     # Modal reutilizable para mostrar libros
+│   │   ├── libro.js          # Motor genérico de libro (índice + detalle)
+│   │   ├── libroHeroes.js    # Heroario (contenido y páginas)
+│   │   ├── libroVillanos.js  # Villanario (contenido y páginas)
+│   │   └── ...               # barraSuperior, modalSalir, modalDerrota, etc.
+│   ├── habitaciones/         # 4 juegos autocontenidos
+│   │   ├── habitacion1/      # El Laberinto (laberinto 2D)
+│   │   ├── habitacion2/      # El Laberinto 3D (raycasting)
+│   │   ├── habitacion3/      # El Memorice (memoria)
+│   │   └── habitacion4/      # El Abismo (platformer 2D)
+│   └── motor3d/              # Motor raycasting estilo Doom para hab2
 ├── scripts/
 │   ├── build-datos.js        # YAML → JS (personajes, enemigos, configs)
 │   ├── build-html.js         # Reescribe rutas para producción
@@ -45,7 +51,7 @@ mansion-de-aventuras/
 │   ├── optimizar-imagenes.js # Optimización de imágenes
 │   ├── procesar-sprites.cjs  # Extrae frames de sprite sheets IA
 │   └── ensamblar-sprites.cjs # Ensambla strip final de sprites
-├── index.html                # Estructura de las pantallas del juego
+├── index.html                # Estructura mínima: #juego > #biblioteca
 ├── estilos.css               # Estilos visuales y animaciones
 ├── sw.js                     # Service Worker (cache strategies)
 ├── manifest.webmanifest      # Manifest PWA
@@ -58,6 +64,22 @@ mansion-de-aventuras/
 - Build de producción: esbuild (bundle + minificación)
 - Deploy: GitHub Actions → GitHub Pages
 
+## Flujo de navegación
+
+```text
+Estante (homepage) → Preview modal → Libro abierto (modal)
+                                         ↓ (Libro de Juegos)
+                                    Elegir héroe + Jugar → Juego (fullscreen)
+                                         ↑ (ganar/perder/huir)
+```
+
+**Estados de la state machine** (`js/juego.js`):
+- **BIBLIOTECA**: Homepage con estante de madera y 3 lomos de libros
+- **LIBRO**: Libro abierto en modal (Heroario, Villanario, o Libro de Juegos)
+- **JUEGO**: Juego en pantalla completa (los 4 desafíos)
+
+La selección de héroe ocurre dentro del Libro de Juegos (cada página de juego tiene un selector de avatares + botón "Jugar"). Los juegos son independientes, sin llaves secuenciales.
+
 ## Personajes y enemigos
 
 Definidos en `datos/personajes.yaml` y `datos/enemigos.yaml` respectivamente. El script `build-datos` genera los archivos JS a partir de estos YAML.
@@ -66,14 +88,12 @@ Cada personaje tiene: nombre, edad, vida, velocidad, estatura, clase CSS (`jugad
 
 Cada enemigo tiene: nombre, tier (`esbirro`/`elite`/`pesadilla`), vida, ataques, descripción y avatar `.webp` en `assets/img/enemigos/`.
 
-## Pantallas implementadas
+## Los 4 juegos (desafíos)
 
-1. **Selección de personaje** — Elegir personaje con animaciones al seleccionar
-2. **Pasillo** — Pasillo con 4 puertas, movimiento con flechas/D-pad, Heroario y Villanario como libros flotantes
-3. **Habitación 1: El Laberinto** — Laberinto 2D procedural (17×17) con trampas, esbirros y villano elite
-4. **Habitación 2: El Laberinto 3D** — Laberinto en primera persona (raycasting estilo Doom, 13×13) con trampas de fuego
-5. **Habitación 3: El Memorice** — Juego de memoria 4×5, emparejar héroes con villanos en 30 intentos
-6. **Habitación 4: El Abismo** — Platformer 2D side-scrolling en canvas 480×270, con esbirros, boss final y llaves
+1. **El Laberinto** — Laberinto 2D procedural (17×17) con trampas, esbirros y villano elite
+2. **El Laberinto 3D** — Laberinto en primera persona (raycasting estilo Doom, 13×13) con trampas de fuego
+3. **El Memorice** — Juego de memoria 4×5, emparejar héroes con villanos en 30 intentos
+4. **El Abismo** — Platformer 2D side-scrolling en canvas 480×270, con esbirros y boss final
 
 ## Tono y contenido (apto para niños)
 
@@ -133,11 +153,6 @@ esbuild genera la carpeta `dist/` con todo optimizado:
 | `build:css`   | `estilos.css`                     | `dist/estilos.min.css`                                             |
 | `build:html`  | `index.html`, `assets/`, `sw.js`  | `dist/index.html` (rutas reescritas), `dist/assets/`, `dist/sw.js` |
 
-El script `scripts/build-html.js` reescribe las rutas en el HTML:
-
-- `estilos.css` → `estilos.min.css`
-- `js/juego.js` → `juego.min.js`
-
 La carpeta `dist/` está en `.gitignore` — nunca se commitea.
 
 ### Deploy (GitHub Actions → GitHub Pages)
@@ -148,10 +163,7 @@ Archivo: `.github/workflows/deploy.yml`
 Push a main → GitHub Actions ejecuta npm run build → dist/ se despliega a GitHub Pages
 ```
 
-**Configuración requerida en GitHub**: Settings → Pages → Source: **GitHub Actions**
-
 - **URL**: https://mglasner.github.io/mansion-de-aventuras/
-- **Redirect**: `mglasner.github.io` redirige al juego (repo `mglasner.github.io` con meta refresh)
 - **Repo público**: requerido por GitHub Pages en plan gratuito
 
 ### Service Worker (`sw.js`)
@@ -160,13 +172,13 @@ Estrategias diferenciadas de cache para segunda visita instantánea:
 
 - **Assets estáticos** (JS, CSS, fuentes, imágenes): cache-first
 - **HTML** (navegación): network-first con fallback a cache
-- **`/api/**`\*\* (futuro backend): network-only, nunca cachear
+- **`/api/**`** (futuro backend): network-only, nunca cachear
 
 Incrementar `CACHE_NAME` en `sw.js` para invalidar el cache en actualizaciones.
 
-## Sprites del platformer (Habitación 4)
+## Sprites del platformer (El Abismo)
 
-La Habitación 4 (El Abismo) es un platformer 2D en canvas 480×270. Personajes y enemigos usan sprite sheets PNG (strips horizontales de 48×60 px por frame), con fallback a sprites procedurales.
+El Abismo es un platformer 2D en canvas 480×270. Personajes y enemigos usan sprite sheets PNG (strips horizontales de 48×60 px por frame), con fallback a sprites procedurales.
 
 - **Sprite sheets**: `assets/img/sprites-plat/{nombre}.png`
 - **Layouts**: 9 frames (sin ataques) o 15 frames (con ataques). El valor de `frames` en `SPRITE_SHEETS` de `spritesPlat.js` determina el layout automáticamente
@@ -175,12 +187,12 @@ La Habitación 4 (El Abismo) es un platformer 2D en canvas 480×270. Personajes 
 
 ## Convenciones
 
-- Archivos e IDs en español (ej: `estilos.css`, `#seleccion-personaje`, `#btn-jugar`)
+- Archivos e IDs en español (ej: `estilos.css`, `#biblioteca`)
 - Comentarios en español
 - Cada personaje tiene su clase CSS propia (`jugador-{nombre}`) con colores y animaciones individuales; cada enemigo tiene `.villano-{nombre}`
 - Imágenes: personajes en `assets/img/personajes/`, enemigos en `assets/img/enemigos/`, sprites en `assets/img/sprites-plat/` (todas `.webp` excepto sprites que son `.png`)
 - Código simple y comentado para fines educativos
 - **Componentes**: Módulos JS que crean su propio HTML con DOM API, exportan una función `crear*(contenedor)` que retorna un objeto con métodos (mostrar, ocultar, actualizar, etc.)
-- **Habitaciones**: Módulos autocontenidos que crean/destruyen su pantalla al entrar/salir. Se comunican con juego.js mediante callbacks y eventos custom (`document.dispatchEvent`)
-- **Heroario ↔ Habitaciones**: El Heroario (`js/componentes/libroHeroes.js`) contiene descripciones de cada habitación en `HABITACIONES_HEROARIO`. Al modificar la mecánica o contenido de una habitación, verificar que las descripciones del Heroario sigan siendo consistentes
+- **Juegos**: Módulos autocontenidos que crean/destruyen su pantalla al entrar/salir. Se comunican con juego.js mediante callbacks y eventos custom (`document.dispatchEvent`)
+- **Heroario ↔ Juegos**: El Heroario (`js/componentes/libroHeroes.js`) contiene descripciones de cada juego en `HABITACIONES_HEROARIO`. Al modificar la mecánica o contenido de un juego, verificar que las descripciones del Heroario sigan siendo consistentes
 - **Revisión pre-commit**: Después de escribir o refactorizar código, ejecutar primero los linters (`npm run lint:fix && npm run lint:css:fix && npm run format`) y luego la skill `/review-code` antes de hacer commit

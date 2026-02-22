@@ -1,5 +1,5 @@
-// Componente: Modal de confirmación para salir del pasillo
-// Advierte al jugador que perderá su avance si vuelve al menú
+// Componente: Modal de confirmación para salir del juego
+// Advierte al jugador que perderá su progreso si sale del desafío
 
 export function crearModalSalir(contenedor) {
     let botonSeleccionado = 1; // Foco inicial en "Seguir jugando"
@@ -26,18 +26,17 @@ export function crearModalSalir(contenedor) {
     iconoDiv.textContent = '\u26A0\uFE0F';
 
     const titulo = document.createElement('h2');
-    titulo.textContent = '\u00BFVolver al men\u00FA?';
+    titulo.textContent = '\u00BFSalir del juego?';
 
     const mensaje = document.createElement('p');
-    mensaje.textContent =
-        'Perder\u00E1s todo tu avance: items e inventario. Tendr\u00E1s que empezar de nuevo.';
+    mensaje.textContent = 'Perder\u00E1s el progreso de este desaf\u00EDo.';
 
     const botonesDiv = document.createElement('div');
     botonesDiv.className = 'modal-botones';
 
     const btnConfirmar = document.createElement('button');
     btnConfirmar.className = 'modal-salir-btn-confirmar';
-    btnConfirmar.textContent = 'S\u00ED, volver';
+    btnConfirmar.textContent = 'S\u00ED, salir';
 
     const btnCancelar = document.createElement('button');
     btnCancelar.className = 'modal-salir-btn-cancelar';

@@ -3,7 +3,6 @@
 import { CFG } from './config.js';
 import { est, actualizarHUDInventarioLocal } from './estado.js';
 import { lanzarToast } from '../../componentes/toast.js';
-import { notificarInventarioCambio } from '../../eventos.js';
 
 export function detectarLlave() {
     if (est.tieneLlave) return;
@@ -22,16 +21,8 @@ export function detectarLlave() {
         est.indicador.appendChild(document.createTextNode(' ' + CFG.textos.indicadorLlaveObtenida));
         est.indicador.classList.add('llave-obtenida');
 
-        if (!est.jugador.inventario.includes(CFG.meta.itemInventario)) {
-            est.jugador.inventario.push(CFG.meta.itemInventario);
-            notificarInventarioCambio();
-        }
         actualizarHUDInventarioLocal();
-        lanzarToast(
-            CFG.textos.toastLlave,
-            '<img src="assets/img/llaves/llave-laberinto3d.webp" alt="Llave" class="toast-llave-img">',
-            'item'
-        );
+        lanzarToast(CFG.textos.toastLlave, '\uD83D\uDD11', 'item');
     }
 }
 

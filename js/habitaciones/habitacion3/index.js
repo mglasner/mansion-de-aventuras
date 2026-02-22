@@ -5,11 +5,7 @@ import { CFG } from './config.js';
 import { generarTablero } from './tablero.js';
 import { crearCarta } from './carta.js';
 import { lanzarToast } from '../../componentes/toast.js';
-import {
-    notificarVidaCambio,
-    notificarInventarioCambio,
-    notificarJugadorMuerto,
-} from '../../eventos.js';
+import { notificarVidaCambio, notificarJugadorMuerto } from '../../eventos.js';
 import { crearPantallaHabitacion } from '../../componentes/pantallaHabitacion.js';
 import { crearElemento } from '../../utils.js';
 
@@ -173,19 +169,10 @@ function onClickGrilla(e) {
 }
 
 function victoria() {
-    if (!jugador.inventario.includes(CFG.meta.itemInventario)) {
-        jugador.inventario.push(CFG.meta.itemInventario);
-        notificarInventarioCambio();
-    }
-
     // Curación bonus por ganar la partida
     curar(CFG.curacion.victoriaMin, CFG.curacion.victoriaMax);
 
-    lanzarToast(
-        CFG.textos.toastVictoria,
-        '<img src="assets/img/llaves/llave-memorice.webp" alt="Llave" class="toast-llave-img">',
-        'item'
-    );
+    lanzarToast(CFG.textos.toastVictoria, '\u2728', 'exito');
 
     setTimeout(function () {
         limpiarHabitacion3();

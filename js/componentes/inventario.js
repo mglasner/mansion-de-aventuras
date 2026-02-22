@@ -1,26 +1,9 @@
-// Componente reutilizable: Inventario con slots de llaves
-// Usado por barraSuperior (pasillo/habitaciones) y HUD in-canvas (habitación 4)
+// Componente reutilizable: Inventario de items
+// Los juegos son independientes: sin llaves secuenciales
 
-export const ITEMS_INFO = {
-    'llave-habitacion-2': {
-        img: 'assets/img/llaves/llave-laberinto.webp',
-        color: '#bb86fc',
-        slot: 0,
-    },
-    'llave-habitacion-3': {
-        img: 'assets/img/llaves/llave-laberinto3d.webp',
-        color: '#6bfc86',
-        slot: 1,
-    },
-    'llave-habitacion-4': {
-        img: 'assets/img/llaves/llave-memorice.webp',
-        color: '#e94560',
-        slot: 2,
-    },
-    'llave-habitacion-5': { img: 'assets/img/llaves/llave-abismo.webp', color: '#5eeadb', slot: 3 },
-};
+export const ITEMS_INFO = {};
 
-export const TOTAL_SLOTS = 4;
+export const TOTAL_SLOTS = 0;
 
 export function crearInventario(opciones = {}) {
     const { claseExtra = '' } = opciones;

@@ -1,5 +1,5 @@
 // Componente reutilizable: Barra de vida con corazón palpitante
-// Usado por barraSuperior (pasillo/habitaciones) y HUD in-canvas (habitación 4)
+// Usado por barraSuperior y HUD in-canvas (habitación 4)
 
 export function crearBarraVida(opciones = {}) {
     const { mostrarTexto = false, claseExtra = '' } = opciones;

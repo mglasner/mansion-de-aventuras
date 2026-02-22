@@ -57,8 +57,8 @@ export function crearModalDerrota() {
         // contenedor: elemento DOM donde montar el modal (ej: pantalla de habitación)
         mostrar: function (nombreJugador, contenedor) {
             mensaje.textContent = nombreJugador
-                ? nombreJugador + ' no sobrevivió a La Mansión de Aventuras.'
-                : 'No sobreviviste a La Mansión de Aventuras.';
+                ? nombreJugador + ' no superó el desafío.'
+                : 'No superaste el desafío.';
             contenedor.appendChild(el);
             el.classList.remove('oculto');
         },

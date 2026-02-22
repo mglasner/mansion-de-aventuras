@@ -88,7 +88,7 @@ export function generarIntro() {
     const contenido = crearElemento('div', 'libro-detalle-contenido libro-intro');
 
     contenido.appendChild(
-        crearElemento('h2', 'libro-intro-game-titulo', 'La Mansi\u00f3n de Aventuras')
+        crearElemento('h2', 'libro-intro-game-titulo', 'Biblioteca de Aventuras')
     );
     contenido.appendChild(crearElemento('div', 'libro-ornamento'));
 
@@ -97,7 +97,7 @@ export function generarIntro() {
         crearElemento(
             'p',
             null,
-            'Un juego de aventuras donde eliges a tu h\u00e9roe y exploras una mansi\u00f3n llena de misterios, trampas y villanos.'
+            'Bienvenido a la Biblioteca de Aventuras, donde encontrar\u00e1s h\u00e9roes, villanos y desaf\u00edos llenos de misterio y magia.'
         )
     );
     texto.appendChild(
@@ -107,30 +107,11 @@ export function generarIntro() {
             'En el Heroario encontrar\u00e1s a todos los h\u00e9roes disponibles. Cada uno tiene habilidades \u00fanicas para superar los desaf\u00edos que te esperan.'
         )
     );
-    const pVillanos = crearElemento('p', null);
-    const linkVillanos = crearElemento(
-        'a',
-        'libro-intro-link',
-        '\u00bfQuieres conocer a los villanos?'
-    );
-    linkVillanos.href = '#';
-    linkVillanos.addEventListener('click', function (e) {
-        e.preventDefault();
-        const btn = document.querySelector('.libro-boton');
-        if (btn) btn.click();
-    });
-    pVillanos.appendChild(linkVillanos);
-    pVillanos.appendChild(
-        document.createTextNode(
-            ' Abre el Villanario con el bot\u00f3n m\u00e1gico de abajo a la derecha.'
-        )
-    );
-    texto.appendChild(pVillanos);
     texto.appendChild(
         crearElemento(
             'p',
             'libro-intro-cta',
-            '\u00a1Elige un h\u00e9roe del \u00edndice y comienza la aventura!'
+            '\u00a1Explora los h\u00e9roes del \u00edndice y descubre sus habilidades!'
         )
     );
     contenido.appendChild(texto);
@@ -181,7 +162,7 @@ export const HABITACIONES_HEROARIO = [
                 nivel: 1,
                 img: 'assets/img/habitaciones/habitacion1.webp',
                 parrafos: [
-                    '\u00A1Bienvenido al laberinto m\u00E1s enredado de toda la mansi\u00F3n! Sus pasillos oscuros esconden una llave m\u00E1gica que necesitas para escapar.',
+                    '\u00A1Bienvenido al laberinto m\u00E1s enredado de todos! Sus pasillos oscuros esconden una llave m\u00E1gica que necesitas para escapar.',
                     'Camina con cuidado entre las paredes sombr\u00EDas. Dicen que algunos aventureros se perdieron durante horas buscando la salida...',
                     '\u00A1Cuidado! Si te cruzas con enemigos podr\u00EDas perder vida.',
                 ],
@@ -260,28 +241,12 @@ export function crearLibroHeroes(contenedor) {
         titulo: 'Heroario',
         subtitulo: 'La enciclopedia de los h\u00e9roes',
         paginasExtras: HABITACIONES_HEROARIO,
-        tituloExtras: 'Habitaciones',
+        tituloExtras: 'Desafíos',
         tituloEntidades: 'Héroes',
         paginaInicio: {
             textoIndice: '\u2726 Bienvenida',
             textoSeccion: 'Bienvenida',
             generarContenido: generarIntro,
-        },
-        pieContenido: function (paginaDer, obtenerNombreActual) {
-            const btnEmpezar = crearElemento(
-                'button',
-                'btn-empezar libro-heroes-empezar',
-                '¡Empezar!'
-            );
-            btnEmpezar.type = 'button';
-            btnEmpezar.addEventListener('click', function () {
-                document.dispatchEvent(
-                    new CustomEvent('heroe-seleccionado', {
-                        detail: { nombre: obtenerNombreActual() },
-                    })
-                );
-            });
-            paginaDer.appendChild(btnEmpezar);
         },
     });
 
